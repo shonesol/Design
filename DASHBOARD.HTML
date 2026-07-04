@@ -37,15 +37,17 @@
 <pre id="weatherResult"></pre>
 <hr>
 
-<h2>🧍 Virtual Try-On AI</h2>
+<h2>🧍 AI Pose Try-On (Advanced)</h2>
 
-<p>Upload your photo:</p>
-<input type="file" id="userPhoto">
+<video id="video" width="300" height="400" autoplay></video>
+<canvas id="canvas" width="300" height="400"></canvas>
 
-<p>Select outfit image:</p>
-<input type="file" id="clothPhoto">
+<br>
 
-<button onclick="virtualTryOn()">Try Outfit</button>
+<p>Upload clothing image:</p>
+<input type="file" id="clothPose">
+
+<button onclick="startPoseTryOn()">Start AI Try-On</button>
 
 <canvas id="canvas" width="300" height="400" style="border:1px solid black;"></canvas>
 
