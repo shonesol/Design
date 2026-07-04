@@ -1,64 +1,144 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Upload Clothes</title>
+  <meta charset="UTF-8">
+  <title>Fashion AI Dashboard</title>
+
   <link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose"></script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      background: #f5f0e6;
+      display: flex;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 220px;
+      background: #1b1b1b;
+      color: white;
+      height: 100vh;
+      padding: 20px;
+      position: fixed;
+    }
+
+    .sidebar h2 {
+      color: #c9a66b;
+    }
+
+    .sidebar button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      background: #c9a66b;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    /* MAIN */
+    .main {
+      margin-left: 240px;
+      padding: 20px;
+      width: 100%;
+    }
+
+    .card {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    input, button {
+      padding: 10px;
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    button {
+      background: #1b1b1b;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #333;
+    }
+
+    pre {
+      background: #f5f5f5;
+      padding: 10px;
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="container">
-  <h2>Upload Your Clothes</h2>
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <h2>👗 Fashion AI</h2>
 
-  <input type="file" id="file">
-  <button onclick="uploadClothes()">Upload</button>
-
-  <p id="status"></p>
+  <button onclick="showSection('upload')">Upload Clothes</button>
+  <button onclick="showSection('chat')">AI Stylist</button>
+  <button onclick="showSection('weather')">Weather AI</button>
+  <button onclick="showSection('tryon')">Try-On AI</button>
 </div>
-<hr>
 
-<h2>AI Outfit Suggestion</h2>
+<!-- MAIN -->
+<div class="main">
 
-<button onclick="getOutfitSuggestion()">Generate Outfit</button>
+  <!-- UPLOAD -->
+  <div id="upload" class="card">
+    <h2>📸 Upload Clothes</h2>
+    <input type="file" id="file">
+    <button onclick="uploadClothes()">Upload</button>
+    <p id="status"></p>
+  </div>
 
-<pre id="outfit"></pre>
-<hr>
+  <!-- CHAT -->
+  <div id="chat" class="card" style="display:none;">
+    <h2>💬 AI Stylist</h2>
+    <input type="text" id="userMsg">
+    <button onclick="sendMessage()">Ask AI</button>
+    <pre id="chatReply"></pre>
+  </div>
 
-<h2>💬 AI Fashion Stylist Chat</h2>
+  <!-- WEATHER -->
+  <div id="weather" class="card" style="display:none;">
+    <h2>🌦 Weather AI</h2>
+    <button onclick="getWeatherOutfit()">Suggest Outfit</button>
+    <pre id="weatherResult"></pre>
+  </div>
 
-<input type="text" id="userMsg" placeholder="Ask what to wear...">
-<button onclick="sendMessage()">Ask AI</button>
+  <!-- TRY ON -->
+  <div id="tryon" class="card" style="display:none;">
+    <h2>🧍 Try-On AI</h2>
 
-<pre id="chatReply"></pre>
-<hr>
+    <video id="video" width="300" height="400" autoplay></video>
+    <canvas id="canvas" width="300" height="400"></canvas>
 
-<h2>🌦 Weather Outfit AI</h2>
+    <input type="file" id="clothPose">
+    <button onclick="startPoseTryOn()">Start Try-On</button>
+  </div>
 
-<button onclick="getWeatherOutfit()">Suggest Outfit Based on Weather</button>
-<pre id="weatherResult"></pre>
-<hr>
+</div>
 
-<h2>🧍 AI Pose Try-On (Advanced)</h2>
+<script>
+function showSection(id) {
+  document.querySelectorAll(".card").forEach(c => c.style.display = "none");
+  document.getElementById(id).style.display = "block";
+}
+</script>
 
-<video id="video" width="300" height="400" autoplay></video>
-<canvas id="canvas" width="300" height="400"></canvas>
-
-<br>
-
-<p>Upload clothing image:</p>
-<input type="file" id="clothPose">
-
-<button onclick="startPoseTryOn()">Start AI Try-On</button>
-
-<canvas id="canvas" width="300" height="400" style="border:1px solid black;"></canvas>
-
-<script src="pose-tryon.js"></script>
-<script src="tryon-ai.js"></script>
-<script type="module" src="weather-ai.js"></script>
-<script type="module" src="chat-ai.js"></script>
-<script type="module" src="ai-recommend.js"></script>
 <script type="module" src="upload.js"></script>
+<script type="module" src="chat-ai.js"></script>
+<script type="module" src="weather-ai.js"></script>
+<script src="pose-tryon.js"></script>
+
 </body>
 </html>
