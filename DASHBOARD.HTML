@@ -35,7 +35,19 @@
 
 <button onclick="getWeatherOutfit()">Suggest Outfit Based on Weather</button>
 <pre id="weatherResult"></pre>
+<hr>
 
+<h2>🧍 Virtual Try-On AI</h2>
+
+<p>Upload your photo:</p>
+<input type="file" id="userPhoto">
+
+<p>Select outfit image:</p>
+<input type="file" id="clothPhoto">
+
+<button onclick="virtualTryOn()">Try Outfit</button>
+
+<canvas id="canvas" width="300" height="400" style="border:1px solid black;"></canvas>
 <script type="module" src="weather-ai.js"></script>
 <script type="module" src="chat-ai.js"></script>
 <script type="module" src="ai-recommend.js"></script>
