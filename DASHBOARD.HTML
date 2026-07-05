@@ -26,18 +26,46 @@
 
     .sidebar h2 {
       color: #c9a66b;
+ font-size: 38px;
+    font-weight: 700;
+    margin-bottom: 30px;
     }
 
-    .sidebar button {
-      width: 100%;
-      margin-top: 10px;
-      padding: 10px;
-      background: #c9a66b;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
+  .sidebar button,
+.sidebar a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 20px;
+    margin-bottom: 15px;
+    font-size: 24px;      /* Increased text size */
+    font-weight: bold;
+    color: white;
+    background: #d4af6a;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+    text-decoration: none;
     }
 
+.sidebar button:hover,
+.sidebar a:hover {
+    background: #c19a4b;
+    transform: scale(1.03);
+
+}
+
+/* Icons */
+
+.sidebar button i,
+
+.sidebar a i {
+    font-size: 28px;
+    margin-right: 12px;
+
+}
     /* MAIN */
     .main {
       margin-left: 240px;
@@ -74,6 +102,26 @@
       background: #f5f5f5;
       padding: 10px;
     }
+@media (max-width: 768px) {
+    .sidebar {
+        width: 220px;
+    }
+
+    .sidebar h2 {
+        font-size: 30px;
+    }
+
+    .sidebar button,
+    .sidebar a {
+        font-size: 20px;
+        padding: 18px;
+    }
+
+    .sidebar button i,
+    .sidebar a i {
+        font-size: 24px;
+    }
+}
   </style>
 </head>
 
