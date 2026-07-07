@@ -32,7 +32,7 @@ await getDocs(
 
 collection(
 db,
-"user",
+"users",
 user.uid,
 "wardrobe"
 
