@@ -237,3 +237,34 @@ auth.onAuthStateChanged(()=>{
 loadWardrobe();
 
 });
+<button onclick="favoriteCloth('${item.id}')">
+❤️ Favorite
+</button>
+window.favoriteCloth = async function(id){
+
+const user =
+auth.currentUser;
+
+
+await updateDoc(
+
+doc(
+db,
+"users",
+user.uid,
+"wardrobe",
+id
+),
+
+{
+
+favorite:true
+
+}
+
+);
+
+
+loadWardrobe();
+
+};
