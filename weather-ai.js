@@ -1,5 +1,5 @@
 import { db, auth } from "./firebase.js";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 window.getWeatherOutfit = async function () {
   const output = document.getElementById("weatherResult");
@@ -10,9 +10,54 @@ window.getWeatherOutfit = async function () {
     return;
   }
 
-  // 🌍 STEP 1: Get weather (Kampala default)
+  // 🌍 STEP 1: Get weather (global default)
   const weatherRes = await fetch(
-    "https://api.open-meteo.com/v1/forecast?latitude=0.3476&longitude=32.5825&current_weather=true"
+ // 🌍 GET USER LOCATION
+
+navigator.geolocation.getCurrentPosition(async(position)=>{
+
+
+const lat = position.coords.latitude;
+const lon = position.coords.longitude;
+
+
+// 🌦 GET GLOBAL WEATHER
+
+const weatherRes = await fetch(
+
+`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`
+
+);
+
+
+const weatherData = await weatherRes.json();
+
+
+const temp =
+weatherData.current_weather.temperature;
+
+
+const weatherCode =
+weatherData.current_weather.weathercode;
+
+
+// Continue with your wardrobe AI here...
+
+});
+    if(!navigator.geolocation){
+
+output.innerText =
+"Your device does not support location.";
+
+return;
+
+}
+      (error)=>{
+
+output.innerText =
+"Please allow location access for Weather AI.";
+
+}
   );
 
   const weatherData = await weatherRes.json();
@@ -24,7 +69,14 @@ window.getWeatherOutfit = async function () {
 
   let wardrobe = [];
   snapshot.forEach(doc => wardrobe.push(doc.data()));
+if (wardrobe.length === 0) {
 
+output.innerText =
+"Your wardrobe is empty. Upload clothes first.";
+
+return;
+
+}
   let outfit = "";
 
   // ☀️ HOT WEATHER
@@ -41,7 +93,12 @@ Stay cool 😎`;
   }
 
   // 🌧 RAINY WEATHER
-  else if (weatherCode >= 40 && weatherCode <= 67) {
+else if (
+weatherCode >= 51 &&
+weatherCode <= 67 ||
+weatherCode >= 80 &&
+weatherCode <= 99
+)
     let hoodie = wardrobe.find(i => i.type === "hoodie");
 
     outfit = `🌧 Rainy Weather (${temp}°C)
