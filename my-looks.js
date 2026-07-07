@@ -136,3 +136,33 @@ auth.onAuthStateChanged(()=>{
 loadLooks();
 
 });
+import {
+updateDoc,
+doc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+
+window.rateOutfit = async function(id, rating){
+
+const user = auth.currentUser;
+
+await updateDoc(
+
+doc(
+db,
+"users",
+user.uid,
+"looks",
+id
+),
+
+{
+rating:Number(rating)
+}
+
+);
+
+
+alert("Rating saved ⭐");
+
+};
