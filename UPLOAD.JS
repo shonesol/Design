@@ -1,4 +1,8 @@
 // IMPORTS
+import {
+analyzeClothing
+}
+from "./ai-analyzer.js";
 import { storage, auth, db } from "./firebase.js";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { collection, addDoc } from "firebase/firestore";
@@ -99,3 +103,5 @@ window.uploadClothes = async function () {
 
   status.innerText = "AI analyzed your clothing successfully!";
 };
+const ai =
+await analyzeClothing(url);
