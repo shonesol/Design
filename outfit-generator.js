@@ -36,9 +36,6 @@ return;
 
 }
 
-
-
-
 const snapshot =
 await getDocs(
 
@@ -147,6 +144,63 @@ new SpeechSynthesisUtterance(result);
 
 speechSynthesis.speak(speech);
 
+
+
+};
+output.innerHTML =
+`
+${result}
+
+<br><br>
+
+<button onclick="saveLook(\`${result}\`)">
+❤️ Save This Look
+</button>
+`;
+import {
+addDoc,
+collection
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+
+
+window.saveLook = async function(outfit){
+
+
+const user = auth.currentUser;
+
+
+if(!user){
+
+alert("Login first");
+
+return;
+
+}
+
+
+
+await addDoc(
+
+collection(
+db,
+"users",
+user.uid,
+"looks"
+),
+
+{
+
+outfit: outfit,
+
+createdAt: Date.now()
+
+}
+
+);
+
+
+alert("Look saved ❤️");
 
 
 };
