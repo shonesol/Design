@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>My Wardrobe AI</title>
+
+<link rel="stylesheet" href="wardrobe.css">
+
+</head>
+
+
+<body>
+
+
+<h1>👗 My AI Wardrobe</h1>
+
+
+<div class="upload-box">
+
+<h2>Add Clothes</h2>
+
+<input type="file" id="clothesImage">
+
+<input 
+type="text"
+id="category"
+placeholder="Example: Shirt, Jeans, Dress">
+
+
+<input 
+type="text"
+id="color"
+placeholder="Color">
+
+
+<button onclick="saveClothes()">
+Save Clothing
+</button>
+
+
+<p id="message"></p>
+
+</div>
+
+
+
+<h2>Your Clothes</h2>
+
+
+<div id="wardrobe"></div>
+
+
+
+<script type="module" src="wardrobe.js"></script>
+
+
+</body>
+
+</html>
