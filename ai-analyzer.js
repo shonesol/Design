@@ -1,55 +1,39 @@
-export async function analyzeClothing(imageUrl){
+export async function analyzeClothing(imageBase64){
 
 
-/*
-Later this connects to:
-- Google Vision AI
-- Gemini Vision
-- Another AI model
-*/
+const prompt = `
+
+Analyze this clothing image.
+
+Return only JSON:
+
+{
+"type":"",
+"color":"",
+"style":"",
+"occasion":"",
+"season":""
+}
+
+`;
 
 
-let result={
+// AI connection will go here
 
 
-type:"unknown",
-
-color:"unknown",
-
-style:"casual",
-
-occasion:"everyday",
-
-season:"all"
-
-
-
-};
-
-
-// Temporary demo detection
-
-if(imageUrl){
-
-result={
+return {
 
 type:"shirt",
 
-color:"blue",
+color:"white",
 
-style:"casual",
+style:"formal",
 
-occasion:"everyday",
+occasion:"office",
 
 season:"all"
 
 };
-
-}
-
-
-
-return result;
 
 
 }
