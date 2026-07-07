@@ -57,23 +57,39 @@ let data=item.data();
 box.innerHTML +=
 
 `
-
 <div class="card">
-
 
 <pre>
 ${data.outfit}
 </pre>
 
 
+<label>Rate this outfit:</label>
+
+<select onchange="rateOutfit('${item.id}', this.value)">
+
+<option>Rate</option>
+
+<option value="1">⭐</option>
+
+<option value="2">⭐⭐</option>
+
+<option value="3">⭐⭐⭐</option>
+
+<option value="4">⭐⭐⭐⭐</option>
+
+<option value="5">⭐⭐⭐⭐⭐</option>
+
+</select>
+
+
 <button onclick="deleteLook('${item.id}')">
-
 Delete
-
 </button>
 
 
 </div>
+`;</div>
 
 `;
 
