@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Virtual Try On AI</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+<div class="card">
+
+<h1>🧍 Virtual Try-On AI</h1>
+
+
+<video id="camera" autoplay playsinline></video>
+
+
+<br>
+
+
+<button onclick="startCamera()">
+Open Camera
+</button>
+
+
+
+<br><br>
+
+
+<input 
+type="file"
+id="clothImage"
+accept="image/*">
+
+
+
+<button onclick="tryOn()">
+Try Outfit
+</button>
+
+
+
+<div id="preview"></div>
+
+
+</div>
+
+
+
+<script type="module" src="tryon.js"></script>
+
+
+</body>
+
+</html>
