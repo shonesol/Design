@@ -83,8 +83,22 @@ return;
   if (temp >= 28) {
     let light = wardrobe.find(i => i.style === "casual") || wardrobe[0];
 
-    outfit = `☀️ Hot Weather (${temp}°C)
+    outfit =
+☀️ ${season} Weather (${temp}°C)
+    output.innerText = 
 
+`
+🌍 Season:
+${season}
+
+🌡 Temperature:
+${temp}°C
+
+
+👗 AI Outfit:
+
+${outfit}
+`;
 Wear:
 👕 ${light?.type} - ${light?.color}
 👖 Light and breathable clothes
