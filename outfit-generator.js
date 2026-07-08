@@ -1,3 +1,4 @@
+console.log("Outfit generator loaded");
 import { db, auth } from "./firebase.js";
 
 import {
