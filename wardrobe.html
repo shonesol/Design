@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>My Wardrobe AI</title>
+<title>My AI Wardrobe</title>
 
 <link rel="stylesheet" href="wardrobe.css">
 
@@ -15,75 +13,48 @@
 
 </head>
 
-
 <body>
-
 
 <h1>👗 My AI Wardrobe</h1>
 
-
-
 <div class="upload-box">
 
+<h2>Add Clothing</h2>
 
-<h2>Add Clothes</h2>
-
-
-
-<input 
+<input
 type="file"
 id="clothesImage"
 accept="image/*">
 
-
-
 <select id="category">
 
 <option value="shirt">👕 Shirt</option>
-
 <option value="tshirt">👕 T-Shirt</option>
-
 <option value="jeans">👖 Jeans</option>
-
-<option value="dress">👗 Dress</option>
-
-<option value="hoodie">🧥 Hoodie</option>
-
-<option value="jacket">🧥 Jacket</option>
-
-<option value="shoes">👟 Shoes</option>
-
-<option value="sneakers">👟 Sneakers</option>
-
-<option value="skirt">👗 Skirt</option>
-
 <option value="trousers">👖 Trousers</option>
+<option value="dress">👗 Dress</option>
+<option value="skirt">👗 Skirt</option>
+<option value="hoodie">🧥 Hoodie</option>
+<option value="jacket">🧥 Jacket</option>
+<option value="shoes">👟 Shoes</option>
+<option value="sneakers">👟 Sneakers</option>
 
 </select>
 
-
-
-<input 
+<input
 type="text"
 id="color"
-placeholder="Enter color (example: black, white)">
+placeholder="Enter clothing color (e.g. black, blue, white)">
 
-
-<button onclick="saveClothes()">
+<button id="saveBtn">
 💾 Save Clothing
 </button>
 
-
 <p id="message"></p>
-
 
 </div>
 
-
-
-
-<h2>👕 Your Clothes</h2>
-
+<h2>👕 Your Wardrobe</h2>
 
 <div id="wardrobe">
 
@@ -91,13 +62,14 @@ Loading wardrobe...
 
 </div>
 
+<script type="module">
 
+import "./wardrobe.js";
 
+document.getElementById("saveBtn")
+.addEventListener("click", saveClothes);
 
-
-<script type="module" src="wardrobe.js"></script>
-
+</script>
 
 </body>
-
 </html>
