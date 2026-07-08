@@ -1,44 +1,16 @@
-export async function askGemini(prompt){
-
-const response = await fetch(
-"https://YOUR_FIREBASE_FUNCTION_URL",
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body: JSON.stringify({
-prompt: prompt
-})
-});
-
-const data = await response.json();
-
-return data.answer;
-
-}
-
 export async function askGemini(prompt) {
 
     try {
 
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`,
+            "https://us-central1-YOUR_PROJECT_ID.cloudfunctions.net/askGemini",
             {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    contents: [
-                        {
-                            parts: [
-                                {
-                                    text: prompt
-                                }
-                            ]
-                        }
-                    ]
+                    prompt: prompt
                 })
             }
         );
@@ -46,16 +18,16 @@ export async function askGemini(prompt) {
         const data = await response.json();
 
         if (data.error) {
-            return "Gemini Error: " + data.error.message;
+            return "AI Error: " + data.error;
         }
 
-        return data.candidates[0].content.parts[0].text;
+        return data.answer;
 
     } catch (error) {
 
         console.error(error);
 
-        return "Unable to contact Gemini AI. Check your internet connection or API key.";
+        return "Unable to connect to AI.";
 
     }
 
