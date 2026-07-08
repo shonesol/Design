@@ -27,7 +27,28 @@ window.sendMessage = async function () {
   let wardrobe = [];
 
   snapshot.forEach(doc => wardrobe.push(doc.data()));
+// GET USER PROFILE
 
+const profileSnap = await getDoc(
+
+doc(
+db,
+"users",
+user.uid,
+"profile"
+)
+
+);
+
+
+let profile = {};
+
+
+if(profileSnap.exists()){
+
+profile = profileSnap.data();
+
+}
   const response = await askGemini(
 
 `
