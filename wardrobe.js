@@ -1,19 +1,19 @@
 import { storage, db, auth } from "./firebase.js";
 
 import {
-  ref,
-  uploadBytes,
-  getDownloadURL
+ref,
+uploadBytes,
+getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 
 import {
-  collection,
-  addDoc,
-  getDocs,
-  deleteDoc,
-  doc,
-  updateDoc
+collection,
+addDoc,
+getDocs,
+deleteDoc,
+doc,
+updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
@@ -29,7 +29,7 @@ const file =
 document.getElementById("clothesImage").files[0];
 
 
-const category =
+let category =
 document.getElementById("category").value;
 
 
@@ -39,6 +39,7 @@ document.getElementById("color").value;
 
 const message =
 document.getElementById("message");
+
 
 
 const user =
@@ -68,28 +69,47 @@ return;
 
 
 
+// Convert categories to AI friendly names
+
+category = category.toLowerCase();
+
+
+
+if(category.includes("t-shirt") || category.includes("tshirt")){
+category = "shirt";
+}
+
+
+if(category.includes("pant")){
+category = "trousers";
+}
+
+
+if(category.includes("sneaker") || category.includes("shoe")){
+category = "shoes";
+}
+
+
 try{
+
+
+message.innerHTML="Uploading...";
+
 
 
 // Upload image
 
 const imageRef =
 ref(
-
 storage,
-
 "wardrobe/" + user.uid + "/" + Date.now()
-
 );
 
 
 
 await uploadBytes(
-
 imageRef,
-
 file
-
 );
 
 
@@ -100,20 +120,16 @@ await getDownloadURL(imageRef);
 
 
 
-// Save data
+
+// Save to Firestore
 
 await addDoc(
 
 collection(
-
 db,
-
 "users",
-
 user.uid,
-
 "wardrobe"
-
 ),
 
 {
@@ -121,13 +137,21 @@ user.uid,
 
 imageUrl:imageUrl,
 
+
 type:category,
+
 
 color:color,
 
+
+style:"casual",
+
+
 favorite:false,
 
+
 createdAt:Date.now()
+
 
 }
 
@@ -146,7 +170,11 @@ loadWardrobe();
 
 }
 
+
 catch(error){
+
+
+console.error(error);
 
 
 message.innerHTML =
@@ -158,6 +186,7 @@ error.message;
 
 
 };
+
 
 
 
@@ -178,10 +207,6 @@ document.getElementById("wardrobe");
 if(!box)return;
 
 
-box.innerHTML =
-"Loading clothes...";
-
-
 
 const user =
 auth.currentUser;
@@ -199,20 +224,19 @@ return;
 
 
 
+box.innerHTML =
+"Loading clothes...";
+
+
 
 const snapshot =
 await getDocs(
 
 collection(
-
 db,
-
 "users",
-
 user.uid,
-
 "wardrobe"
-
 )
 
 );
@@ -234,7 +258,6 @@ return;
 
 
 
-
 snapshot.forEach((item)=>{
 
 
@@ -249,10 +272,7 @@ box.innerHTML += `
 <div class="card">
 
 
-<img 
-src="${data.imageUrl}"
-width="200"
->
+<img src="${data.imageUrl}" width="200">
 
 
 <h3>
@@ -263,6 +283,12 @@ ${data.type}
 <p>
 Color: ${data.color}
 </p>
+
+
+<p>
+Style: ${data.style}
+</p>
+
 
 
 <p>
@@ -303,8 +329,10 @@ ${data.favorite ? "❤️ Favorite" : ""}
 
 
 
+
+
 // ==========================
-// FAVORITE CLOTH
+// FAVORITE
 // ==========================
 
 
@@ -315,28 +343,19 @@ const user =
 auth.currentUser;
 
 
-
 await updateDoc(
 
 doc(
-
 db,
-
 "users",
-
 user.uid,
-
 "wardrobe",
-
 id
-
 ),
 
 {
 
-
 favorite:true
-
 
 }
 
@@ -353,8 +372,10 @@ loadWardrobe();
 
 
 
+
+
 // ==========================
-// DELETE CLOTH
+// DELETE
 // ==========================
 
 
@@ -369,17 +390,11 @@ auth.currentUser;
 await deleteDoc(
 
 doc(
-
 db,
-
 "users",
-
 user.uid,
-
 "wardrobe",
-
 id
-
 )
 
 );
@@ -395,9 +410,10 @@ loadWardrobe();
 
 
 
-// LOAD AFTER LOGIN
 
-auth.onAuthStateChanged(()=>{
+// Load after login
+
+onAuthStateChanged(auth,()=>{
 
 loadWardrobe();
 
