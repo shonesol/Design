@@ -22,13 +22,21 @@ const output = document.getElementById("outfitResult");
 
 const occasion = document.getElementById("occasion").value;
 
-const user = auth.currentUser;
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+onAuthStateChanged(auth, async (user) => {
 
-if(!user){
- output.innerText="Please login first";
- return;
-}
+    if(!user){
+        document.getElementById("outfitResult").innerText =
+        "Please login first";
+        return;
+    }
+
+    console.log("Logged in user:", user.email);
+
+    // put your Firestore wardrobe loading code here
+
+});
 
 
 const snapshot = await getDocs(
