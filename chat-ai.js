@@ -10,8 +10,16 @@ doc,
 getDoc
 
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { db, auth } from "./firebase.js";
-import { collection, getDocs } from "firebase/firestore";
+import {db,auth} from "./firebase.js";
+
+import {askGemini} from "./gemini-ai.js";
+
+import {
+collection,
+getDocs,
+doc,
+getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 window.sendMessage = async function () {
   const msg = document.getElementById("userMsg").value.toLowerCase();
@@ -31,66 +39,56 @@ window.sendMessage = async function () {
 
   snapshot.forEach(doc => wardrobe.push(doc.data()));
 
-  let response = "";
-  // GET USER PROFILE
+  const response = await askGemini(
 
-const profileSnap =
-await getDoc(
+`
 
-doc(
-db,
-"users",
-user.uid,
-"profile"
-)
+You are a professional personal fashion stylist.
+
+
+USER PROFILE:
+
+Name:
+${profile.name || "User"}
+
+Preferred Style:
+${profile.style || "Unknown"}
+
+Favorite Colors:
+${profile.colors || "Unknown"}
+
+Favorite Occasion:
+${profile.occasion || "Any"}
+
+
+
+USER WARDROBE:
+
+${JSON.stringify(wardrobe, null, 2)}
+
+
+
+USER QUESTION:
+
+${msg}
+
+
+
+Give a personalized outfit recommendation.
+Use the user's wardrobe where possible.
+Explain why the outfit matches their style.
+
+`
 
 );
 
 
-let profile = {};
+output.innerText = response;
 
 
-if(profileSnap.exists()){
+// 🔊 VOICE RESPONSE
 
-profile = profileSnap.data();
+const speech =
+new SpeechSynthesisUtterance(response);
 
-}
-
-  // 💬 SIMPLE AI INTENT LOGIC
-  if (msg.includes("party")) {
-    let dress = wardrobe.find(i => i.type === "dress") || wardrobe[0];
-
-    response = `🎉 Party Outfit Suggestion:
-Wear your ${dress?.color || "nice"} ${dress?.type || "outfit"}.
-Add stylish shoes and confidence 🔥`;
-  }
-
-  else if (msg.includes("work") || msg.includes("office")) {
-    let shirt = wardrobe.find(i => i.type === "shirt");
-
-    response = `💼 Work Outfit:
-Go with your ${shirt?.color || "white"} ${shirt?.type || "shirt"}.
-Keep it clean and formal.`;
-  }
-
-  else if (msg.includes("hoodie")) {
-    let hoodie = wardrobe.find(i => i.type === "hoodie");
-
-    response = `🧥 Hoodie Style:
-Pair your ${hoodie?.color || "black"} hoodie with jeans and sneakers.`;
-  }
-
-  else {
-    let random = wardrobe[Math.floor(Math.random() * wardrobe.length)];
-
-    response = `👗 Try this:
-Wear your ${random?.color} ${random?.type}.
-Looks stylish and balanced ✨`;
-  }
-
-  output.innerText = response;
-
-  // 🔊 VOICE RESPONSE
-  const speech = new SpeechSynthesisUtterance(response);
-  speechSynthesis.speak(speech);
-};
+speechSynthesis.speak(speech);
