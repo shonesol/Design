@@ -1,5 +1,5 @@
 import {db,auth} from "./firebase.js";
-
+import { askGemini } from "./gemini-ai.js";
 
 import {
 
@@ -65,116 +65,28 @@ wardrobe.push(doc.data());
 
 
 
-let answer="";
-
-
-
-// Smart understanding
-
-
-if(
-question.includes("wedding") ||
-question.includes("ceremony")
-){
-
-
-answer =
-`
-💍 Formal Event Style
-
-Recommended:
-
-👔 A clean shirt or elegant dress
-👖 Smart trousers
-👞 Formal shoes
-
-Keep colors balanced and elegant.
-`;
-
-}
-
-
-
-else if(
-question.includes("travel")
-){
-
-answer=
-`
-✈️ Travel Style
-
-Choose:
-
-Comfortable clothes
-Light jacket
-Sneakers
-
-Avoid heavy clothing.
-`;
-
-}
-
-
-
-else if(
-question.includes("hot") ||
-question.includes("summer")
-){
-
-answer=
-`
-☀️ Hot Weather Style
-
-Wear:
-
-Light shirt
-Breathable trousers
-Comfortable shoes
-
-Choose bright colors.
-`;
-
-}
-
-
-
-else{
-
-
-let item =
-wardrobe[
-Math.floor(
-Math.random()*wardrobe.length
-)
-];
-
-
-answer=
+const answer = await askGemini(
 
 `
-✨ My Suggestion
+You are a professional fashion stylist.
 
-Wear:
+The user's wardrobe is:
 
-${item?.color || "a nice"}
-${item?.type || "outfit"}
+${JSON.stringify(wardrobe, null, 2)}
 
-Add matching accessories.
+The user's question is:
 
-`;
+${question}
 
-}
+Recommend an outfit using the user's wardrobe where possible.
+If an item is missing, suggest what they should buy.
+Explain why the outfit is a good choice.
+`
 
+);
 
+reply.innerText = answer;
 
-reply.innerText=answer;
-
-
-
-const speech =
-new SpeechSynthesisUtterance(answer);
-
-speechSynthesis.speak(speech);
-
-
-};
+speechSynthesis.speak(
+new SpeechSynthesisUtterance(answer)
+);
