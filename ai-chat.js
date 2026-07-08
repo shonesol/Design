@@ -65,28 +65,22 @@ wardrobe.push(doc.data());
 
 
 
-const answer = await askGemini(
+const answer = await askGemini(`
+You are an expert fashion stylist.
 
-`
-You are a professional fashion stylist.
-
-The user's wardrobe is:
-
+User wardrobe:
 ${JSON.stringify(wardrobe, null, 2)}
 
-The user's question is:
-
+Question:
 ${question}
 
-Recommend an outfit using the user's wardrobe where possible.
-If an item is missing, suggest what they should buy.
-Explain why the outfit is a good choice.
-`
-
-);
+Use the wardrobe when possible.
+If something is missing, recommend what to buy.
+Keep the answer friendly and practical.
+`);
 
 reply.innerText = answer;
 
 speechSynthesis.speak(
-new SpeechSynthesisUtterance(answer)
+    new SpeechSynthesisUtterance(answer)
 );
