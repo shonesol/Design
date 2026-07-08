@@ -6,26 +6,23 @@
     <title>Fashion AI Login</title>
 
     <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1b1b1b">
 </head>
+
 <body>
 
 <div class="container">
     <h2>Fashion AI Login</h2>
 
-    <input
-        type="email"
-        id="email"
+    <input 
+        type="email" 
+        id="email" 
         placeholder="Email"
-        autocomplete="email"
     >
 
-    <input
-        type="password"
-        id="password"
+    <input 
+        type="password" 
+        id="password" 
         placeholder="Password"
-        autocomplete="current-password"
     >
 
     <button onclick="signup()">Sign Up</button>
@@ -34,19 +31,7 @@
     <p id="msg"></p>
 </div>
 
-<!-- Load your JavaScript -->
 <script type="module" src="app.js"></script>
-
-<!-- Register Service Worker -->
-<script>
-if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./service-worker.js")
-            .then(() => console.log("Service Worker registered"))
-            .catch(error => console.error("Service Worker registration failed:", error));
-    });
-}
-</script>
 
 </body>
 </html>
