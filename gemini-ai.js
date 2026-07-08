@@ -1,41 +1,44 @@
-export async function askGemini(prompt){
+const API_KEY = "YOUR_GEMINI_API_KEY";
 
-const API_KEY="YOUR_GEMINI_API_KEY";
+export async function askGemini(prompt) {
 
-const response=await fetch(
+    try {
 
-`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`,
+        const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    contents: [
+                        {
+                            parts: [
+                                {
+                                    text: prompt
+                                }
+                            ]
+                        }
+                    ]
+                })
+            }
+        );
 
-{
+        const data = await response.json();
 
-method:"POST",
+        if (data.error) {
+            return "Gemini Error: " + data.error.message;
+        }
 
-headers:{
-"Content-Type":"application/json"
-},
+        return data.candidates[0].content.parts[0].text;
 
-body:JSON.stringify({
+    } catch (error) {
 
-contents:[
+        console.error(error);
 
-{
+        return "Unable to contact Gemini AI. Check your internet connection or API key.";
 
-parts:[
-{text:prompt}
-]
-
-}
-
-]
-
-})
-
-}
-
-);
-
-const data=await response.json();
-
-return data.candidates[0].content.parts[0].text;
+    }
 
 }
