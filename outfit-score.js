@@ -1,60 +1,96 @@
 export function calculateOutfitScore(data){
 
-let score = 0;
+    let scores = [];
 
 
-// 🎨 COLOR SCORE
-
-score += data.colorScore || 0;
-
-
-// 🌦 WEATHER SCORE
-
-score += data.weatherScore || 0;
+    if(data.colorScore !== undefined){
+        scores.push(data.colorScore);
+    }
 
 
-// 🎯 OCCASION SCORE
-
-score += data.occasionScore || 0;
-
-
-// ❤️ USER STYLE SCORE
-
-score += data.styleScore || 0;
+    if(data.weatherScore !== undefined){
+        scores.push(data.weatherScore);
+    }
 
 
+    if(data.occasionScore !== undefined){
+        scores.push(data.occasionScore);
+    }
 
-// Total out of 100
 
-let finalScore =
-Math.floor(score / 4);
+    if(data.styleScore !== undefined){
+        scores.push(data.styleScore);
+    }
 
 
 
-return {
+    if(scores.length === 0){
 
-score: finalScore,
+        return {
+
+            score:0,
+
+            message:"No outfit data available."
+
+        };
+
+    }
 
 
-message:
 
-finalScore >= 90
+    let total =
+    scores.reduce(
+        (sum,value)=>sum + value,
+        0
+    );
 
-?
-"🔥 Excellent outfit choice!"
 
-:
 
-finalScore >= 75
+    let finalScore =
+    Math.floor(total / scores.length);
 
-?
-"✨ Good combination."
 
-:
 
-"Try improving the color or style match."
+    let message;
 
-};
 
+
+    if(finalScore >= 90){
+
+        message =
+        "🔥 Excellent outfit choice!";
+
+    }
+
+    else if(finalScore >= 75){
+
+        message =
+        "✨ Good combination.";
+
+    }
+
+    else if(finalScore >= 50){
+
+        message =
+        "👍 Decent outfit. Small improvements possible.";
+
+    }
+
+    else{
+
+        message =
+        "Try improving the color or style match.";
+
+    }
+
+
+
+    return {
+
+        score: finalScore,
+
+        message: message
+
+    };
 
 }
