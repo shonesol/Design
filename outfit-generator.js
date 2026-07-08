@@ -1,11 +1,15 @@
 console.log("Outfit generator loaded");
+
 import { db, auth } from "./firebase.js";
 
 import {
 getDocs,
-collection,
-addDoc
+collection
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+import {
+onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 import { calculateOutfitScore } from "./outfit-score.js";
 import { checkColorMatch } from "./color-ai.js";
@@ -14,29 +18,27 @@ import { shoppingAI } from "./shopping-ai.js";
 
 const generateBtn = document.getElementById("generateBtn");
 
-generateBtn.addEventListener("click", generateOutfit);
 
-async function generateOutfit(){
+generateBtn.addEventListener("click", async function(){
 
 const output = document.getElementById("outfitResult");
 
 const occasion = document.getElementById("occasion").value;
 
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(auth, async (user)=>{
 
-    if(!user){
-        document.getElementById("outfitResult").innerText =
-        "Please login first";
-        return;
-    }
 
-    console.log("Logged in user:", user.email);
+if(!user){
 
-    // put your Firestore wardrobe loading code here
+output.innerText = "Please login first";
+return;
 
-});
+}
+
+
+console.log("User:", user.email);
+
 
 
 const snapshot = await getDocs(
@@ -44,44 +46,57 @@ collection(db,"users",user.uid,"wardrobe")
 );
 
 
+
 let wardrobe=[];
 
+
 snapshot.forEach(doc=>{
- wardrobe.push(doc.data());
+wardrobe.push(doc.data());
 });
 
 
+console.log("Wardrobe:", wardrobe);
+
+
+
 if(wardrobe.length===0){
- output.innerText="Upload clothes first.";
- return;
+
+output.innerText="Upload clothes first.";
+return;
+
 }
+
 
 
 let top = wardrobe.find(i =>
 i.type==="shirt" || i.type==="tshirt"
 );
 
+
 let bottom = wardrobe.find(i =>
 i.type==="jeans" || i.type==="trousers"
 );
+
 
 let shoes = wardrobe.find(i =>
 i.type==="shoes"
 );
 
 
-// Color AI
+
 let colors=[];
+
 
 if(top?.color) colors.push(top.color);
 if(bottom?.color) colors.push(bottom.color);
 if(shoes?.color) colors.push(shoes.color);
 
 
+
 const colorAI = checkColorMatch(colors);
 
 
-// Score
+
 const outfitScore = calculateOutfitScore({
 
 colorScore: colorAI.score,
@@ -92,47 +107,46 @@ styleScore:85
 });
 
 
-const shoppingAdvice = shoppingAI(wardrobe);
-
 
 let result = `
+
 ✨ AI Generated Outfit
 
 🎯 Occasion:
 ${occasion}
 
+
 👕 Top:
 ${top?.color || "Any matching shirt"}
+
 
 👖 Bottom:
 ${bottom?.color || "Smart trousers"}
 
+
 👟 Shoes:
 ${shoes?.color || "Clean shoes"}
+
 
 ⭐ Fashion Score:
 ${outfitScore}%
 
-🛍 Suggestions:
-${shoppingAdvice.join("\n")}
 
 AI Advice:
 This outfit matches your wardrobe style.
+
 `;
 
 
-output.innerHTML = `
-${result}
 
-<br><br>
-
-<button onclick="saveLook(\`${result}\`)">
-❤️ Save This Look
-</button>
-`;
+output.innerText = result;
 
 
 const speech = new SpeechSynthesisUtterance(result);
 speechSynthesis.speak(speech);
 
-};
+
+});
+
+
+});
