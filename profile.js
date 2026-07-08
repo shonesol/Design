@@ -167,3 +167,58 @@ auth.onAuthStateChanged(()=>{
 loadProfile();
 
 });
+window.saveProfile = async function(){
+
+const user = auth.currentUser;
+
+const message =
+document.getElementById("message");
+
+
+if(!user){
+
+message.innerText="Please login first";
+
+return;
+
+}
+
+
+await setDoc(
+
+doc(
+db,
+"users",
+user.uid,
+"profile"
+),
+
+{
+
+name:
+document.getElementById("name").value,
+
+style:
+document.getElementById("style").value,
+
+colors:
+document.getElementById("colors").value,
+
+occasion:
+document.getElementById("occasion").value,
+
+updatedAt: Date.now()
+
+},
+
+{
+merge:true
+}
+
+);
+
+
+message.innerText =
+"Preferences saved ✅";
+
+};
