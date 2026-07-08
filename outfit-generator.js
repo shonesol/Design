@@ -11,7 +11,11 @@ import { checkColorMatch } from "./color-ai.js";
 import { shoppingAI } from "./shopping-ai.js";
 
 
-window.generateOutfit = async function(){
+const generateBtn = document.getElementById("generateBtn");
+
+generateBtn.addEventListener("click", generateOutfit);
+
+async function generateOutfit(){
 
 const output = document.getElementById("outfitResult");
 
