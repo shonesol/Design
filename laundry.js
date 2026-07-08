@@ -1,30 +1,27 @@
 import {db,auth} from "./firebase.js";
 
-
 import {
-
 collection,
-getDocs,
-updateDoc,
-doc
-
+getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
-
-async function loadClothes(){
-
+async function loadLaundry(){
 
 const box =
-document.getElementById("clothesList");
+document.getElementById("laundryList");
 
 
 const user =
 auth.currentUser;
 
 
-if(!user)return;
+if(!user){
 
+box.innerHTML="Login first";
+return;
+
+}
 
 
 const snapshot =
@@ -35,158 +32,50 @@ db,
 "users",
 user.uid,
 "wardrobe"
-
 )
 
 );
 
 
-
-box.innerHTML="";
-
+let html="";
 
 
-snapshot.forEach(item=>{
+snapshot.forEach(doc=>{
+
+const item=doc.data();
 
 
-const data =
-item.data();
-
-
-
-box.innerHTML +=
-
-`
+html += `
 
 <div class="card">
 
+<img src="${item.imageUrl}" width="150">
 
 <h3>
-${data.color || ""}
-${data.type || "Clothing"}
+${item.type}
 </h3>
 
-
-
 <p>
-
 Status:
-${data.status || "Clean"}
-
+${item.status || "Clean"}
 </p>
-
-
-
-<button onclick="markWorn('${item.id}')">
-
-👕 Mark Worn
-
-</button>
-
-
-
-<button onclick="markClean('${item.id}')">
-
-✨ Mark Clean
-
-</button>
-
 
 </div>
 
 `;
 
-
-
 });
 
 
-}
+box.innerHTML = html || "No clothes added yet";
 
-
-
-
-
-window.markWorn = async function(id){
-
-
-const user =
-auth.currentUser;
-
-
-
-await updateDoc(
-
-doc(
-db,
-"users",
-user.uid,
-"wardrobe",
-id
-
-),
-
-{
-
-status:"Needs Washing",
-
-lastWorn:Date.now()
 
 }
-
-);
-
-
-
-loadClothes();
-
-
-};
-
-
-
-
-
-window.markClean = async function(id){
-
-
-const user =
-auth.currentUser;
-
-
-
-await updateDoc(
-
-doc(
-db,
-"users",
-user.uid,
-"wardrobe",
-id
-
-),
-
-{
-
-status:"Clean"
-
-}
-
-);
-
-
-
-loadClothes();
-
-
-};
-
-
 
 
 
 auth.onAuthStateChanged(()=>{
 
-loadClothes();
+loadLaundry();
 
 });
