@@ -32,6 +32,29 @@ window.sendMessage = async function () {
   snapshot.forEach(doc => wardrobe.push(doc.data()));
 
   let response = "";
+  // GET USER PROFILE
+
+const profileSnap =
+await getDoc(
+
+doc(
+db,
+"users",
+user.uid,
+"profile"
+)
+
+);
+
+
+let profile = {};
+
+
+if(profileSnap.exists()){
+
+profile = profileSnap.data();
+
+}
 
   // 💬 SIMPLE AI INTENT LOGIC
   if (msg.includes("party")) {
