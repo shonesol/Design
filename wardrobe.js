@@ -1,28 +1,26 @@
-import {storage,db,auth} from "./firebase.js";
-
+import { storage, db, auth } from "./firebase.js";
 
 import {
-
-ref,
-uploadBytes,
-getDownloadURL
-
+  ref,
+  uploadBytes,
+  getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 
 import {
-
-collection,
-addDoc,
-getDocs,
-deleteDoc,
-doc
-
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
 
+// ==========================
 // SAVE CLOTHES
+// ==========================
 
 window.saveClothes = async function(){
 
@@ -43,13 +41,15 @@ const message =
 document.getElementById("message");
 
 
-const user=auth.currentUser;
+const user =
+auth.currentUser;
 
 
 
 if(!user){
 
-message.innerHTML="Login first";
+message.innerHTML =
+"Please login first";
 
 return;
 
@@ -59,7 +59,8 @@ return;
 
 if(!file){
 
-message.innerHTML="Choose image";
+message.innerHTML =
+"Choose an image";
 
 return;
 
@@ -67,55 +68,93 @@ return;
 
 
 
+try{
+
+
+// Upload image
+
 const imageRef =
 ref(
+
 storage,
-"wardrobe/"+user.uid+"/"+Date.now()
+
+"wardrobe/" + user.uid + "/" + Date.now()
+
 );
 
 
 
-await uploadBytes(imageRef,file);
+await uploadBytes(
+
+imageRef,
+
+file
+
+);
 
 
 
-const url =
+const imageUrl =
 await getDownloadURL(imageRef);
 
 
 
+
+// Save data
+
 await addDoc(
 
 collection(
+
 db,
+
 "users",
+
 user.uid,
+
 "wardrobe"
+
 ),
 
 {
 
 
-image:url,
+imageUrl:imageUrl,
 
-category:category,
+type:category,
 
 color:color,
 
-createdAt:new Date()
+favorite:false,
+
+createdAt:Date.now()
 
 }
-
 
 );
 
 
 
-message.innerHTML=
-"Clothing saved ✅";
+message.innerHTML =
+"Clothing saved successfully ✅";
+
 
 
 loadWardrobe();
+
+
+
+}
+
+catch(error){
+
+
+message.innerHTML =
+error.message;
+
+
+}
+
 
 
 };
@@ -123,56 +162,102 @@ loadWardrobe();
 
 
 
+
+// ==========================
 // LOAD WARDROBE
+// ==========================
 
 
 async function loadWardrobe(){
 
 
-const box=
+const box =
 document.getElementById("wardrobe");
 
 
-box.innerHTML="";
+if(!box)return;
 
 
-const user=auth.currentUser;
-
-
-if(!user)return;
+box.innerHTML =
+"Loading clothes...";
 
 
 
-const snap =
+const user =
+auth.currentUser;
+
+
+
+if(!user){
+
+box.innerHTML =
+"Login first";
+
+return;
+
+}
+
+
+
+
+const snapshot =
 await getDocs(
 
 collection(
+
 db,
+
 "users",
+
 user.uid,
+
 "wardrobe"
+
 )
 
 );
 
 
 
-snap.forEach(item=>{
-
-
-let data=item.data();
+box.innerHTML="";
 
 
 
-box.innerHTML +=`
+if(snapshot.empty){
+
+box.innerHTML =
+"No clothes uploaded yet";
+
+return;
+
+}
+
+
+
+
+snapshot.forEach((item)=>{
+
+
+const data =
+item.data();
+
+
+
+box.innerHTML += `
+
 
 <div class="card">
 
 
-<img src="${data.image}">
+<img 
+src="${data.imageUrl}"
+width="200"
+>
 
 
-<h3>${data.category}</h3>
+<h3>
+${data.type}
+</h3>
 
 
 <p>
@@ -180,9 +265,26 @@ Color: ${data.color}
 </p>
 
 
-<button onclick="removeCloth('${item.id}')">
-Delete
+<p>
+${data.favorite ? "❤️ Favorite" : ""}
+</p>
+
+
+
+<button onclick="favoriteCloth('${item.id}')">
+
+❤️ Favorite
+
 </button>
+
+
+
+<button onclick="removeCloth('${item.id}')">
+
+🗑 Delete
+
+</button>
+
 
 
 </div>
@@ -201,21 +303,81 @@ Delete
 
 
 
-// DELETE
+// ==========================
+// FAVORITE CLOTH
+// ==========================
 
-window.removeCloth=async function(id){
+
+window.favoriteCloth = async function(id){
 
 
-const user=auth.currentUser;
+const user =
+auth.currentUser;
+
+
+
+await updateDoc(
+
+doc(
+
+db,
+
+"users",
+
+user.uid,
+
+"wardrobe",
+
+id
+
+),
+
+{
+
+
+favorite:true
+
+
+}
+
+);
+
+
+
+loadWardrobe();
+
+
+};
+
+
+
+
+
+// ==========================
+// DELETE CLOTH
+// ==========================
+
+
+window.removeCloth = async function(id){
+
+
+const user =
+auth.currentUser;
+
 
 
 await deleteDoc(
 
 doc(
+
 db,
+
 "users",
+
 user.uid,
+
 "wardrobe",
+
 id
 
 )
@@ -223,48 +385,20 @@ id
 );
 
 
+
 loadWardrobe();
 
 
-}
+};
 
 
 
 
+
+// LOAD AFTER LOGIN
 
 auth.onAuthStateChanged(()=>{
 
 loadWardrobe();
 
 });
-<button onclick="favoriteCloth('${item.id}')">
-❤️ Favorite
-</button>
-window.favoriteCloth = async function(id){
-
-const user =
-auth.currentUser;
-
-
-await updateDoc(
-
-doc(
-db,
-"users",
-user.uid,
-"wardrobe",
-id
-),
-
-{
-
-favorite:true
-
-}
-
-);
-
-
-loadWardrobe();
-
-};
