@@ -32,7 +32,7 @@ window.login = async function () {
     msg.innerText = "Login successful!";
 
     setTimeout(() => {
-      window.location.href = "DASHBOARD.HTML";
+      window.location.href = "dashboard.html";
     }, 1000);
 
   } catch (error) {
