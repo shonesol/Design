@@ -10,17 +10,6 @@ doc,
 getDoc
 
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import {db,auth} from "./firebase.js";
-
-import {askGemini} from "./gemini-ai.js";
-
-import {
-collection,
-getDocs,
-doc,
-getDoc
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
 window.sendMessage = async function () {
   const msg = document.getElementById("userMsg").value.toLowerCase();
   const output = document.getElementById("chatReply");
