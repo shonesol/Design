@@ -7,17 +7,26 @@
 
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
-
-<meta name="theme-color" content="#1b1b1b">
-    
+    <meta name="theme-color" content="#1b1b1b">
 </head>
 <body>
 
 <div class="container">
     <h2>Fashion AI Login</h2>
 
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Password">
+    <input
+        type="email"
+        id="email"
+        placeholder="Email"
+        autocomplete="email"
+    >
+
+    <input
+        type="password"
+        id="password"
+        placeholder="Password"
+        autocomplete="current-password"
+    >
 
     <button onclick="signup()">Sign Up</button>
     <button onclick="login()">Login</button>
@@ -25,41 +34,19 @@
     <p id="msg"></p>
 </div>
 
-<script type="module" src="APP.JS"></script>
+<!-- Load your JavaScript -->
+<script type="module" src="app.js"></script>
+
+<!-- Register Service Worker -->
 <script>
-    {
-  "name": "Fashion AI",
-  "short_name": "FashionAI",
-  "description": "AI powered personal fashion stylist",
-  "start_url": "index.html",
-  "display": "standalone",
-  "background_color": "#f5f0e6",
-  "theme_color": "#1b1b1b",
-
-  "icons": [
-    {
-      "src": "images/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "images/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js")
+            .then(() => console.log("Service Worker registered"))
+            .catch(error => console.error("Service Worker registration failed:", error));
+    });
 }
-</script>  
-    <script>
-
-if("serviceWorker" in navigator){
-
-navigator.serviceWorker.register(
-"service-worker.js"
-);
-
-}
-
 </script>
+
 </body>
 </html>
