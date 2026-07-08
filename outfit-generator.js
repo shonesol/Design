@@ -1,3 +1,4 @@
+
 import {
 calculateOutfitScore
 }
@@ -247,3 +248,9 @@ alert("Look saved ❤️");
 
 
 };
+import { shoppingAI } from "./shopping-ai.js";
+const shoppingAdvice =
+shoppingAI(wardrobe);
+🛍 Shopping Suggestions
+
+${shoppingAdvice.join("\n")}
