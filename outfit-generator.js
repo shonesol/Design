@@ -2,6 +2,24 @@ import {
 checkColorMatch
 }
 from "./color-ai.js";
+let colors=[];
+
+
+if(top?.color)
+colors.push(top.color);
+
+
+if(bottom?.color)
+colors.push(bottom.color);
+
+
+if(shoes?.color)
+colors.push(shoes.color);
+
+
+
+const colorAI =
+checkColorMatch(colors);
 import {db,auth} from "./firebase.js";
 
 
