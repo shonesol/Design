@@ -5,14 +5,14 @@ import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-
 import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app-check.js";
 
 const firebaseConfig = {
-  apiKey: "YOUR_FIREBASE_API_KEY",
+  apiKey: "AIzaSyA1wmHCfPLOmw1u3zUM-M2bUlCUWJDv2Bk",
   authDomain: "design-a0e45.firebaseapp.com",
   databaseURL: "https://design-a0e45-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "design-a0e45",
   storageBucket: "design-a0e45.firebasestorage.app",
   messagingSenderId: "752963168855",
-  appId: "1:752963168855:web:668b25771e5a85e4489112",
-  measurementId: "G-Y803FMNDL3"
+  appId: "1:752963168855:web:660513e16f91108e489112",
+  measurementId: "G-3FYBPXQRPW"
 };
 
 const app = initializeApp(firebaseConfig);
