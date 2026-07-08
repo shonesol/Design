@@ -1,7 +1,8 @@
 import {
 checkColorMatch
 }
-from "./color-ai.js";import {db,auth} from "./firebase.js";
+from "./color-ai.js";
+import {db,auth} from "./firebase.js";
 
 
 import {
