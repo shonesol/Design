@@ -1,6 +1,27 @@
 import {
+calculateOutfitScore
+}
+  const outfitScore =
+calculateOutfitScore({
+
+colorScore: colorAI.score,
+
+
+weatherScore:90,
+
+
+occasionScore:95,
+
+
+styleScore:85
+
+
+});
+from "./outfit-score.js";
+import {
 checkColorMatch
 }
+  
 from "./color-ai.js";
 let colors=[];
 
