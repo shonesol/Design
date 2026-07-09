@@ -6,8 +6,6 @@
 }
 
 
-/* ===== PAGE ===== */
-
 body{
 
     margin:0;
@@ -18,15 +16,13 @@ body{
 
     min-height:100vh;
 
-    padding-top:80px; /* space for menu */
-
 }
 
 
-/* ===== MENU FIX ===== */
 
-header,
-nav{
+/* ===== LEFT NAV BAR ===== */
+
+.sidebar{
 
     position:fixed;
 
@@ -34,7 +30,13 @@ nav{
 
     left:0;
 
-    width:100%;
+    width:230px;
+
+    height:100vh;
+
+    background:#222;
+
+    padding:20px;
 
     z-index:1000;
 
@@ -42,15 +44,61 @@ nav{
 
 
 
-/* ===== CARD ===== */
+.sidebar a{
+
+    display:block;
+
+    color:white;
+
+    text-decoration:none;
+
+    padding:15px;
+
+    margin-bottom:10px;
+
+    border-radius:10px;
+
+    background:#333;
+
+}
+
+
+
+.sidebar a:hover{
+
+    background:#4caf50;
+
+}
+
+
+
+/* ===== MAIN CONTENT AREA ===== */
+
+.main-content{
+
+    margin-left:230px;
+
+    min-height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    padding:30px;
+
+}
+
+
+
+/* ===== CONTAINER / CARD ===== */
 
 .card{
 
     width:380px;
 
     max-width:95%;
-
-    margin:30px auto;
 
     background:#222;
 
@@ -62,27 +110,21 @@ nav{
 
     box-shadow:0 0 20px rgba(0,0,0,0.5);
 
-    position:relative;
-
-    z-index:1;
-
 }
 
 
 
-/* ===== TITLE ===== */
+/* TITLE */
 
 h1{
 
     color:#4caf50;
 
-    margin-bottom:20px;
-
 }
 
 
 
-/* ===== CAMERA AREA ===== */
+/* ===== TRY ON CAMERA ===== */
 
 #preview{
 
@@ -106,8 +148,6 @@ h1{
 
 
 
-/* CAMERA */
-
 #camera{
 
     width:100%;
@@ -119,8 +159,6 @@ h1{
 }
 
 
-
-/* CLOTHING IMAGE */
 
 .cloth-overlay{
 
@@ -136,8 +174,6 @@ h1{
 
     z-index:5;
 
-    pointer-events:none;
-
 }
 
 
@@ -151,10 +187,6 @@ input{
     padding:10px;
 
     margin-top:15px;
-
-    background:white;
-
-    border-radius:8px;
 
 }
 
@@ -180,8 +212,6 @@ button{
 
     cursor:pointer;
 
-    font-size:16px;
-
 }
 
 
@@ -194,30 +224,39 @@ button:hover{
 
 
 
-/* MOBILE */
+/* ===== MOBILE ===== */
 
-@media(max-width:420px){
+@media(max-width:700px){
+
+
+.sidebar{
+
+    width:80px;
+
+}
+
+
+.sidebar a{
+
+    font-size:12px;
+
+    padding:10px;
+
+}
+
+
+.main-content{
+
+    margin-left:80px;
+
+    padding:15px;
+
+}
 
 
 .card{
 
-    width:95%;
-
-}
-
-
-#preview{
-
-    height:420px;
-
-}
-
-
-.cloth-overlay{
-
-    width:55%;
-
-    left:22%;
+    width:100%;
 
 }
 
