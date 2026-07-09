@@ -5,15 +5,14 @@ import { db, auth } from "./firebase.js";
 import { askGemini } from "./gemini-ai.js";
 
 import {
-    collection,
-    getDocs,
-    doc,
-    getDoc
+collection,
+getDocs,
+doc,
+getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
 
-// Temporary conversation memory
 let chatHistory = [];
 
 
@@ -21,158 +20,193 @@ let chatHistory = [];
 window.sendMessage = async function(){
 
 
-    const input =
-    document.getElementById("userMsg");
+const input =
+document.getElementById("userMsg");
 
 
-    const output =
-    document.getElementById("chatReply");
+const output =
+document.getElementById("chatReply");
 
 
 
-    const msg =
-    input.value.trim();
+const msg =
+input.value.trim();
 
 
 
-    if(!msg){
+if(!msg){
 
-        output.innerText =
-        "Please ask me a fashion question.";
+output.innerText =
+"Ask me any fashion question.";
 
-        return;
+return;
 
-    }
+}
 
 
 
-    const user =
-    auth.currentUser;
+try{
 
 
+output.innerText =
+"🤖 Fashion AI is thinking...";
 
-    if(!user){
 
-        output.innerText =
-        "Please login first.";
 
-        return;
+let wardrobe = [];
 
-    }
+let profile = {};
 
 
 
-    try{
 
+// CHECK USER LOGIN
 
-        output.innerText =
-        "🤖 Fashion AI is thinking...";
+const user =
+auth.currentUser;
 
 
 
-        // GET USER WARDROBE
+if(user){
 
-        const wardrobeSnap =
-        await getDocs(
 
-            collection(
-                db,
-                "users",
-                user.uid,
-                "wardrobe"
-            )
 
-        );
+// GET WARDROBE
 
+try{
 
 
-        let wardrobe = [];
+const wardrobeSnap =
+await getDocs(
 
+collection(
+db,
+"users",
+user.uid,
+"wardrobe"
+)
 
+);
 
-        wardrobeSnap.forEach((item)=>{
 
 
-            wardrobe.push(item.data());
+wardrobeSnap.forEach((item)=>{
 
+wardrobe.push(item.data());
 
-        });
+});
 
 
+}
 
+catch(error){
 
+console.log(
+"Wardrobe not available"
+);
 
+}
 
-        // GET USER PROFILE
 
-        const profileSnap =
-        await getDoc(
 
-            doc(
-                db,
-                "users",
-                user.uid,
-                "profile"
-            )
 
-        );
 
+// GET PROFILE
 
+try{
 
-        let profile = {};
 
+const profileSnap =
+await getDoc(
 
+doc(
+db,
+"users",
+user.uid,
+"profile"
+)
 
-        if(profileSnap.exists()){
+);
 
-            profile =
-            profileSnap.data();
 
-        }
 
+if(profileSnap.exists()){
 
+profile =
+profileSnap.data();
 
+}
 
-        // SAVE CHAT MEMORY
 
-        chatHistory.push({
+}
 
-            user: msg
+catch(error){
 
-        });
+console.log(
+"Profile not available"
+);
 
+}
 
 
 
+}
 
 
-        const prompt = `
 
 
-You are FashionAI.
+chatHistory.push({
 
-You are a professional human fashion stylist.
+role:"user",
 
-Your job is to help the user choose outfits,
-combine colors, plan looks, and improve their style.
+message:msg
+
+});
+
+
+
+
+
+
+const prompt = `
+
+
+You are FashionAI, an expert fashion consultant.
+
+
+You can answer ANY fashion question.
+
+Your knowledge includes:
+
+- Men's fashion
+- Women's fashion
+- Streetwear
+- Luxury fashion
+- Casual outfits
+- Office wear
+- Wedding outfits
+- Party outfits
+- Shoes
+- Accessories
+- Color matching
+- Fashion trends
+- Seasonal dressing
+- Body shape styling
+- Wardrobe planning
+- Clothing care
 
 
 USER PROFILE:
 
 Name:
-${profile.name || "Unknown"}
+${profile.name || "Not provided"}
 
-
-Preferred Style:
+Style:
 ${profile.style || "Not provided"}
 
-
-Favorite Colors:
+Favorite colors:
 ${profile.colors || "Not provided"}
 
-
-Body Type:
-${profile.bodyType || "Not provided"}
 
 
 
@@ -182,38 +216,37 @@ ${JSON.stringify(
 wardrobe,
 null,
 2
-)}
+) || "No wardrobe uploaded"}
 
 
 
-RECENT CHAT:
+
+CHAT HISTORY:
 
 ${JSON.stringify(
-chatHistory.slice(-6),
+chatHistory.slice(-5),
 null,
 2
 )}
 
 
 
-USER MESSAGE:
+
+USER QUESTION:
 
 ${msg}
 
 
 
-INSTRUCTIONS:
+RULES:
 
-- Answer like a real personal stylist.
-- Use wardrobe items first.
-- Recommend complete outfits.
-- Explain color matching.
-- Suggest shoes and accessories.
-- Consider occasion.
-- Consider weather if mentioned.
-- Suggest alternatives.
-- Ask questions if you need more information.
-- Do not give boring generic answers.
+1. Always answer the question.
+2. If wardrobe exists, use it.
+3. If wardrobe does not exist, give general fashion advice.
+4. Be creative like a human stylist.
+5. Give complete outfit ideas.
+6. Explain why colors and pieces work together.
+7. Ask helpful follow-up questions when needed.
 
 
 
@@ -223,75 +256,74 @@ INSTRUCTIONS:
 
 
 
-
-        const response =
-        await askGemini(prompt);
-
-
-
-
-        chatHistory.push({
-
-            assistant: response
-
-        });
+const response =
+await askGemini(prompt);
 
 
 
 
 
-        output.innerText =
-        response;
+chatHistory.push({
+
+role:"assistant",
+
+message:response
+
+});
 
 
 
 
 
-        // VOICE RESPONSE
-
-        if("speechSynthesis" in window){
-
-
-            speechSynthesis.cancel();
-
-
-            const speech =
-            new SpeechSynthesisUtterance(response);
-
-
-            speech.rate = 1;
-
-
-            speech.pitch = 1;
-
-
-            speechSynthesis.speak(speech);
-
-
-        }
+output.innerText =
+response;
 
 
 
 
+// VOICE
 
-        input.value = "";
-
-
-
-    }
+if("speechSynthesis" in window){
 
 
-    catch(error){
+speechSynthesis.cancel();
 
 
-        console.error(error);
+const voice =
+new SpeechSynthesisUtterance(response);
 
 
-        output.innerText =
-        "AI Error: " + error.message;
+voice.rate = 1;
+
+voice.pitch = 1;
 
 
-    }
+speechSynthesis.speak(voice);
+
+
+}
+
+
+
+
+input.value="";
+
+
+
+}
+
+catch(error){
+
+
+console.error(error);
+
+
+output.innerText =
+"AI Error: "+error.message;
+
+
+}
+
 
 
 };
