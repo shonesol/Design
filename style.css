@@ -1,26 +1,4 @@
-/* ===== RESET ===== */
-
-*{
-    box-sizing:border-box;
-    font-family:Arial, sans-serif;
-}
-
-
-body{
-
-    margin:0;
-
-    background:#111;
-
-    color:white;
-
-    min-height:100vh;
-
-}
-
-
-
-/* ===== LEFT NAV BAR ===== */
+/* ===== SMALL LEFT SIDEBAR ===== */
 
 .sidebar{
 
@@ -30,15 +8,17 @@ body{
 
     left:0;
 
-    width:230px;
+    width:160px; /* reduced from 230px */
 
     height:100vh;
 
     background:#222;
 
-    padding:20px;
+    padding:12px;
 
     z-index:1000;
+
+    overflow-y:auto;
 
 }
 
@@ -52,13 +32,15 @@ body{
 
     text-decoration:none;
 
-    padding:15px;
+    padding:10px 8px;
 
-    margin-bottom:10px;
+    margin-bottom:8px;
 
-    border-radius:10px;
+    border-radius:8px;
 
     background:#333;
+
+    font-size:14px;
 
 }
 
@@ -72,11 +54,11 @@ body{
 
 
 
-/* ===== MAIN CONTENT AREA ===== */
+/* CONTENT AREA */
 
 .main-content{
 
-    margin-left:230px;
+    margin-left:160px;
 
     min-height:100vh;
 
@@ -86,177 +68,38 @@ body{
 
     align-items:center;
 
-    padding:30px;
+    padding:20px;
 
 }
 
 
 
-/* ===== CONTAINER / CARD ===== */
-
-.card{
-
-    width:380px;
-
-    max-width:95%;
-
-    background:#222;
-
-    padding:25px;
-
-    border-radius:20px;
-
-    text-align:center;
-
-    box-shadow:0 0 20px rgba(0,0,0,0.5);
-
-}
-
-
-
-/* TITLE */
-
-h1{
-
-    color:#4caf50;
-
-}
-
-
-
-/* ===== TRY ON CAMERA ===== */
-
-#preview{
-
-    position:relative;
-
-    width:320px;
-
-    height:480px;
-
-    max-width:100%;
-
-    margin:auto;
-
-    overflow:hidden;
-
-    border-radius:15px;
-
-    background:black;
-
-}
-
-
-
-#camera{
-
-    width:100%;
-
-    height:100%;
-
-    object-fit:cover;
-
-}
-
-
-
-.cloth-overlay{
-
-    position:absolute;
-
-    width:210px;
-
-    top:150px;
-
-    left:55px;
-
-    opacity:0.75;
-
-    z-index:5;
-
-}
-
-
-
-/* INPUT */
-
-input{
-
-    width:100%;
-
-    padding:10px;
-
-    margin-top:15px;
-
-}
-
-
-
-/* BUTTON */
-
-button{
-
-    width:100%;
-
-    margin-top:15px;
-
-    padding:12px;
-
-    background:#4caf50;
-
-    color:white;
-
-    border:none;
-
-    border-radius:10px;
-
-    cursor:pointer;
-
-}
-
-
-
-button:hover{
-
-    background:#388e3c;
-
-}
-
-
-
-/* ===== MOBILE ===== */
+/* MOBILE */
 
 @media(max-width:700px){
 
 
 .sidebar{
 
-    width:80px;
+    width:70px;
+
+    padding:8px;
 
 }
 
 
 .sidebar a{
 
-    font-size:12px;
+    font-size:11px;
 
-    padding:10px;
+    padding:8px 4px;
 
 }
 
 
 .main-content{
 
-    margin-left:80px;
-
-    padding:15px;
-
-}
-
-
-.card{
-
-    width:100%;
+    margin-left:70px;
 
 }
 
