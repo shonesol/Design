@@ -6,7 +6,6 @@
 }
 
 
-
 /* ===== PAGE ===== */
 
 body{
@@ -17,13 +16,27 @@ body{
 
     color:white;
 
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
     min-height:100vh;
+
+    padding-top:80px; /* space for menu */
+
+}
+
+
+/* ===== MENU FIX ===== */
+
+header,
+nav{
+
+    position:fixed;
+
+    top:0;
+
+    left:0;
+
+    width:100%;
+
+    z-index:1000;
 
 }
 
@@ -35,6 +48,10 @@ body{
 
     width:380px;
 
+    max-width:95%;
+
+    margin:30px auto;
+
     background:#222;
 
     padding:25px;
@@ -44,6 +61,10 @@ body{
     text-align:center;
 
     box-shadow:0 0 20px rgba(0,0,0,0.5);
+
+    position:relative;
+
+    z-index:1;
 
 }
 
@@ -71,6 +92,8 @@ h1{
 
     height:480px;
 
+    max-width:100%;
+
     margin:auto;
 
     overflow:hidden;
@@ -83,7 +106,7 @@ h1{
 
 
 
-/* CAMERA VIDEO */
+/* CAMERA */
 
 #camera{
 
@@ -97,7 +120,7 @@ h1{
 
 
 
-/* CLOTHING OVERLAY */
+/* CLOTHING IMAGE */
 
 .cloth-overlay{
 
@@ -119,7 +142,7 @@ h1{
 
 
 
-/* ===== INPUT ===== */
+/* INPUT */
 
 input{
 
@@ -137,7 +160,7 @@ input{
 
 
 
-/* ===== BUTTON ===== */
+/* BUTTON */
 
 button{
 
@@ -171,7 +194,7 @@ button:hover{
 
 
 
-/* MOBILE RESPONSIVE */
+/* MOBILE */
 
 @media(max-width:420px){
 
@@ -185,9 +208,7 @@ button:hover{
 
 #preview{
 
-    width:100%;
-
-    height:450px;
+    height:420px;
 
 }
 
