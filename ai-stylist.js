@@ -1,217 +1,197 @@
+// ai-stylist.js
+
 import { db, auth } from "./firebase.js";
 
-
 import {
-
-collection,
-getDocs
-
+    collection,
+    getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+let currentUser = null;
 
-
-window.askStylist = async function(){
-
-
-const question =
-document.getElementById("question")
-.value
-.toLowerCase();
-
-
-const answer =
-document.getElementById("answer");
-
-
-
-const user =
-auth.currentUser;
-
-
-
-if(!user){
-
-answer.innerText=
-"Please login first";
-
-return;
-
-}
-
-
-
-
-const snapshot =
-await getDocs(
-
-collection(
-db,
-"users",
-user.uid,
-"wardrobe"
-
-)
-
-);
-
-
-
-let clothes=[];
-
-
-
-snapshot.forEach(doc=>{
-
-clothes.push(doc.data());
-
+// Wait for login
+onAuthStateChanged(auth, (user) => {
+    currentUser = user;
 });
 
+window.askStylist = async function () {
 
+    const answer = document.getElementById("answer");
+    const question = document
+        .getElementById("question")
+        .value
+        .trim()
+        .toLowerCase();
 
+    if (question === "") {
+        answer.innerText = "Please type a question.";
+        return;
+    }
 
-if(clothes.length===0){
+    if (!currentUser) {
+        answer.innerText = "Please login first.";
+        return;
+    }
 
-answer.innerText=
-"Your wardrobe is empty. Upload clothes first.";
+    try {
 
-return;
+        answer.innerText = "Thinking... 🤔";
 
-}
+        const snapshot = await getDocs(
+            collection(
+                db,
+                "users",
+                currentUser.uid,
+                "wardrobe"
+            )
+        );
 
+        let clothes = [];
 
+        snapshot.forEach((doc) => {
+            clothes.push(doc.data());
+        });
 
-let result="";
+        if (clothes.length === 0) {
+            answer.innerText =
+                "Your wardrobe is empty. Upload some clothes first.";
+            return;
+        }
 
+        const getItem = (category) => {
+            return clothes.find(item =>
+                item.category &&
+                item.category.toLowerCase() === category
+            );
+        };
 
+        let result = "";
 
+        // PARTY
+        if (question.includes("party")) {
 
-// WEDDING
+            const shirt = getItem("shirt");
+            const trouser = getItem("trouser");
 
-if(question.includes("wedding")){
+            result = `🎉 Party Outfit
 
+👕 ${shirt ? shirt.color + " shirt" : "Stylish shirt"}
 
-let dress =
-clothes.find(
-item=>item.category==="dress"
-);
+👖 ${trouser ? trouser.color + " trouser" : "Matching trousers"}
 
+🔥 Add clean shoes and a nice watch.`;
 
-result=
+        }
 
-`💍 Wedding Outfit
+        // WEDDING
+        else if (question.includes("wedding")) {
 
-Wear:
-👗 ${dress?.color || "elegant"} ${dress?.category || "dress"}
+            const dress = getItem("dress");
+            const suit = getItem("suit");
 
-Add:
-✨ Nice shoes
-✨ Watch or accessories
+            result = `💍 Wedding Outfit
 
-Style: Elegant`;
+${dress
+? "👗 " + dress.color + " dress"
+: suit
+? "🤵 " + suit.color + " suit"
+: "👔 Elegant formal wear"}
 
-}
+✨ Add smart shoes and accessories.`;
 
+        }
 
+        // OFFICE
+        else if (
+            question.includes("office") ||
+            question.includes("work")
+        ) {
 
+            const shirt = getItem("shirt");
 
-// OFFICE
+            result = `💼 Office Outfit
 
-else if(
-question.includes("office") ||
-question.includes("work")
-){
+👔 ${shirt ? shirt.color + " shirt" : "White shirt"}
 
+👞 Smart shoes
 
-let shirt =
-clothes.find(
-item=>item.category==="shirt"
-);
+Professional and clean.`;
 
+        }
 
+        // DATE
+        else if (question.includes("date")) {
 
-result=
+            result = `❤️ Date Outfit
 
-`💼 Office Outfit
+Wear your best matching outfit.
 
-👔 ${shirt?.color || "white"} ${shirt?.category || "shirt"}
+Choose neutral colors and clean shoes.
 
-Recommendation:
-Keep it formal and clean.`;
+Confidence is your best accessory.`;
 
-}
+        }
 
+        // INTERVIEW
+        else if (question.includes("interview")) {
 
+            result = `📄 Interview Outfit
 
+Wear formal clothes.
 
+Avoid bright colors.
 
-// PARTY
+Look neat and professional.`;
 
-else if(
-question.includes("party")
-){
+        }
 
+        // CASUAL
+        else if (question.includes("casual")) {
 
-let item =
-clothes[0];
+            const random =
+                clothes[Math.floor(Math.random() * clothes.length)];
 
+            result = `😊 Casual Outfit
 
-result=
+Wear your ${random.color} ${random.category}.
 
-`🎉 Party Look
+Perfect for everyday comfort.`;
 
-Wear:
-${item.color || ""} ${item.category}
+        }
 
-Add confidence 🔥`;
+        // GENERAL
+        else {
 
-}
+            const random =
+                clothes[Math.floor(Math.random() * clothes.length)];
 
+            result = `✨ Today's Outfit
 
+Wear your ${random.color} ${random.category}.
 
+You will look great today!`;
 
-// GENERAL
+        }
 
-else{
+        answer.innerText = result;
 
+        if ("speechSynthesis" in window) {
+            speechSynthesis.cancel();
+            speechSynthesis.speak(
+                new SpeechSynthesisUtterance(result)
+            );
+        }
 
-let random =
-clothes[
-Math.floor(
-Math.random()*clothes.length
-)
-];
+    } catch (error) {
 
+        console.error(error);
 
+        answer.innerText =
+            "Error: " + error.message;
 
-result=
-
-`✨ Today's Suggestion
-
-Wear:
-
-${random.color || ""} 
-${random.category || "outfit"}
-
-Looks stylish and balanced.`;
-
-}
-
-
-
-answer.innerText=result;
-
-
-
-
-// Voice
-
-const speech =
-new SpeechSynthesisUtterance(result);
-
-
-speechSynthesis.speak(speech);
-
-
-
+    }
 };
