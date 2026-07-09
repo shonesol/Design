@@ -1,147 +1,230 @@
 import { db, auth } from "./firebase.js";
-import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-window.getWeatherOutfit = async function () {
-  const output = document.getElementById("weatherResult");
-  const user = auth.currentUser;
+import {
+collection,
+getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  if (!user) {
-    output.innerText = "Please login first";
-    return;
-  }
 
-  // 🌍 STEP 1: Get weather (global default)
-  const weatherRes = await fetch(
- // 🌍 GET USER LOCATION
+
+window.getWeatherOutfit = async function(){
+
+
+const output =
+document.getElementById("weatherResult");
+
+
+const user =
+auth.currentUser;
+
+
+
+if(!user){
+
+output.innerText =
+"Please login first";
+
+return;
+
+}
+
+
+
+if(!navigator.geolocation){
+
+output.innerText =
+"Location not supported";
+
+return;
+
+}
+
+
+
 
 navigator.geolocation.getCurrentPosition(async(position)=>{
 
 
-const lat = position.coords.latitude;
-const lon = position.coords.longitude;
+try{
 
 
-// 🌦 GET GLOBAL WEATHER
+const lat =
+position.coords.latitude;
 
-const weatherRes = await fetch(
+
+const lon =
+position.coords.longitude;
+
+
+
+
+// GET WEATHER
+
+const weatherRes =
+await fetch(
 
 `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`
 
 );
 
 
-const weatherData = await weatherRes.json();
+
+const weather =
+await weatherRes.json();
+
 
 
 const temp =
-weatherData.current_weather.temperature;
+weather.current_weather.temperature;
 
 
-const weatherCode =
-weatherData.current_weather.weathercode;
+const code =
+weather.current_weather.weathercode;
 
 
-// Continue with your wardrobe AI here...
+
+
+// GET WARDROBE
+
+const snapshot =
+await getDocs(
+
+collection(
+db,
+"users",
+user.uid,
+"wardrobe"
+)
+
+);
+
+
+
+let wardrobe=[];
+
+
+snapshot.forEach(doc=>{
+
+wardrobe.push(doc.data());
 
 });
-    if(!navigator.geolocation){
+
+
+
+if(wardrobe.length===0){
 
 output.innerText =
-"Your device does not support location.";
+"Upload clothes first";
 
 return;
 
 }
-      (error)=>{
 
-output.innerText =
-"Please allow location access for Weather AI.";
 
-}
-  );
 
-  const weatherData = await weatherRes.json();
-  const temp = weatherData.current_weather.temperature;
-  const weatherCode = weatherData.current_weather.weathercode;
 
-  // 👕 STEP 2: Get wardrobe
-  const snapshot = await getDocs(collection(db, "users", user.uid, "wardrobe"));
+let selected;
 
-  let wardrobe = [];
-  snapshot.forEach(doc => wardrobe.push(doc.data()));
-if (wardrobe.length === 0) {
 
-output.innerText =
-"Your wardrobe is empty. Upload clothes first.";
 
-return;
+// HOT
+
+if(temp >= 28){
+
+
+selected =
+wardrobe.find(
+item=>item.style==="casual"
+)
+||
+wardrobe[0];
+
 
 }
-  let outfit = "";
 
-  // ☀️ HOT WEATHER
-  if (temp >= 28) {
-    let light = wardrobe.find(i => i.style === "casual") || wardrobe[0];
 
-    outfit =
-☀️ ${season} Weather (${temp}°C)
-    output.innerText = 
+// RAIN
 
-`
-🌍 Season:
-${season}
+else if(
+code >=51 &&
+code <=99
+){
 
-🌡 Temperature:
+
+selected =
+wardrobe.find(
+item=>item.type==="hoodie"
+)
+||
+wardrobe[0];
+
+
+}
+
+
+// COOL
+
+else{
+
+
+selected =
+wardrobe.find(
+item=>item.type==="shirt"
+)
+||
+wardrobe[0];
+
+
+}
+
+
+
+
+const result = `
+
+🌦 Weather:
 ${temp}°C
 
 
-👗 AI Outfit:
+👕 Recommended Outfit:
 
-${outfit}
+${selected.color}
+${selected.type}
+
+
+✨ Reason:
+
+Chosen based on your weather and wardrobe.
+
 `;
-Wear:
-👕 ${light?.type} - ${light?.color}
-👖 Light and breathable clothes
 
-Stay cool 😎`;
-  }
 
-  // 🌧 RAINY WEATHER
-else if (
-weatherCode >= 51 &&
-weatherCode <= 67 ||
-weatherCode >= 80 &&
-weatherCode <= 99
-)
-    let hoodie = wardrobe.find(i => i.type === "hoodie");
 
-    outfit = `🌧 Rainy Weather (${temp}°C)
+output.innerText=result;
 
-Wear:
-🧥 ${hoodie?.color || "dark"} hoodie
-👖 Jeans
-👟 Waterproof shoes
 
-Stay dry ☔`;
-  }
 
-  // 🌙 COOL WEATHER
-  else {
-    let formal = wardrobe.find(i => i.type === "shirt");
 
-    outfit = `🌙 Cool Weather (${temp}°C)
+speechSynthesis.speak(
+new SpeechSynthesisUtterance(result)
+);
 
-Wear:
-👔 ${formal?.color || "nice"} shirt
-👖 Jeans or trousers
-👟 Clean shoes
 
-Look smart 🔥`;
-  }
 
-  output.innerText = outfit;
+}
 
-  // 🔊 VOICE AI
-  const speech = new SpeechSynthesisUtterance(outfit);
-  speechSynthesis.speak(speech);
+catch(error){
+
+console.error(error);
+
+output.innerText =
+"Weather AI error: "+error.message;
+
+}
+
+
+
+});
+
+
 };
