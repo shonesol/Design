@@ -1,77 +1,83 @@
-let userPhoto;
-
+let cameraStream;
 
 
 // OPEN CAMERA
 
-window.startCamera=function(){
-
+window.startCamera = function(){
 
 const video =
 document.getElementById("camera");
 
 
-
 navigator.mediaDevices
 .getUserMedia({
-
-video:true
-
+    video:true
 })
 
 .then(stream=>{
 
+cameraStream = stream;
 
-video.srcObject=stream;
-
+video.srcObject = stream;
 
 })
 
-.catch(()=>{
+.catch(error=>{
 
-alert(
-"Camera permission denied"
-);
+console.error(error);
+
+alert("Camera permission denied");
 
 });
-
 
 };
 
 
 
 
+// TRY ON
 
-// TRY ON PREVIEW
-
-
-window.tryOn=function(){
-
-
-const video =
-document.getElementById("camera");
+window.tryOn = function(){
 
 
 const cloth =
-document.getElementById("clothImage")
+document
+.getElementById("clothImage")
 .files[0];
+
+
+const preview =
+document.getElementById("preview");
 
 
 
 if(!cloth){
 
 alert("Select clothes first");
-
 return;
 
 }
 
 
 
+// Remove previous clothes
+
+const oldCloth =
+document.querySelector(".try-cloth");
+
+
+if(oldCloth){
+
+oldCloth.remove();
+
+}
+
+
+
+// Create clothing image
 
 const img =
 document.createElement("img");
-
 
 
 img.src =
@@ -79,27 +85,37 @@ URL.createObjectURL(cloth);
 
 
 
-img.style.width="200px";
-
-
-img.style.position="absolute";
-
-img.style.top="150px";
-
-img.style.left="80px";
+img.className =
+"try-cloth";
 
 
 
-document
-.getElementById("preview")
-.appendChild(img);
+img.style.position =
+"absolute";
+
+
+img.style.width =
+"220px";
+
+
+img.style.top =
+"130px";
+
+
+img.style.left =
+"50%";
+
+
+img.style.transform =
+"translateX(-50%)";
+
+
+img.style.opacity =
+"0.85";
 
 
 
-alert(
-"Basic try-on preview created"
-);
-
+preview.appendChild(img);
 
 
 };
