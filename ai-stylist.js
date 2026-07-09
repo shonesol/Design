@@ -11,187 +11,178 @@ import {
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+import { askGemini } from "./gemini.js";
+
+
 let currentUser = null;
 
-// Wait for login
+
+// Check login status
 onAuthStateChanged(auth, (user) => {
+
     currentUser = user;
+
 });
+
+
 
 window.askStylist = async function () {
 
-    const answer = document.getElementById("answer");
-    const question = document
-        .getElementById("question")
-        .value
-        .trim()
-        .toLowerCase();
 
-    if (question === "") {
-        answer.innerText = "Please type a question.";
+    const question =
+    document.getElementById("question").value.trim();
+
+
+    const answer =
+    document.getElementById("answer");
+
+
+
+    if(question === ""){
+
+        answer.innerText =
+        "Please ask me what you want to wear.";
+
         return;
+
     }
 
-    if (!currentUser) {
-        answer.innerText = "Please login first.";
+
+
+    if(!currentUser){
+
+        answer.innerText =
+        "Please login first.";
+
         return;
+
     }
 
-    try {
 
-        answer.innerText = "Thinking... 🤔";
 
-        const snapshot = await getDocs(
+    try{
+
+
+        answer.innerText =
+        "🤖 AI Stylist is thinking...";
+
+
+
+        // Get wardrobe
+
+        const snapshot =
+        await getDocs(
+
             collection(
                 db,
                 "users",
                 currentUser.uid,
                 "wardrobe"
             )
+
         );
+
+
 
         let clothes = [];
 
-        snapshot.forEach((doc) => {
+
+
+        snapshot.forEach((doc)=>{
+
             clothes.push(doc.data());
+
         });
 
-        if (clothes.length === 0) {
+
+
+        if(clothes.length === 0){
+
+
             answer.innerText =
-                "Your wardrobe is empty. Upload some clothes first.";
+            "Your wardrobe is empty. Upload clothes first.";
+
             return;
-        }
-
-        const getItem = (category) => {
-            return clothes.find(item =>
-                item.category &&
-                item.category.toLowerCase() === category
-            );
-        };
-
-        let result = "";
-
-        // PARTY
-        if (question.includes("party")) {
-
-            const shirt = getItem("shirt");
-            const trouser = getItem("trouser");
-
-            result = `🎉 Party Outfit
-
-👕 ${shirt ? shirt.color + " shirt" : "Stylish shirt"}
-
-👖 ${trouser ? trouser.color + " trouser" : "Matching trousers"}
-
-🔥 Add clean shoes and a nice watch.`;
 
         }
 
-        // WEDDING
-        else if (question.includes("wedding")) {
 
-            const dress = getItem("dress");
-            const suit = getItem("suit");
 
-            result = `💍 Wedding Outfit
+        // Send wardrobe + question to Gemini
 
-${dress
-? "👗 " + dress.color + " dress"
-: suit
-? "🤵 " + suit.color + " suit"
-: "👔 Elegant formal wear"}
+        const prompt = `
 
-✨ Add smart shoes and accessories.`;
+You are an expert personal fashion stylist.
 
-        }
+User wardrobe:
 
-        // OFFICE
-        else if (
-            question.includes("office") ||
-            question.includes("work")
-        ) {
+${JSON.stringify(clothes, null, 2)}
 
-            const shirt = getItem("shirt");
 
-            result = `💼 Office Outfit
+User question:
 
-👔 ${shirt ? shirt.color + " shirt" : "White shirt"}
+${question}
 
-👞 Smart shoes
 
-Professional and clean.`;
+Create a personalized outfit recommendation.
 
-        }
+Include:
 
-        // DATE
-        else if (question.includes("date")) {
+👕 Clothes to wear
+👟 Shoes suggestion
+⌚ Accessories suggestion
+🎨 Color matching advice
+✨ Style explanation
 
-            result = `❤️ Date Outfit
+Use only items from the wardrobe when possible.
 
-Wear your best matching outfit.
+Keep the answer friendly and clear.
 
-Choose neutral colors and clean shoes.
+`;
 
-Confidence is your best accessory.`;
 
-        }
 
-        // INTERVIEW
-        else if (question.includes("interview")) {
+        const result =
+        await askGemini(prompt);
 
-            result = `📄 Interview Outfit
 
-Wear formal clothes.
 
-Avoid bright colors.
+        answer.innerText =
+        result;
 
-Look neat and professional.`;
 
-        }
 
-        // CASUAL
-        else if (question.includes("casual")) {
+        // Voice response
 
-            const random =
-                clothes[Math.floor(Math.random() * clothes.length)];
+        if("speechSynthesis" in window){
 
-            result = `😊 Casual Outfit
-
-Wear your ${random.color} ${random.category}.
-
-Perfect for everyday comfort.`;
-
-        }
-
-        // GENERAL
-        else {
-
-            const random =
-                clothes[Math.floor(Math.random() * clothes.length)];
-
-            result = `✨ Today's Outfit
-
-Wear your ${random.color} ${random.category}.
-
-You will look great today!`;
-
-        }
-
-        answer.innerText = result;
-
-        if ("speechSynthesis" in window) {
             speechSynthesis.cancel();
-            speechSynthesis.speak(
-                new SpeechSynthesisUtterance(result)
-            );
+
+
+            const speech =
+            new SpeechSynthesisUtterance(result);
+
+
+            speechSynthesis.speak(speech);
+
         }
 
-    } catch (error) {
+
+
+    }
+
+    catch(error){
+
 
         console.error(error);
 
+
         answer.innerText =
-            "Error: " + error.message;
+        "Something went wrong: " + error.message;
+
 
     }
+
+
+
 };
