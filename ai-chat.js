@@ -1,89 +1,155 @@
-import { db, auth } from "./firebase.js";
-import { askGemini } from "./gemini-ai.js";
+import {db,auth} from "./firebase.js";
+
+import {askGemini} from "./gemini-ai.js";
+
 
 import {
-    collection,
-    getDocs
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+collection,
+getDocs
+
+}
+
+from
+"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
-window.chatAI = async function () {
-
-    const question =
-        document.getElementById("message")
-        .value
-        .toLowerCase();
 
 
-    const reply =
-        document.getElementById("reply");
+window.chatAI = async function(){
 
 
-    const user = auth.currentUser;
+
+const question =
+document
+.getElementById("message")
+.value;
 
 
-    if (!user) {
-        reply.innerText = "Please login first";
-        return;
-    }
+
+const reply =
+document
+.getElementById("reply");
 
 
-    try {
 
-        const snapshot = await getDocs(
-            collection(
-                db,
-                "users",
-                user.uid,
-                "wardrobe"
-            )
-        );
+const user =
+auth.currentUser;
 
 
-        let wardrobe = [];
+
+if(!user){
+
+reply.innerText=
+"Please login first";
+
+return;
+
+}
 
 
-        snapshot.forEach(doc => {
-            wardrobe.push(doc.data());
-        });
 
 
-        console.log("User:", user);
-        console.log("Wardrobe:", wardrobe);
+reply.innerText="Thinking...";
 
 
-        const answer = await askGemini(`
-You are an expert fashion stylist.
+
+try{
+
+
+const snapshot =
+await getDocs(
+
+collection(
+
+db,
+
+"users",
+
+user.uid,
+
+"wardrobe"
+
+)
+
+);
+
+
+
+
+let wardrobe=[];
+
+
+
+snapshot.forEach(doc=>{
+
+
+wardrobe.push(doc.data());
+
+
+});
+
+
+
+
+
+const answer =
+await askGemini(`
+
+
+You are a professional AI fashion stylist.
+
 
 User wardrobe:
-${JSON.stringify(wardrobe, null, 2)}
 
-Question:
+${JSON.stringify(
+wardrobe,
+null,
+2
+)}
+
+
+
+User question:
+
 ${question}
 
-Use the wardrobe when possible.
-If something is missing, recommend what to buy.
-Keep the answer friendly and practical.
+
+
+Give practical outfit advice.
+Suggest colors, shoes and accessories.
+
+
 `);
 
 
-        console.log("Gemini:", answer);
 
 
-        reply.innerText = answer;
+reply.innerText=answer;
 
 
-        speechSynthesis.speak(
-            new SpeechSynthesisUtterance(answer)
-        );
+
+speechSynthesis.speak(
+
+new SpeechSynthesisUtterance(answer)
+
+);
 
 
-    } catch(error) {
 
-        console.error("AI Chat Error:", error);
+}
 
-        reply.innerText = "Something went wrong: " + error.message;
+catch(error){
 
-    }
 
-};
+console.error(error);
+
+
+reply.innerText=
+"Error: "+error.message;
+
+
+}
+
+
+}
