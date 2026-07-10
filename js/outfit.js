@@ -304,9 +304,34 @@ ${item.details.trend}%
 
 
 
-<button>
-❤️ Save
+<button onclick='wearThis(${JSON.stringify(outfit)})'>
+
+👕 Wear This
+
 </button>
+import {
+wearOutfit
+}
+from "./outfit-memory.js";
+
+
+
+window.wearThis =
+function(outfit){
+
+
+wearOutfit(
+database,
+outfit
+);
+
+
+alert(
+"FashionAI recorded your outfit"
+);
+
+
+};
 
 
 <button>
