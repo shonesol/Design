@@ -20,6 +20,12 @@ analyzeUserStyle
 }
 from "./style-learning.js";
 
+
+import {
+checkRecentlyWorn
+}
+from "./history-ai.js";
+
 let database = null;
 
 
