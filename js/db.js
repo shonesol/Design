@@ -334,3 +334,117 @@ export function deleteClothing(db,id){
 
 
 }
+// ==========================
+// SAVE WEAR HISTORY
+// ==========================
+
+export function saveWearHistory(db, outfit){
+
+
+return new Promise((resolve,reject)=>{
+
+
+const transaction =
+db.transaction(
+"history",
+"readwrite"
+);
+
+
+
+const store =
+transaction.objectStore(
+"history"
+);
+
+
+
+const request =
+store.add({
+
+outfit:outfit,
+
+date:
+new Date()
+.toISOString()
+
+});
+
+
+
+request.onsuccess=()=>{
+
+resolve(request.result);
+
+};
+
+
+
+request.onerror=()=>{
+
+reject(request.error);
+
+};
+
+
+});
+
+
+}
+
+
+
+
+
+
+// ==========================
+// GET WEAR HISTORY
+// ==========================
+
+
+export function getWearHistory(db){
+
+
+return new Promise((resolve,reject)=>{
+
+
+const transaction =
+db.transaction(
+"history",
+"readonly"
+);
+
+
+
+const store =
+transaction.objectStore(
+"history"
+);
+
+
+
+const request =
+store.getAll();
+
+
+
+request.onsuccess=()=>{
+
+resolve(request.result);
+
+};
+
+
+
+request.onerror=()=>{
+
+reject(request.error);
+
+};
+
+
+
+});
+
+
+}
