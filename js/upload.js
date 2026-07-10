@@ -14,20 +14,54 @@ askGemini
 from "./gemini.js";
 
 
+import {
+openDatabase,
+addClothing
+}
+from "./db.js";
 
-let user=null;
 
 
+let user = null;
+
+let database = null;
+
+
+
+
+
+// ==========================
+// LOGIN CHECK
+// ==========================
 
 onAuthStateChanged(
 auth,
-(current)=>{
+async(current)=>{
+
+
+if(current){
 
 
 user=current;
 
 
+database =
+await openDatabase(
+user.uid
+);
+
+
+console.log(
+"FashionAI Database Ready"
+);
+
+
+}
+
+
 });
+
+
 
 
 
@@ -37,6 +71,8 @@ const button =
 document.getElementById(
 "uploadBtn"
 );
+
+
 
 
 
@@ -56,12 +92,15 @@ return;
 
 
 
+
+
 const file =
 document
 .getElementById(
 "clothingImage"
 )
 .files[0];
+
 
 
 
@@ -79,6 +118,7 @@ return;
 
 
 
+
 const reader =
 new FileReader();
 
@@ -90,8 +130,11 @@ reader.onload =
 async()=>{
 
 
+
 const image =
 reader.result;
+
+
 
 
 
@@ -109,114 +152,30 @@ document
 
 
 
+document
+.getElementById(
+"result"
+)
+.innerHTML =
+"🤖 FashionAI analyzing...";
+
+
+
+
+
+
+
 const prompt = `
 
 
 You are FashionAI Vision,
-one of the world's best fashion recognition systems.
+an advanced global fashion recognition AI.
 
 
-Analyze the clothing image carefully.
+Analyze this clothing image.
 
 
-Identify:
-
-1. Exact clothing name
-
-Examples:
-
-- Oxford shirt
-- Polo shirt
-- Blazer
-- Hoodie
-- Abaya
-- Kimono
-- Sari
-- Kitenge dress
-- Sneakers
-- Loafers
-
-
-2. Category
-
-Use one:
-
-Top
-Bottom
-Dress
-Outerwear
-Shoes
-Accessories
-
-
-3. Main color
-
-
-4. Secondary colors
-
-
-5. Pattern
-
-Examples:
-
-Plain
-Striped
-Floral
-Checked
-Printed
-Geometric
-Animal print
-
-
-6. Fabric/material
-
-Examples:
-
-Cotton
-Denim
-Leather
-Silk
-Wool
-Linen
-Polyester
-
-
-7. Style identity
-
-Examples:
-
-Casual
-Smart Casual
-Business
-Luxury
-Streetwear
-Traditional
-Minimalist
-Old Money
-Sporty
-
-
-8. Occasion
-
-Examples:
-
-Office
-Wedding
-Travel
-Party
-Daily Wear
-
-
-9. Season suitability
-
-
-10. Gender style category
-
-
-11. Fashion era/trend
-
-
-Return ONLY valid JSON:
+Return ONLY JSON.
 
 
 {
@@ -236,10 +195,19 @@ Return ONLY valid JSON:
 }
 
 
-Do not explain.
-Only JSON.
+Recognize worldwide fashion including:
+
+African fashion,
+Asian fashion,
+European fashion,
+traditional clothing,
+modern clothing,
+shoes and accessories.
+
 
 `;
+
+
 
 
 
@@ -255,14 +223,17 @@ image
 
 
 
-let clothing;
+
+
+
+let ai;
 
 
 
 try{
 
 
-clothing =
+ai =
 JSON.parse(
 answer
 );
@@ -274,14 +245,15 @@ answer
 catch(error){
 
 
-console.log(
-answer
-);
+console.log(answer);
 
 
-alert(
-"AI returned invalid data"
-);
+document
+.getElementById(
+"result"
+)
+.innerHTML =
+"AI formatting error";
 
 
 return;
@@ -293,105 +265,18 @@ return;
 
 
 
-saveClothing(
-image,
-clothing
-);
 
 
-
-};
-
-
-
+// ==========================
+// SAVE USING db.js
+// ==========================
 
 
-reader.readAsDataURL(file);
+await addClothing(
 
+database,
 
-};
-
-
-
-
-
-
-// SAVE TO INDEXED DATABASE
-
-
-function saveClothing(
-image,
-ai
-){
-
-
-
-const request =
-indexedDB.open(
-"FashionAI_"+user.uid,
-1
-);
-
-
-
-request.onupgradeneeded =
-e=>{
-
-
-let db =
-e.target.result;
-
-
-
-if(
-!db.objectStoreNames.contains(
-"wardrobe"
-)
-){
-
-
-db.createObjectStore(
-"wardrobe",
 {
-keyPath:"id",
-autoIncrement:true
-}
-);
-
-
-}
-
-
-};
-
-
-
-
-
-request.onsuccess=e=>{
-
-
-let db =
-e.target.result;
-
-
-
-let transaction =
-db.transaction(
-"wardrobe",
-"readwrite"
-);
-
-
-
-let store =
-transaction.objectStore(
-"wardrobe"
-);
-
-
-
-store.add({
 
 
 image:image,
@@ -403,6 +288,9 @@ image:image,
 timesWorn:0,
 
 
+favorite:false,
+
+
 laundryStatus:"Clean",
 
 
@@ -410,11 +298,14 @@ createdAt:
 Date.now()
 
 
-});
+}
+
+);
 
 
 
-transaction.oncomplete=()=>{
+
+
 
 
 document
@@ -430,7 +321,7 @@ document
 
 
 <p>
-${ai.type}
+👕 ${ai.name}
 </p>
 
 
@@ -444,15 +335,27 @@ ${ai.type}
 </p>
 
 
+<p>
+⭐ Confidence:
+${ai.confidence}
+</p>
+
+
 `;
 
 
 
+
+
 };
 
 
 
+
+
+
+reader.readAsDataURL(file);
+
+
+
 };
-
-
-}
