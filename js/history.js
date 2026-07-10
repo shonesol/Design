@@ -102,3 +102,63 @@ request.error
 });
 
 }
+// ==========================
+// GET HISTORY
+// ==========================
+
+
+export function getWearHistory(database){
+
+
+return new Promise((resolve,reject)=>{
+
+
+const transaction =
+database.transaction(
+"history",
+"readonly"
+);
+
+
+
+const store =
+transaction.objectStore(
+"history"
+);
+
+
+
+const request =
+store.getAll();
+
+
+
+
+request.onsuccess=()=>{
+
+
+resolve(
+request.result
+);
+
+
+};
+
+
+
+request.onerror=()=>{
+
+
+reject(
+request.error
+);
+
+
+};
+
+
+
+});
+
+
+}
