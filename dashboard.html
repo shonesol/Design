@@ -1,244 +1,120 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-  <meta charset="UTF-8">
-  <title>Fashion AI Dashboard</title>
 
-  <link rel="stylesheet" href="style.css">
+<title>
+FashionAI Dashboard
+</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial;
-      background: #f5f0e6;
-      display: flex;
-    }
+<link rel="stylesheet" href="css/dashboard.css">
 
-    /* SIDEBAR */
-    .sidebar {
-      width: 220px;
-      background: #1b1b1b;
-      color: white;
-      height: 100vh;
-      padding: 20px;
-      position: fixed;
-    }
-
-    .sidebar h2 {
-      color: #c9a66b;
- font-size: 38px;
-    font-weight: 700;
-    margin-bottom: 30px;
-    }
-
-  .sidebar button,
-.sidebar a {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 20px;
-    margin-bottom: 15px;
-    font-size: 24px;      /* Increased text size */
-    font-weight: bold;
-    color: white;
-    background: #d4af6a;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: 0.3s;
-    text-decoration: none;
-    }
-
-.sidebar button:hover,
-.sidebar a:hover {
-    background: #c19a4b;
-    transform: scale(1.03);
-
-}
-
-/* Icons */
-
-.sidebar button i,
-
-.sidebar a i {
-    font-size: 28px;
-    margin-right: 12px;
-
-}
-    /* MAIN */
-    .main {
-      margin-left: 240px;
-      padding: 20px;
-      width: 100%;
-    }
-
-    .card {
-      background: white;
-      padding: 15px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    input, button {
-      padding: 10px;
-      margin-top: 10px;
-      width: 100%;
-    }
-
-    button {
-      background: #1b1b1b;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #333;
-    }
-
-    pre {
-      background: #f5f5f5;
-      padding: 10px;
-    }
-@media (max-width: 768px) {
-    .sidebar {
-        width: 220px;
-    }
-
-    .sidebar h2 {
-        font-size: 30px;
-    }
-
-    .sidebar button,
-    .sidebar a {
-        font-size: 20px;
-        padding: 18px;
-    }
-
-    .sidebar button i,
-    .sidebar a i {
-        font-size: 24px;
-    }
-}
-  </style>
-<link rel="manifest" href="manifest.json">
-
-<meta name="theme-color" content="#1b1b1b">
 </head>
+
 
 <body>
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-  <h2>👗 Fashion AI</h2>
-<button onclick="location.href='style-profile.html'">
-🧠 My Style AI
-</button>
-<button onclick="favoriteCloth('${item.id}')">
-❤️ Favorite
-</button>
-<button onclick="location.href='laundry.html'">
-🧺 Laundry Tracker
-</button>
-<button onclick="location.href='calendar.html'">
-📅 Outfit Planner
-</button>
-<button onclick="location.href='profile.html'">
-👤 Fashion Profile
-</button>
-<button onclick="location.href='tryon.html'">
-🧍 Virtual Try-On
-</button>
-<button onclick="location.href='ai-chat.html'">
-🤖 AI Chat
-</button>
-<button onclick="location.href='outfit-generator.html'">
-✨ Outfit Generator
-</button>
-<button onclick="location.href='ai-stylist.html'">
-🤖 AI Stylist
-</button>
-<button onclick="location.href='my-looks.html'">
-❤️ My Looks
-</button>
-  <button onclick="showSection('upload')">Upload Clothes</button>
-  <button onclick="showSection('chat')">AI Stylist</button>
-  <button onclick="showSection('weather')">Weather AI</button>
-  <button onclick="showSection('tryon')">Try-On AI</button>
+
+<div class="dashboard">
+
+
+<h1>
+👗 FashionAI Closet
+</h1>
+
+
+<div class="cards">
+
+
+<div class="card">
+<h2 id="totalClothes">
+0
+</h2>
+<p>
+Clothes
+</p>
 </div>
 
-<!-- MAIN -->
-<div class="main">
 
-  <!-- UPLOAD -->
-  <div id="upload" class="card">
-    <h2>📸 Upload Clothes</h2>
-    <input type="file" id="file">
-    <button onclick="uploadClothes()">Upload</button>
-    <p id="status"></p>
-  </div>
 
-  <!-- CHAT -->
-  <div id="chat" class="card" style="display:none;">
-    <h2>💬 AI Stylist</h2>
-    <input type="text" id="userMsg">
-    <button onclick="sendMessage()">Ask AI</button>
-    <pre id="chatReply"></pre>
-  </div>
+<div class="card">
+<h2 id="totalWorn">
+0
+</h2>
+<p>
+Outfits Worn
+</p>
+</div>
 
-  <!-- WEATHER -->
-  <div id="weather" class="card" style="display:none;">
-    <h2>🌦 Weather AI</h2>
-    <button onclick="getWeatherOutfit()">Suggest Outfit</button>
-    <pre id="weatherResult"></pre>
-  </div>
 
-  <!-- TRY ON -->
-  <div id="tryon" class="card" style="display:none;">
-    <h2>🧍 Try-On AI</h2>
 
-    <video id="video" width="300" height="400" autoplay></video>
-    <canvas id="canvas" width="300" height="400"></canvas>
+<div class="card">
 
-    <input type="file" id="clothPose">
-    <button onclick="startPoseTryOn()">Start Try-On</button>
-  </div>
+<h2>
+🎨
+</h2>
+
+<p id="favoriteColors">
+Loading...
+</p>
 
 </div>
 
-<script>
-function showSection(id) {
-  document.querySelectorAll(".card").forEach(c => c.style.display = "none");
-  document.getElementById(id).style.display = "block";
-}
+
+
+
+<div class="card">
+
+<h2>
+✨
+</h2>
+
+<p id="favoriteStyle">
+Loading...
+</p>
+
+</div>
+
+
+</div>
+
+
+
+
+
+<h2>
+🤖 AI Suggestions
+</h2>
+
+
+<div id="suggestions">
+
+</div>
+
+
+
+
+<h2>
+🔥 Recent Outfits
+</h2>
+
+
+<div id="recent">
+
+</div>
+
+
+</div>
+
+
+
+<script 
+type="module"
+src="js/dashboard.js">
+
 </script>
-<link rel="stylesheet" href="style.css">
-<script type="module" src="upload.js"></script>
-<script type="module" src="chat-ai.js"></script>
-<script type="module" src="weather-ai.js"></script>
-<script src="pose-tryon.js"></script>
-<script type="module">
-
-import {auth} from "./firebase.js";
-
-import {
-onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 
-onAuthStateChanged(auth,(user)=>{
-
-if(!user){
-
-window.location.href="index.html";
-
-}
-
-});
-
-
-</script>
 </body>
+
 </html>
