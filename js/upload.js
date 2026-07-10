@@ -111,17 +111,116 @@ document
 
 const prompt = `
 
-You are FashionAI,
-a professional clothing recognition AI.
+
+You are FashionAI Vision,
+one of the world's best fashion recognition systems.
 
 
-Analyze this clothing image.
+Analyze the clothing image carefully.
 
 
-Return ONLY JSON:
+Identify:
+
+1. Exact clothing name
+
+Examples:
+
+- Oxford shirt
+- Polo shirt
+- Blazer
+- Hoodie
+- Abaya
+- Kimono
+- Sari
+- Kitenge dress
+- Sneakers
+- Loafers
+
+
+2. Category
+
+Use one:
+
+Top
+Bottom
+Dress
+Outerwear
+Shoes
+Accessories
+
+
+3. Main color
+
+
+4. Secondary colors
+
+
+5. Pattern
+
+Examples:
+
+Plain
+Striped
+Floral
+Checked
+Printed
+Geometric
+Animal print
+
+
+6. Fabric/material
+
+Examples:
+
+Cotton
+Denim
+Leather
+Silk
+Wool
+Linen
+Polyester
+
+
+7. Style identity
+
+Examples:
+
+Casual
+Smart Casual
+Business
+Luxury
+Streetwear
+Traditional
+Minimalist
+Old Money
+Sporty
+
+
+8. Occasion
+
+Examples:
+
+Office
+Wedding
+Travel
+Party
+Daily Wear
+
+
+9. Season suitability
+
+
+10. Gender style category
+
+
+11. Fashion era/trend
+
+
+Return ONLY valid JSON:
 
 
 {
+"name":"",
 "type":"",
 "category":"",
 "color":"",
@@ -132,12 +231,13 @@ Return ONLY JSON:
 "occasion":"",
 "season":"",
 "gender":"",
+"trend":"",
 "confidence":""
 }
 
 
-
-Recognize international fashion terms.
+Do not explain.
+Only JSON.
 
 `;
 
