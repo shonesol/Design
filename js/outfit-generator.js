@@ -464,7 +464,7 @@ ${outfit.score}%
 
 
 
-<button>
+<button onclick='saveOutfit(${JSON.stringify(outfit)})'>
 
 ❤️ Save Outfit
 
@@ -481,6 +481,29 @@ ${outfit.score}%
 
 });
 
+
+
+};
+import {
+saveOutfit
+}
+from "./outfit-memory.js";
+
+
+
+window.saveOutfit =
+function(outfit){
+
+
+saveOutfit(
+database,
+outfit
+);
+
+
+alert(
+"❤️ Outfit saved to FashionAI memory"
+);
 
 
 };
