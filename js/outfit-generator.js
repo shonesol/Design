@@ -158,14 +158,16 @@ return 60;
 function scoreOutfit(
 top,
 bottom,
-shoe
+shoe,
+profile
 ){
-
 
 
 let score=0;
 
 
+
+// COLOR MATCH
 
 score +=
 colorScore(
@@ -185,25 +187,72 @@ shoe.color
 
 
 
+// STYLE MATCH
 
-// style matching
+let outfitStyles=[
+
+top.style?.toLowerCase(),
+
+bottom.style?.toLowerCase(),
+
+shoe.style?.toLowerCase()
+
+];
+
+
+
+
+
+profile.favoriteStyles.forEach(style=>{
+
 
 if(
-top.style === bottom.style
+outfitStyles.includes(
+style.toLowerCase()
 )
+
+)
+
+{
 
 score +=20;
 
+}
+
+
+});
 
 
 
-// laundry check
+
+
+
+
+// COLOR PREFERENCE
+
+
+profile.favoriteColors.forEach(color=>{
+
 
 if(
-top.laundryStatus==="Clean"
+
+top.color
+?.toLowerCase()
+.includes(color)
+
 )
 
+{
+
 score+=10;
+
+}
+
+
+});
+
+
+
 
 
 
@@ -214,11 +263,6 @@ Math.round(score/2)
 
 
 }
-
-
-
-
-
 
 
 
