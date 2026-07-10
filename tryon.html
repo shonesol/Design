@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Virtual Try On AI</title>
+<title>AI Virtual Try-On</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -18,33 +18,37 @@
 
 <div class="card">
 
-<h1>🧍 Virtual Try-On AI</h1>
+
+<h1>🧍 AI Virtual Try-On</h1>
 
 
-<div id="preview">
-
-
-<video 
-id="camera"
-autoplay
-playsinline>
-</video>
-
-
-</div>
+<p>
+Upload your photo and select clothes.
+AI will create your outfit preview.
+</p>
 
 
 
-<br>
+<h3>Your Photo</h3>
 
-
-<button onclick="startCamera()">
-📷 Open Camera
-</button>
-
+<input 
+type="file"
+id="personImage"
+accept="image/*">
 
 
 <br><br>
+
+
+<img 
+id="personPreview"
+width="250">
+
+
+
+
+
+<h3>Select Clothes</h3>
 
 
 <input 
@@ -53,13 +57,40 @@ id="clothImage"
 accept="image/*">
 
 
+<br><br>
+
+
+<img 
+id="clothPreview"
+width="250">
+
+
+
+
 
 <br><br>
 
 
-<button onclick="tryOn()">
-👕 Try Outfit
+<button onclick="generateTryOn()">
+
+✨ Dress Me With AI
+
 </button>
+
+
+
+
+<h2>
+AI Result
+</h2>
+
+
+<div id="loading"></div>
+
+
+<img 
+id="resultImage"
+width="350">
 
 
 
