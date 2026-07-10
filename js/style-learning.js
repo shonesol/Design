@@ -1,68 +1,61 @@
-// style-learning.js
-// FashionAI Personal Style Learning System
+// FashionAI Personal Style Brain
 
 
 import {
 getClothes
-} from "./db.js";
-
-import {
-getWearHistory
-} from "./history.js";
+}
+from "./db.js";
 
 
 
 
-
-// ==========================
 // ANALYZE USER STYLE
-// ==========================
 
-
-export async function analyzeUserStyle(
-database
-){
+export async function analyzeUserStyle(db){
 
 
 const clothes =
-await getClothes(
-database
-);
+await getClothes(db);
 
 
 
-const history =
-await getWearHistory(
-database
-);
+if(clothes.length===0){
+
+
+return {
+
+favoriteColors:[],
+
+favoriteStyles:[],
+
+fashionPersonality:"New User"
+
+};
+
+
+}
 
 
 
+let colors={};
 
-
-let colors = {};
-
-let styles = {};
-
-let categories = {};
+let styles={};
 
 
 
-
-
-
-// Analyze wardrobe
 
 
 clothes.forEach(item=>{
 
 
-if(item.primaryColor){
+// COLORS
+
+if(item.color){
 
 
 let color =
-item.primaryColor;
-
+item.color
+.toLowerCase();
 
 
 colors[color] =
@@ -74,24 +67,19 @@ colors[color] =
 
 
 
+
+// STYLES
+
 if(item.style){
 
 
-styles[item.style] =
-(styles[item.style] || 0)+1;
+let style =
+item.style
+.toLowerCase();
 
 
-}
-
-
-
-
-
-if(item.category){
-
-
-categories[item.category] =
-(categories[item.category] || 0)+1;
+styles[style] =
+(styles[style] || 0)+1;
 
 
 }
@@ -105,26 +93,28 @@ categories[item.category] =
 
 
 
-// Analyze worn outfits
+
+let favoriteColors =
+Object.keys(colors)
+.sort(
+(a,b)=>
+colors[b]-colors[a]
+)
+.slice(0,5);
 
 
-history.forEach(item=>{
 
 
-if(item.rating>=4){
 
 
-console.log(
-"User liked:",
-item
-);
 
-
-}
-
-
-});
-
+let favoriteStyles =
+Object.keys(styles)
+.sort(
+(a,b)=>
+styles[b]-styles[a]
+)
+.slice(0,3);
 
 
 
@@ -134,24 +124,16 @@ item
 return {
 
 
-favoriteColors:
-sortResults(colors),
+favoriteColors,
 
 
-favoriteStyles:
-sortResults(styles),
+favoriteStyles,
 
 
-favoriteCategories:
-sortResults(categories),
-
-
-totalClothes:
-clothes.length,
-
-
-totalOutfits:
-history.length
+fashionPersonality:
+detectPersonality(
+favoriteStyles
+)
 
 
 };
@@ -166,24 +148,71 @@ history.length
 
 
 
-// ==========================
-// SORT PREFERENCES
-// ==========================
+function detectPersonality(styles){
 
 
-function sortResults(data){
 
-
-return Object.entries(data)
-
-.sort(
-(a,b)=>
-b[1]-a[1]
+if(
+styles.some(
+s=>s.includes("old money")
+)
 )
 
-.slice(0,5)
+return "Elegant Classic";
 
-.map(item=>item[0]);
+
+
+
+
+if(
+styles.some(
+s=>s.includes("streetwear")
+)
+)
+
+return "Urban Trendsetter";
+
+
+
+
+
+if(
+styles.some(
+s=>s.includes("minimal")
+)
+)
+
+return "Modern Minimalist";
+
+
+
+
+
+if(
+styles.some(
+s=>s.includes("business")
+)
+)
+
+return "Professional Style";
+
+
+
+
+
+if(
+styles.some(
+s=>s.includes("traditional")
+)
+)
+
+return "Cultural Fashion Explorer";
+
+
+
+
+
+return "Balanced Fashion Explorer";
 
 
 }
