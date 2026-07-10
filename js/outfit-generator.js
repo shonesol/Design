@@ -22,6 +22,17 @@ from "./style-learning.js";
 
 
 import {
+getWeatherAdvice
+}
+from "./weather-ai.js";
+
+
+import {
+getOccasionStyle
+}
+from "./occasion-ai.js";
+
+import {
 checkRecentlyWorn
 }
 from "./history-ai.js";
