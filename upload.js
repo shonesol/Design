@@ -1,37 +1,68 @@
-import { analyzeClothing } from "./clothing-ai.js";
+// upload.js
+
 import { auth } from "./firebase.js";
+
 import {
 onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-import { askGemini } from "./gemini.js";
+
+import {
+analyzeClothing
+} from "./clothing-ai.js";
+
 
 
 let currentUser = null;
+
 let wardrobeDB = null;
 
 
 
 
+// ==========================
+// CHECK LOGIN
+// ==========================
+
 onAuthStateChanged(auth, async(user)=>{
+
 
 if(user){
 
-currentUser=user;
+
+currentUser = user;
+
 
 wardrobeDB =
 await openDatabase(user.uid);
 
+
+
+console.log(
+"AI Wardrobe Ready:",
+user.uid
+);
+
+
+
 }
+
 
 });
 
 
 
 
+
+
+
+// ==========================
 // OPEN DATABASE
+// ==========================
+
 
 function openDatabase(uid){
+
 
 return new Promise((resolve,reject)=>{
 
@@ -44,10 +75,12 @@ indexedDB.open(
 
 
 
-request.onupgradeneeded=(e)=>{
+request.onupgradeneeded=(event)=>{
 
 
-const db=e.target.result;
+const db =
+event.target.result;
+
 
 
 if(!db.objectStoreNames.contains("wardrobe")){
@@ -69,14 +102,27 @@ autoIncrement:true
 
 
 
-request.onsuccess=(e)=>{
 
-resolve(e.target.result);
+request.onsuccess=(event)=>{
+
+
+resolve(
+event.target.result
+);
+
 
 };
 
 
-request.onerror=reject;
+
+request.onerror=(error)=>{
+
+
+reject(error);
+
+
+};
+
 
 
 });
@@ -89,83 +135,14 @@ request.onerror=reject;
 
 
 
-// AI VISION CLOTHING ANALYSIS
 
-async function analyzeClothing(image){
-
-
-const prompt = `
-
-You are a fashion AI vision expert.
-
-Analyze this clothing image.
-
-Return ONLY JSON:
-
-{
-"type":"",
-"color":"",
-"style":"",
-"season":""
-}
-
-Examples:
-
-type:
-shirt, tshirt, jeans, trousers, dress, shoes, jacket
-
-style:
-casual, formal, luxury, sporty, elegant
-
-`;
-
-
-
-const result =
-await askGemini(prompt);
-
-
-
-try{
-
-
-return JSON.parse(result);
-
-
-}
-
-catch{
-
-
-return {
-
-type:"unknown",
-
-color:"unknown",
-
-style:"casual",
-
-season:"all"
-
-};
-
-
-}
-
-
-
-}
-
-
-
-
-
-
-
-
+// ==========================
 // UPLOAD CLOTHES
+// ==========================
 
-window.uploadClothes = async function(){
+
+window.uploadClothes =
+async function(){
 
 
 
@@ -183,31 +160,43 @@ document
 
 
 
+
 if(!file){
 
-status.innerText=
-"Select clothing image";
+
+status.innerHTML =
+"❌ Select a clothing image";
+
 
 return;
 
+
 }
+
+
 
 
 
 if(!currentUser){
 
-status.innerText=
-"Please login first";
+
+status.innerHTML =
+"❌ Please login first";
+
 
 return;
+
 
 }
 
 
 
 
-status.innerText=
-"🤖 AI is analyzing clothing...";
+
+status.innerHTML =
+"🤖 AI is studying your clothes...";
+
+
 
 
 
@@ -218,22 +207,46 @@ new FileReader();
 
 
 
-reader.onload=async()=>{
+
+
+reader.onload =
+async()=>{
 
 
 
-const image =
+const imageBase64 =
 reader.result;
 
 
 
 
 
+try{
+
+
+
+// SEND IMAGE TO AI
+
+
 const ai =
-await analyzeClothing(image);
+await analyzeClothing(
+imageBase64
+);
 
 
 
+
+console.log(
+"AI CLOTHING DATA:",
+ai
+);
+
+
+
+
+
+
+// SAVE TO DATABASE
 
 
 const transaction =
@@ -256,22 +269,52 @@ transaction.objectStore(
 
 store.add({
 
-image:image,
+
+image:imageBase64,
 
 
-type:ai.type,
+type:
+ai.type,
 
 
-color:ai.color,
+color:
+ai.color,
 
 
-style:ai.style,
+hex:
+ai.hex,
 
 
-season:ai.season,
+secondaryColor:
+ai.secondaryColor,
 
 
-createdAt:new Date()
+pattern:
+ai.pattern,
+
+
+material:
+ai.material,
+
+
+style:
+ai.style,
+
+
+occasion:
+ai.occasion,
+
+
+season:
+ai.season,
+
+
+confidence:
+ai.confidence,
+
+
+createdAt:
+new Date().toISOString()
 
 
 });
@@ -280,18 +323,59 @@ createdAt:new Date()
 
 
 
+
+
 transaction.oncomplete=()=>{
 
 
-status.innerText=
+status.innerHTML = `
 
-`✅ Saved:
-${ai.type}
-${ai.color}
-${ai.style}`;
+✅ Clothes Saved
+
+<br>
+
+👕 ${ai.type}
+
+<br>
+
+🎨 ${ai.color}
+
+<br>
+
+✨ ${ai.style}
+
+<br>
+
+⭐ Confidence:
+${ai.confidence}
+
+`;
+
 
 
 };
+
+
+
+}
+
+
+
+catch(error){
+
+
+
+console.error(
+error
+);
+
+
+
+status.innerHTML =
+"❌ AI analysis failed";
+
+
+}
 
 
 
