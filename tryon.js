@@ -1,54 +1,27 @@
 // tryon.js
 
 
-let stream;
+const personInput =
+document.getElementById("personImage");
+
+
+const clothInput =
+document.getElementById("clothImage");
 
 
 
-// START CAMERA
 
-window.startCamera = function(){
-
-
-const video =
-document.getElementById("camera");
+personInput.onchange = ()=>{
 
 
-
-navigator.mediaDevices
-.getUserMedia({
-
-video:{
-facingMode:"user"
-}
-
-})
-
-.then((cameraStream)=>{
+const img =
+document.getElementById("personPreview");
 
 
-stream = cameraStream;
-
-
-video.srcObject =
-cameraStream;
-
-
-})
-
-
-.catch((error)=>{
-
-
-console.error(error);
-
-
-alert(
-"Camera permission denied"
+img.src =
+URL.createObjectURL(
+personInput.files[0]
 );
-
-
-});
 
 
 };
@@ -57,32 +30,49 @@ alert(
 
 
 
-// TRY ON CLOTHES
+clothInput.onchange = ()=>{
 
 
-window.tryOn = function(){
+const img =
+document.getElementById("clothPreview");
 
+
+img.src =
+URL.createObjectURL(
+clothInput.files[0]
+);
+
+
+};
+
+
+
+
+
+window.generateTryOn = async function(){
+
+
+
+const person =
+personInput.files[0];
 
 
 const cloth =
-document
-.getElementById("clothImage")
-.files[0];
+clothInput.files[0];
 
 
 
-const preview =
-document
-.getElementById("preview");
+const loading =
+document.getElementById("loading");
 
 
 
 
-if(!cloth){
+if(!person || !cloth){
 
 
 alert(
-"Please upload clothes first"
+"Please upload your photo and clothes"
 );
 
 
@@ -93,43 +83,44 @@ return;
 
 
 
-
-
-// Remove previous outfit
-
-const oldCloth =
-document.querySelector(".cloth-overlay");
-
-
-
-if(oldCloth){
-
-oldCloth.remove();
-
-}
+loading.innerHTML =
+"🤖 AI is designing your outfit...";
 
 
 
 
 
+/*
 
-const img =
-document.createElement("img");
+HERE WE SEND:
 
+1. PERSON PHOTO
+2. CLOTHING PHOTO
 
-
-img.src =
-URL.createObjectURL(cloth);
-
-
-
-img.className =
-"cloth-overlay";
+TO AI VIRTUAL TRY-ON API
 
 
+Example:
+
+Firebase Function
+       |
+       |
+AI Image Model
+       |
+       |
+Generated dressed image
 
 
-preview.appendChild(img);
+*/
+
+
+
+
+
+loading.innerHTML =
+"AI connection is ready. Add your image model API here.";
+
+
 
 
 
