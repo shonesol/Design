@@ -1,6 +1,20 @@
 // tryon.js
 
 
+import { auth } from "./firebase.js";
+
+import {
+onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+
+
+let currentUser = null;
+
+let wardrobeDB = null;
+
+
+
 const personInput =
 document.getElementById("personImage");
 
@@ -11,11 +25,109 @@ document.getElementById("clothImage");
 
 
 
-personInput.onchange = ()=>{
+
+// ==========================
+// LOGIN CHECK
+// ==========================
+
+
+onAuthStateChanged(auth, async(user)=>{
+
+
+if(user){
+
+
+currentUser=user;
+
+
+wardrobeDB =
+await openWardrobeDB(user.uid);
+
+
+console.log(
+"Try On User:",
+user.uid
+);
+
+
+}
+
+
+});
+
+
+
+
+
+
+
+// ==========================
+// OPEN USER WARDROBE
+// ==========================
+
+
+function openWardrobeDB(uid){
+
+
+return new Promise((resolve,reject)=>{
+
+
+const request =
+indexedDB.open(
+"FashionAI_"+uid,
+1
+);
+
+
+
+request.onsuccess=(e)=>{
+
+
+resolve(
+e.target.result
+);
+
+
+};
+
+
+
+request.onerror=(e)=>{
+
+
+reject(e);
+
+
+};
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+
+// ==========================
+// PHOTO PREVIEW
+// ==========================
+
+
+personInput.onchange=()=>{
 
 
 const img =
-document.getElementById("personPreview");
+document.getElementById(
+"personPreview"
+);
+
 
 
 img.src =
@@ -24,17 +136,30 @@ personInput.files[0]
 );
 
 
+
 };
 
 
 
 
 
-clothInput.onchange = ()=>{
+
+
+
+
+// ==========================
+// CLOTH PREVIEW
+// ==========================
+
+
+clothInput.onchange=()=>{
 
 
 const img =
-document.getElementById("clothPreview");
+document.getElementById(
+"clothPreview"
+);
+
 
 
 img.src =
@@ -43,10 +168,20 @@ clothInput.files[0]
 );
 
 
+
 };
 
 
 
+
+
+
+
+
+
+// ==========================
+// GENERATE TRY ON
+// ==========================
 
 
 window.generateTryOn = async function(){
@@ -57,22 +192,33 @@ const person =
 personInput.files[0];
 
 
+
 const cloth =
 clothInput.files[0];
 
 
 
 const loading =
-document.getElementById("loading");
+document.getElementById(
+"loading"
+);
+
+
+
+const result =
+document.getElementById(
+"resultImage"
+);
 
 
 
 
-if(!person || !cloth){
+
+if(!person){
 
 
 alert(
-"Please upload your photo and clothes"
+"Upload your photo first"
 );
 
 
@@ -83,8 +229,29 @@ return;
 
 
 
+
+
+if(!cloth){
+
+
+alert(
+"Select clothes first"
+);
+
+
+return;
+
+
+}
+
+
+
+
+
 loading.innerHTML =
-"🤖 AI is designing your outfit...";
+"🤖 AI is preparing your outfit...";
+
+
 
 
 
@@ -92,23 +259,20 @@ loading.innerHTML =
 
 /*
 
-HERE WE SEND:
+NEXT STEP:
 
-1. PERSON PHOTO
-2. CLOTHING PHOTO
+Send:
 
-TO AI VIRTUAL TRY-ON API
+1. Person photo
+2. Clothing photo
+
+to Virtual Try-On AI model
 
 
-Example:
+AI returns:
 
-Firebase Function
-       |
-       |
-AI Image Model
-       |
-       |
-Generated dressed image
+Generated image
+(person wearing selected clothes)
 
 
 */
@@ -117,9 +281,17 @@ Generated dressed image
 
 
 
-loading.innerHTML =
-"AI connection is ready. Add your image model API here.";
+// Temporary result
 
+setTimeout(()=>{
+
+
+loading.innerHTML =
+"AI Try-On is ready for connection.";
+
+
+
+},2000);
 
 
 
