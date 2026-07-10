@@ -11,6 +11,7 @@ const box = document.getElementById("laundryList");
 
 
 
+
 // OPEN USER DATABASE
 
 function openDatabase(uid){
@@ -48,7 +49,7 @@ reject(event.target.error);
 
 
 
-// LOAD CLOTHES FROM INDEXEDDB
+// LOAD CLOTHES
 
 async function loadLaundry(user){
 
@@ -68,7 +69,7 @@ try{
 
 
 box.innerHTML =
-"🧺 Loading your wardrobe...";
+"🧺 Loading your AI wardrobe...";
 
 
 
@@ -126,50 +127,82 @@ clothes.reverse().forEach((item)=>{
 html += `
 
 
+
 <div class="cloth-card">
 
 
-<img 
+
+<img
+
 src="${item.image}"
+
 alt="clothing"
+
+onclick="openCloth(
+'${item.image}',
+'${item.type || "Clothing"}',
+'${item.color || "Unknown"}',
+'${item.hex || ""}'
+)"
+
 >
 
 
+
 <h3>
+
 ${item.type || "Clothing"}
+
 </h3>
 
 
+
 <p>
+
 🎨 Color:
+
 ${item.color || "Unknown"}
+
 </p>
 
 
+
 <p>
+
 ✨ Style:
+
 ${item.style || "Casual"}
+
 </p>
 
 
+
 <p>
+
 🌦 Season:
+
 ${item.season || "All"}
+
 </p>
 
 
 
 <button onclick="deleteCloth(${item.id})">
+
 🗑 Delete
+
 </button>
+
 
 
 </div>
 
 
+
 `;
 
 });
+
 
 
 box.innerHTML = html;
@@ -201,7 +234,110 @@ box.innerHTML =
 
 
 
+
+// OPEN BIG IMAGE
+
+window.openCloth = function(
+image,
+type,
+color,
+hex
+){
+
+
+const modal =
+document.getElementById(
+"imageModal"
+);
+
+
+
+const preview =
+document.getElementById(
+"previewImage"
+);
+
+
+
+const details =
+document.getElementById(
+"details"
+);
+
+
+
+if(modal){
+
+
+modal.style.display="flex";
+
+
+preview.src=image;
+
+
+
+details.innerHTML = `
+
+
+<h2>${type}</h2>
+
+
+<p>
+🎨 Color:
+${color}
+</p>
+
+
+${hex ? 
+`<p>
+HEX:
+${hex}
+</p>` 
+:
+""}
+
+
+`;
+
+}
+
+
+};
+
+
+
+
+
+
+
+// CLOSE IMAGE
+
+window.closeImage=function(){
+
+
+const modal =
+document.getElementById(
+"imageModal"
+);
+
+
+if(modal){
+
+modal.style.display="none";
+
+}
+
+
+};
+
+
+
+
+
+
+
 // DELETE CLOTH
+
 
 window.deleteCloth = async function(id){
 
@@ -252,7 +388,9 @@ loadLaundry(user);
 
 
 
-// WAIT FOR LOGIN
+
+
+// LOGIN CHECK
 
 onAuthStateChanged(
 auth,
