@@ -20,6 +20,16 @@ analyzeUserStyle
 }
 from "./style-learning.js";
 
+import {
+getUserLocation
+}
+from "./location.js";
+
+
+import {
+getCurrentWeather
+}
+from "./weather-service.js";
 
 import {
 getWeatherAdvice
