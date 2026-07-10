@@ -1,15 +1,9 @@
 // ai-stylist.js
 
-import { db, auth } from "./firebase.js";
+import { auth } from "./firebase.js";
 
 import {
-    collection,
-    getDocs
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-
-import {
-    onAuthStateChanged
+onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 
@@ -18,19 +12,88 @@ import { askGemini } from "./gemini.js";
 
 
 let currentUser = null;
+let wardrobeDB = null;
 
 
 
-// Check logged in user
+// ==========================
+// LOGIN CHECK
+// ==========================
 
-onAuthStateChanged(auth, (user)=>{
+onAuthStateChanged(auth, async(user)=>{
 
-    currentUser = user;
+
+currentUser = user;
+
+
+if(user){
+
+wardrobeDB =
+await openWardrobeDB(user.uid);
+
+}
+
 
 });
 
 
 
+
+
+// ==========================
+// OPEN USER WARDROBE
+// ==========================
+
+
+function openWardrobeDB(uid){
+
+
+return new Promise((resolve,reject)=>{
+
+
+const request =
+indexedDB.open(
+"FashionAI_" + uid,
+1
+);
+
+
+
+request.onsuccess=(e)=>{
+
+
+resolve(e.target.result);
+
+
+};
+
+
+
+request.onerror=(e)=>{
+
+
+reject(e);
+
+
+};
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+// ==========================
+// AI STYLIST
+// ==========================
 
 
 window.askStylist = async function(){
@@ -51,25 +114,19 @@ document
 
 
 
-const imageInput =
-document
-.getElementById("personPhoto");
 
 
-
-
-if(question === ""){
+if(!question){
 
 
 answer.innerText =
-"Please tell me what outfit you need help with.";
+"Please ask me what you want to wear.";
 
 
 return;
 
 
 }
-
 
 
 
@@ -87,57 +144,43 @@ return;
 
 
 
+if(!wardrobeDB){
+
+
+answer.innerText =
+"Loading your wardrobe...";
+
+
+return;
+
+
+}
+
+
+
+
 
 try{
 
 
 answer.innerText =
-"🤖 AI Stylist is creating your outfit...";
+"🤖 AI Stylist is thinking...";
 
 
 
 
 
-// GET USER WARDROBE
+// READ PHONE WARDROBE
 
 
-const snapshot = await getDocs(
-
-collection(
-
-db,
-
-"users",
-
-currentUser.uid,
-
-"wardrobe"
-
-)
-
-);
-
-
-
-
-let clothes = [];
-
-
-
-
-snapshot.forEach((doc)=>{
-
-
-clothes.push(doc.data());
-
-
-});
+const clothes =
+await getWardrobe();
 
 
 
 
 
-if(clothes.length === 0){
+if(clothes.length===0){
 
 
 answer.innerText =
@@ -153,37 +196,10 @@ return;
 
 
 
-// CHECK USER PHOTO
-
-
-let photoMessage = "";
-
-
-if(imageInput && imageInput.files.length > 0){
-
-
-photoMessage = `
-
-The user has uploaded a personal photo.
-Consider body appearance and styling when giving advice.
-
-`;
-
-}
-
-
-
-
-// GEMINI PROMPT
-
-
 const prompt = `
 
 
-You are an advanced AI personal fashion stylist.
-
-
-${photoMessage}
+You are an advanced personal AI fashion stylist.
 
 
 User wardrobe:
@@ -202,15 +218,15 @@ ${question}
 
 
 
-Create a complete fashion recommendation.
+Create a personalized outfit.
 
 
 Include:
 
 
-👕 Main outfit
+👕 Top
 
-👖 Bottom wear
+👖 Bottom
 
 👟 Shoes
 
@@ -218,19 +234,17 @@ Include:
 
 🎨 Color matching
 
-💇 Hair/style suggestion
-
-✨ Why this outfit works
+✨ Style explanation
 
 
-Use the user's wardrobe whenever possible.
+Use the user's own clothes first.
 
 
-Be friendly, detailed and professional.
+Be creative and practical.
+
 
 
 `;
-
 
 
 
@@ -243,15 +257,14 @@ await askGemini(prompt);
 
 
 
-answer.innerText = result;
+answer.innerText =
+result;
 
 
 
 
 
-
-// VOICE AI
-
+// VOICE
 
 if("speechSynthesis" in window){
 
@@ -260,42 +273,34 @@ speechSynthesis.cancel();
 
 
 
-const voice =
+let voice =
 new SpeechSynthesisUtterance(result);
 
 
+voice.rate=0.9;
 
-voice.rate = 0.9;
-
-voice.pitch = 1;
+voice.pitch=1;
 
 
 speechSynthesis.speak(voice);
 
 
-
 }
 
 
 
-
 }
+
+
 
 catch(error){
 
 
-console.error(
-"AI Stylist Error:",
-error
-);
-
+console.error(error);
 
 
 answer.innerText =
-"Something went wrong: "
-+
-error.message;
-
+"Error: "+error.message;
 
 
 }
@@ -303,3 +308,71 @@ error.message;
 
 
 };
+
+
+
+
+
+
+
+
+// ==========================
+// GET WARDROBE FROM INDEXEDDB
+// ==========================
+
+
+function getWardrobe(){
+
+
+return new Promise((resolve,reject)=>{
+
+
+const transaction =
+wardrobeDB.transaction(
+
+"wardrobe",
+
+"readonly"
+
+);
+
+
+
+const store =
+transaction.objectStore(
+"wardrobe"
+);
+
+
+
+const request =
+store.getAll();
+
+
+
+
+
+request.onsuccess=()=>{
+
+
+resolve(request.result);
+
+
+};
+
+
+
+request.onerror=(error)=>{
+
+
+reject(error);
+
+
+};
+
+
+
+});
+
+
+}
