@@ -3,16 +3,26 @@
 import { askGemini } from "./gemini.js";
 
 
+
 export async function analyzeClothing(imageBase64){
+
+
+console.log(
+"🤖 AI analyzing clothing image..."
+);
+
 
 
 const prompt = `
 
-You are an AI fashion vision expert.
+You are an advanced AI fashion stylist and clothing recognition system.
 
-Analyze this clothing image.
+Analyze the clothing image provided.
 
-Return ONLY valid JSON.
+Return ONLY JSON.
+Do not add explanations.
+
+JSON FORMAT:
 
 {
 "type":"",
@@ -30,13 +40,55 @@ Return ONLY valid JSON.
 
 Rules:
 
-type examples:
-shirt, tshirt, jeans, trousers, dress, shoes, jacket, hoodie, skirt
+type:
+shirt,
+tshirt,
+jeans,
+trousers,
+pants,
+dress,
+skirt,
+jacket,
+hoodie,
+shoes,
+suit,
+coat,
+other
 
-style examples:
-casual, formal, luxury, sporty, streetwear, elegant
 
-Identify the exact main color name and HEX code.
+style:
+casual,
+formal,
+luxury,
+sporty,
+streetwear,
+elegant
+
+
+occasion:
+office,
+party,
+travel,
+date,
+wedding,
+sport,
+daily
+
+
+season:
+summer,
+winter,
+rainy,
+all-season
+
+
+Identify:
+- exact color name
+- HEX color code
+- patterns
+- fabric/material
+- fashion style
+
 
 `;
 
@@ -45,15 +97,29 @@ Identify the exact main color name and HEX code.
 try{
 
 
-const result =
-await askGemini(
+const response = await askGemini(
 prompt,
 imageBase64
 );
 
 
 
-return JSON.parse(result);
+console.log(
+"AI RESULT:",
+response
+);
+
+
+
+const clean =
+response
+.replace("```json","")
+.replace("```","")
+.trim();
+
+
+
+return JSON.parse(clean);
 
 
 
@@ -63,7 +129,7 @@ catch(error){
 
 
 console.error(
-"AI analysis failed:",
+"Clothing AI Error:",
 error
 );
 
@@ -78,7 +144,7 @@ color:"unknown",
 
 hex:"#000000",
 
-secondaryColor:"",
+secondaryColor:"unknown",
 
 pattern:"unknown",
 
@@ -86,9 +152,9 @@ material:"unknown",
 
 style:"casual",
 
-occasion:"any",
+occasion:"daily",
 
-season:"all",
+season:"all-season",
 
 confidence:"0%"
 
