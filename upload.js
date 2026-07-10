@@ -1,51 +1,49 @@
 // upload.js
+// FashionAI Smart Clothing Upload
 
 import { auth } from "./firebase.js";
 
 import {
-onAuthStateChanged
+    onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+import {
+    openDatabase,
+    addClothing
+} from "./db.js";
 
 import {
-analyzeClothing
+    analyzeClothing
 } from "./clothing-ai.js";
 
 
 
 let currentUser = null;
-
-let wardrobeDB = null;
-
+let database = null;
 
 
 
 // ==========================
-// CHECK LOGIN
+// USER LOGIN
 // ==========================
 
 onAuthStateChanged(auth, async(user)=>{
 
 
-if(user){
+    if(user){
+
+        currentUser = user;
+
+        database =
+            await openDatabase(user.uid);
 
 
-currentUser = user;
+        console.log(
+            "FashionAI Database Ready:",
+            user.uid
+        );
 
-
-wardrobeDB =
-await openDatabase(user.uid);
-
-
-
-console.log(
-"AI Wardrobe Ready:",
-user.uid
-);
-
-
-
-}
+    }
 
 
 });
@@ -53,96 +51,11 @@ user.uid
 
 
 
-
-
-
 // ==========================
-// OPEN DATABASE
+// UPLOAD CLOTHING
 // ==========================
 
-
-function openDatabase(uid){
-
-
-return new Promise((resolve,reject)=>{
-
-
-const request =
-indexedDB.open(
-"FashionAI_"+uid,
-1
-);
-
-
-
-request.onupgradeneeded=(event)=>{
-
-
-const db =
-event.target.result;
-
-
-
-if(!db.objectStoreNames.contains("wardrobe")){
-
-
-db.createObjectStore(
-"wardrobe",
-{
-keyPath:"id",
-autoIncrement:true
-}
-);
-
-
-}
-
-
-};
-
-
-
-
-request.onsuccess=(event)=>{
-
-
-resolve(
-event.target.result
-);
-
-
-};
-
-
-
-request.onerror=(error)=>{
-
-
-reject(error);
-
-
-};
-
-
-
-});
-
-
-}
-
-
-
-
-
-
-
-// ==========================
-// UPLOAD CLOTHES
-// ==========================
-
-
-window.uploadClothes =
-async function(){
+window.uploadClothes = async function(){
 
 
 
@@ -159,44 +72,31 @@ document
 
 
 
-
-
 if(!file){
 
+    status.innerHTML =
+    "❌ Select clothing image";
 
-status.innerHTML =
-"❌ Select a clothing image";
-
-
-return;
-
+    return;
 
 }
-
-
 
 
 
 if(!currentUser){
 
+    status.innerHTML =
+    "❌ Please login first";
 
-status.innerHTML =
-"❌ Please login first";
-
-
-return;
-
+    return;
 
 }
 
 
 
 
-
 status.innerHTML =
-"🤖 AI is studying your clothes...";
-
-
+"🤖 FashionAI is analyzing your clothing...";
 
 
 
@@ -209,35 +109,31 @@ new FileReader();
 
 
 
-reader.onload =
-async()=>{
-
-
-
-const imageBase64 =
-reader.result;
-
-
-
+reader.onload = async()=>{
 
 
 try{
 
 
+const image =
+reader.result;
 
-// SEND IMAGE TO AI
+
+
+// ==========================
+// AI VISION ANALYSIS
+// ==========================
 
 
 const ai =
 await analyzeClothing(
-imageBase64
+image
 );
 
 
 
-
 console.log(
-"AI CLOTHING DATA:",
+"Fashion AI Result:",
 ai
 );
 
@@ -245,49 +141,54 @@ ai
 
 
 
-
+// ==========================
 // SAVE TO DATABASE
+// ==========================
 
 
-const transaction =
-wardrobeDB.transaction(
-"wardrobe",
-"readwrite"
-);
+await addClothing(
+database,
+{
 
 
-
-const store =
-transaction.objectStore(
-"wardrobe"
-);
+image:image,
 
 
+// AI IDENTIFICATION
 
-
-
-
-store.add({
-
-
-image:imageBase64,
+category:
+ai.category,
 
 
 type:
 ai.type,
 
 
-color:
-ai.color,
+subCategory:
+ai.subCategory,
+
+
+gender:
+ai.gender,
+
+
+
+// COLORS
+
+primaryColor:
+ai.primaryColor,
+
+
+secondaryColor:
+ai.secondaryColor,
 
 
 hex:
 ai.hex,
 
 
-secondaryColor:
-ai.secondaryColor,
 
+// DETAILS
 
 pattern:
 ai.pattern,
@@ -297,78 +198,145 @@ material:
 ai.material,
 
 
+fabric:
+ai.fabric,
+
+
+texture:
+ai.texture,
+
+
+fit:
+ai.fit,
+
+
+sleeve:
+ai.sleeve,
+
+
+neckline:
+ai.neckline,
+
+
+
+// STYLE
+
 style:
 ai.style,
 
 
-occasion:
-ai.occasion,
+formality:
+ai.formality,
 
+
+
+// AI KNOWLEDGE
 
 season:
 ai.season,
+
+
+weatherSuitability:
+ai.weatherSuitability,
+
+
+occasions:
+ai.occasions,
+
+
+culturalOrigin:
+ai.culturalOrigin,
+
+
+
+matchingColors:
+ai.matchingColors,
+
+
+matchingItems:
+ai.matchingItems,
+
+
+fashionTips:
+ai.fashionTips,
+
+
+
+// USER TRACKING
+
+favorite:false,
+
+
+laundryStatus:
+"Clean",
+
+
+timesWorn:0,
+
+
+lastWorn:null,
+
 
 
 confidence:
 ai.confidence,
 
 
+
 createdAt:
 new Date().toISOString()
 
 
-});
+}
+
+);
 
 
 
 
-
-
-
-transaction.oncomplete=()=>{
 
 
 status.innerHTML = `
 
-✅ Clothes Saved
 
-<br>
+<h3>✅ Added to AI Wardrobe</h3>
 
+
+<p>
 👕 ${ai.type}
+</p>
 
-<br>
 
-🎨 ${ai.color}
+<p>
+🎨 ${ai.primaryColor}
+</p>
 
-<br>
 
+<p>
 ✨ ${ai.style}
+</p>
 
-<br>
 
+<p>
 ⭐ Confidence:
-${ai.confidence}
+${ai.confidence}%
+</p>
+
 
 `;
 
 
 
-};
-
-
 
 }
-
-
 
 catch(error){
 
 
-
 console.error(
+"Upload Error:",
 error
 );
-
 
 
 status.innerHTML =
@@ -378,10 +346,7 @@ status.innerHTML =
 }
 
 
-
 };
-
-
 
 
 
