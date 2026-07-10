@@ -162,3 +162,47 @@ request.error
 
 
 }
+// ==========================
+// CHECK IF OUTFIT WAS RECENTLY USED
+// ==========================
+
+
+export async function wasRecentlyWorn(
+database,
+outfitId
+){
+
+
+const history =
+await getWearHistory(
+database
+);
+
+
+
+const sevenDays =
+7 * 24 * 60 * 60 * 1000;
+
+
+
+return history.some(item=>{
+
+
+const wornDate =
+new Date(item.date);
+
+
+
+return (
+Date.now()
+-
+wornDate.getTime()
+<
+sevenDays
+);
+
+
+
+});
+
+}
