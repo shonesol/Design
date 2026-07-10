@@ -4,11 +4,17 @@
 <head>
 
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 
 <title>AI Virtual Try-On</title>
 
+
 <link rel="stylesheet" href="style.css">
+
+
+<meta name="theme-color" content="#1b1b1b">
 
 </head>
 
@@ -19,56 +25,75 @@
 <div class="card">
 
 
-<h1>🧍 AI Virtual Try-On</h1>
+<h1>
+🧍 AI Virtual Try-On
+</h1>
 
 
 <p>
-Upload your photo and select clothes.
-AI will create your outfit preview.
+Upload your photo and choose clothes.
+AI will create your fashion look.
 </p>
 
 
 
-<h3>Your Photo</h3>
 
-<input 
+
+<!-- USER PHOTO -->
+
+<h3>
+📸 Your Photo
+</h3>
+
+
+<input
 type="file"
 id="personImage"
 accept="image/*">
 
 
+
 <br><br>
 
 
-<img 
+<img
 id="personPreview"
-width="250">
+width="250"
+style="border-radius:15px;">
 
 
 
 
 
-<h3>Select Clothes</h3>
 
 
-<input 
+<!-- CLOTHING -->
+
+<h3>
+👕 Select Clothing
+</h3>
+
+
+
+<input
 type="file"
 id="clothImage"
 accept="image/*">
 
 
+
 <br><br>
 
 
-<img 
+<img
 id="clothPreview"
-width="250">
+width="250"
+style="border-radius:15px;">
 
 
 
 
 
-<br><br>
 
 
 <button onclick="generateTryOn()">
@@ -80,17 +105,28 @@ width="250">
 
 
 
+
+
 <h2>
-AI Result
+🤖 AI Result
 </h2>
 
 
-<div id="loading"></div>
+
+<p id="loading">
+
+</p>
 
 
-<img 
+
+
+
+<img
 id="resultImage"
-width="350">
+width="350"
+style="border-radius:15px;">
+
+
 
 
 
@@ -99,7 +135,11 @@ width="350">
 
 
 
+
+
+
 <script type="module" src="tryon.js"></script>
+
 
 
 </body>
