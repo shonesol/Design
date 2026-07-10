@@ -1,7 +1,7 @@
 // db.js
 // FashionAI Central Database Engine
 
-const DATABASE_VERSION = 2;
+const DATABASE_VERSION = 3;
 
 
 // ==========================
@@ -20,6 +20,42 @@ export function openDatabase(uid) {
 
 
         request.onupgradeneeded = (event) => {
+
+
+            // SAVED OUTFITS
+
+if(
+!db.objectStoreNames.contains("outfits")
+){
+
+db.createObjectStore(
+"outfits",
+{
+keyPath:"id",
+autoIncrement:true
+}
+
+);
+
+}
+
+
+// OUTFIT HISTORY
+
+if(
+!db.objectStoreNames.contains("history")
+){
+
+db.createObjectStore(
+"history",
+{
+keyPath:"id",
+autoIncrement:true
+}
+
+);
+
+}
 // Feedback memory
 
 if(
