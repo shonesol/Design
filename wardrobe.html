@@ -1,75 +1,313 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 
 <title>My AI Wardrobe</title>
 
+
 <link rel="stylesheet" href="wardrobe.css">
+
 
 <meta name="theme-color" content="#1b1b1b">
 
+
+<style>
+
+body{
+
+font-family:Arial, sans-serif;
+background:#f5f0e6;
+margin:0;
+padding:20px;
+
+}
+
+
+h1{
+
+text-align:center;
+color:#1b1b1b;
+
+}
+
+
+
+.upload-box{
+
+background:white;
+padding:20px;
+border-radius:15px;
+max-width:500px;
+margin:auto;
+box-shadow:0 5px 15px rgba(0,0,0,0.1);
+
+}
+
+
+
+input,select,button{
+
+width:100%;
+padding:12px;
+margin-top:12px;
+border-radius:8px;
+font-size:16px;
+
+}
+
+
+
+button{
+
+background:#1b1b1b;
+color:white;
+border:none;
+cursor:pointer;
+
+}
+
+
+
+button:hover{
+
+background:#c9a66b;
+
+}
+
+
+
+#wardrobe{
+
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+margin-top:30px;
+
+}
+
+
+
+.card{
+
+background:white;
+padding:15px;
+border-radius:15px;
+box-shadow:0 5px 15px rgba(0,0,0,0.1);
+
+}
+
+
+
+.card img{
+
+width:100%;
+height:220px;
+object-fit:cover;
+border-radius:10px;
+
+}
+
+
+
+.message{
+
+text-align:center;
+font-weight:bold;
+margin-top:10px;
+
+}
+
+
+</style>
+
+
 </head>
+
+
+
 
 <body>
 
-<h1>👗 My AI Wardrobe</h1>
+
+
+<h1>
+👗 My AI Wardrobe
+</h1>
+
+
+
 
 <div class="upload-box">
 
-<h2>Add Clothing</h2>
+
+
+<h2>
+Add Clothing
+</h2>
+
+
 
 <input
+
 type="file"
+
 id="clothesImage"
-accept="image/*">
+
+accept="image/*"
+
+>
+
+
+
 
 <select id="category">
 
-<option value="shirt">👕 Shirt</option>
-<option value="tshirt">👕 T-Shirt</option>
-<option value="jeans">👖 Jeans</option>
-<option value="trousers">👖 Trousers</option>
-<option value="dress">👗 Dress</option>
-<option value="skirt">👗 Skirt</option>
-<option value="hoodie">🧥 Hoodie</option>
-<option value="jacket">🧥 Jacket</option>
-<option value="shoes">👟 Shoes</option>
-<option value="sneakers">👟 Sneakers</option>
+
+<option value="shirt">
+👕 Shirt
+</option>
+
+
+<option value="tshirt">
+👕 T-Shirt
+</option>
+
+
+<option value="jeans">
+👖 Jeans
+</option>
+
+
+<option value="trousers">
+👖 Trousers
+</option>
+
+
+<option value="dress">
+👗 Dress
+</option>
+
+
+<option value="skirt">
+👗 Skirt
+</option>
+
+
+<option value="hoodie">
+🧥 Hoodie
+</option>
+
+
+<option value="jacket">
+🧥 Jacket
+</option>
+
+
+<option value="shoes">
+👟 Shoes
+</option>
+
+
+<option value="accessories">
+⌚ Accessories
+</option>
+
 
 </select>
 
+
+
+
+
 <input
+
 type="text"
+
 id="color"
-placeholder="Enter clothing color (e.g. black, blue, white)">
+
+placeholder="Clothing color e.g black, blue, white"
+
+>
+
+
+
 
 <button id="saveBtn">
+
 💾 Save Clothing
+
 </button>
 
-<p id="message"></p>
+
+
+
+<p 
+id="message"
+class="message">
+
+</p>
+
+
 
 </div>
 
-<h2>👕 Your Wardrobe</h2>
+
+
+
+
+<h2>
+👕 My Clothes Collection
+</h2>
+
+
+
 
 <div id="wardrobe">
 
+
 Loading wardrobe...
+
 
 </div>
 
-<script type="module">
 
-import "./wardrobe.js";
 
-document.getElementById("saveBtn")
-.addEventListener("click", saveClothes);
+
+
+
+
+<script type="module" src="wardrobe.js"></script>
+
+
+
+<script>
+
+
+document
+.getElementById("saveBtn")
+.addEventListener(
+"click",
+()=>{
+
+saveClothes();
+
+}
+
+);
+
 
 </script>
 
+
+
+
+
 </body>
+
 </html>
