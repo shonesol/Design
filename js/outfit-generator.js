@@ -297,7 +297,10 @@ await getClothes(
 database
 );
 
-
+const profile =
+await analyzeUserStyle(
+database
+);
 
 
 
@@ -411,7 +414,8 @@ const score =
 scoreOutfit(
 top,
 bottom,
-shoe
+shoe,
+profile
 );
 
 
