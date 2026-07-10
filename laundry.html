@@ -10,37 +10,47 @@
 
 <link rel="stylesheet" href="style.css">
 
-<link rel="manifest" href="manifest.json">
-
-<meta name="theme-color" content="#1b1b1b">
-
 </head>
 
 
 <body>
 
 
-<div class="card">
+<div class="container">
+
 
 <h1>🧺 My AI Wardrobe</h1>
 
 <p>
-Your uploaded clothes and AI fashion analysis
+Your clothes collection with AI clothing classification
 </p>
 
 
-<div id="laundryList">
-
-Loading clothes...
-
-</div>
+<div id="laundryList" class="clothes-grid">
 
 
 </div>
 
 
+</div>
 
-<script type="module" src="laundry.js"></script>
+
+
+<!-- Image Viewer -->
+
+<div id="imageModal" class="modal">
+
+<span onclick="closeImage()">×</span>
+
+<img id="previewImage">
+
+<div id="details"></div>
+
+</div>
+
+
+
+<script src="laundry.js"></script>
 
 
 </body>
