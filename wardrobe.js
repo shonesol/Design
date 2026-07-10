@@ -1,55 +1,148 @@
 // wardrobe.js
-// Local AI Wardrobe using IndexedDB
+
+import { auth } from "./firebase.js";
+
+import {
+onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 
-let db;
+let currentUser = null;
+let database = null;
 
 
 
 // ==========================
-// CREATE DATABASE
+// CREATE / OPEN USER WARDROBE
 // ==========================
+
+
+function openWardrobeDB(uid){
+
+
+return new Promise((resolve,reject)=>{
+
 
 const request =
-indexedDB.open("FashionAI_Wardrobe",1);
+indexedDB.open(
+"FashionAI_" + uid,
+1
+);
 
 
 
-request.onupgradeneeded = function(e){
-
-db = e.target.result;
+request.onupgradeneeded=(event)=>{
 
 
-if(!db.objectStoreNames.contains("clothes")){
+const db =
+event.target.result;
+
+
+
+if(!db.objectStoreNames.contains("wardrobe")){
+
 
 db.createObjectStore(
-"clothes",
+
+"wardrobe",
+
 {
+
 keyPath:"id",
+
 autoIncrement:true
+
 }
 
 );
 
+
 }
 
+
+
 };
 
 
 
-request.onsuccess=function(e){
 
-db=e.target.result;
 
-loadWardrobe();
+request.onsuccess=(event)=>{
+
+
+database =
+event.target.result;
+
+
+resolve(database);
+
+
 
 };
+
+
+
+request.onerror=(error)=>{
+
+
+reject(error);
+
+
+
+};
+
+
+
+});
+
+
+
+}
+
+
 
 
 
 
 // ==========================
-// SAVE CLOTH
+// LOGIN CHECK
+// ==========================
+
+
+onAuthStateChanged(auth,async(user)=>{
+
+
+if(user){
+
+
+currentUser=user;
+
+
+database =
+await openWardrobeDB(
+user.uid
+);
+
+
+
+loadWardrobe();
+
+
+}
+
+
+});
+
+
+
+
+
+
+
+
+
+// ==========================
+// SAVE CLOTHES
 // ==========================
 
 
@@ -64,7 +157,7 @@ document
 
 
 
-const category =
+const type =
 document
 .getElementById("category")
 .value;
@@ -84,14 +177,21 @@ document
 
 
 
+
+
 if(!file){
 
-message.innerHTML=
-"Choose clothing image";
+
+message.innerHTML =
+"Choose an image first";
+
 
 return;
 
+
 }
+
+
 
 
 
@@ -100,58 +200,77 @@ new FileReader();
 
 
 
+
+
 reader.onload=function(){
 
 
 
 const transaction =
-db.transaction(
-["clothes"],
+database.transaction(
+
+"wardrobe",
+
 "readwrite"
+
 );
 
 
 
 const store =
 transaction.objectStore(
-"clothes"
+"wardrobe"
 );
+
+
+
 
 
 
 store.add({
 
+
 image:reader.result,
 
-type:category,
+
+type:type,
+
 
 color:color,
 
-style:"casual",
 
 favorite:false,
 
-date:new Date()
+
+createdAt:Date.now()
+
 
 });
 
 
 
-transaction.oncomplete=function(){
 
 
-message.innerHTML=
-"Clothing saved ✅";
+transaction.oncomplete=()=>{
+
+
+message.innerHTML =
+"Clothing saved successfully ✅";
 
 
 loadWardrobe();
 
 
+
+};
+
+
+
+
+
 };
 
 
-
-};
 
 
 
@@ -159,7 +278,13 @@ reader.readAsDataURL(file);
 
 
 
+
+
 };
+
+
+
+
 
 
 
@@ -179,32 +304,35 @@ document.getElementById("wardrobe");
 
 
 
-if(!box)return;
+if(!box || !database)
+return;
 
 
-
-box.innerHTML=
-"Loading...";
 
 
 
 const transaction =
-db.transaction(
-["clothes"],
+database.transaction(
+
+"wardrobe",
+
 "readonly"
+
 );
 
 
 
 const store =
 transaction.objectStore(
-"clothes"
+"wardrobe"
 );
 
 
 
 const request =
 store.getAll();
+
+
 
 
 
@@ -221,14 +349,22 @@ box.innerHTML="";
 
 
 
+
+
 if(clothes.length===0){
 
-box.innerHTML=
-"No clothes saved";
+
+box.innerHTML =
+"No clothes added yet";
+
 
 return;
 
+
 }
+
+
+
 
 
 
@@ -242,9 +378,7 @@ box.innerHTML += `
 <div class="card">
 
 
-<img 
-src="${item.image}"
-width="200">
+<img src="${item.image}">
 
 
 <h3>
@@ -258,12 +392,7 @@ Color: ${item.color}
 
 
 <p>
-Style: ${item.style}
-</p>
-
-
-<p>
-${item.favorite?"❤️ Favorite":""}
+${item.favorite ? "❤️ Favorite":""}
 </p>
 
 
@@ -283,8 +412,8 @@ ${item.favorite?"❤️ Favorite":""}
 </button>
 
 
-</div>
 
+</div>
 
 
 `;
@@ -292,6 +421,8 @@ ${item.favorite?"❤️ Favorite":""}
 
 
 });
+
+
 
 
 
@@ -306,6 +437,10 @@ ${item.favorite?"❤️ Favorite":""}
 
 
 
+
+
+
+
 // ==========================
 // FAVORITE
 // ==========================
@@ -314,45 +449,60 @@ ${item.favorite?"❤️ Favorite":""}
 window.favoriteCloth=function(id){
 
 
+
 const transaction =
-db.transaction(
-["clothes"],
+database.transaction(
+
+"wardrobe",
+
 "readwrite"
+
 );
 
 
 
 const store =
 transaction.objectStore(
-"clothes"
+"wardrobe"
 );
 
 
 
-const get =
+const request =
 store.get(id);
 
 
 
-get.onsuccess=function(){
+
+request.onsuccess=()=>{
 
 
-let item=get.result;
+let item =
+request.result;
 
 
-item.favorite=true;
+
+item.favorite =
+true;
+
 
 
 store.put(item);
 
 
+
 loadWardrobe();
 
 
+
 };
 
 
+
 };
+
+
+
 
 
 
@@ -367,25 +517,34 @@ loadWardrobe();
 window.deleteCloth=function(id){
 
 
+
 const transaction =
-db.transaction(
-["clothes"],
+database.transaction(
+
+"wardrobe",
+
 "readwrite"
+
 );
 
 
 
 transaction
-.objectStore("clothes")
+.objectStore("wardrobe")
 .delete(id);
 
 
 
-transaction.oncomplete=function(){
+
+transaction.oncomplete=()=>{
+
 
 loadWardrobe();
 
+
+
 };
+
 
 
 };
