@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,12 +6,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>AI Stylist</title>
+<title>AI Fashion Stylist</title>
 
 <link rel="stylesheet" href="style.css">
-<link rel="manifest" href="manifest.json">
 
-<meta name="theme-color" content="#1b1b1b">
 </head>
 
 
@@ -21,25 +18,56 @@
 
 <div class="card">
 
-<h1>🤖 AI Fashion Stylist</h1>
+
+<h1>
+🤖 AI Fashion Stylist
+</h1>
 
 
 <p>
-Ask me what to wear:
+Upload your photo and let AI style you.
 </p>
+
+
+
+<input 
+type="file"
+id="personPhoto"
+accept="image/*">
+
 
 
 <input 
 id="question"
-placeholder="Example: I have a wedding tomorrow">
+placeholder="Example: Dress me for a luxury dinner">
+
 
 
 <button onclick="askStylist()">
-Ask AI
+✨ Generate Outfit
 </button>
 
 
+
+<h2>
+AI Advice
+</h2>
+
+
 <pre id="answer"></pre>
+
+
+
+
+<h2>
+Your AI Look
+</h2>
+
+
+<img 
+id="generatedImage"
+width="350">
+
 
 
 </div>
