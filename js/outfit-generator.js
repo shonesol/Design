@@ -426,6 +426,21 @@ profile
 
 
 
+let alreadyWorn =
+await checkRecentlyWorn(
+database,
+{
+top,
+bottom,
+shoe
+}
+);
+
+
+
+if(!alreadyWorn){
+
+
 outfits.push({
 
 top,
@@ -440,16 +455,7 @@ score
 });
 
 
-
-});
-
-
-});
-
-
-});
-
-
+}
 
 
 
@@ -522,9 +528,9 @@ ${outfit.score}%
 
 
 
-<button onclick='saveOutfit(${JSON.stringify(outfit)})'>
+<button onclick='wearOutfit(${JSON.stringify(outfit)})'>
 
-❤️ Save Outfit
+👕 Wear This Outfit
 
 </button>
 
@@ -543,24 +549,28 @@ ${outfit.score}%
 
 };
 import {
-saveOutfit
+saveWearHistory
 }
-from "./outfit-memory.js";
+from "./db.js";
 
 
 
-window.saveOutfit =
-function(outfit){
+window.wearOutfit =
+async function(outfit){
 
 
-saveOutfit(
+await saveWearHistory(
+
 database,
+
 outfit
+
 );
 
 
+
 alert(
-"❤️ Outfit saved to FashionAI memory"
+"✅ FashionAI remembered this outfit"
 );
 
 
