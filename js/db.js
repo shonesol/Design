@@ -1,7 +1,7 @@
 // db.js
 // FashionAI Central Database Engine
 
-const DATABASE_VERSION = 1;
+const DATABASE_VERSION = 2;
 
 
 // ==========================
