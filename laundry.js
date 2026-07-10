@@ -1,138 +1,265 @@
 // laundry.js
 
-import { db, auth } from "./firebase.js";
+import { auth } from "./firebase.js";
 
 import {
-    collection,
-    getDocs
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-import {
-    onAuthStateChanged
+onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
 
 
 const box = document.getElementById("laundryList");
 
 
 
-async function loadLaundry(user) {
+// OPEN USER DATABASE
+
+function openDatabase(uid){
+
+return new Promise((resolve,reject)=>{
 
 
-    if (!user) {
-
-        box.innerHTML = "Please login first.";
-        return;
-
-    }
-
-
-    try {
-
-
-        box.innerHTML = "Loading wardrobe...";
-
-
-        const snapshot = await getDocs(
-
-            collection(
-                db,
-                "users",
-                user.uid,
-                "wardrobe"
-            )
-
-        );
+const request = indexedDB.open(
+"FashionAI_"+uid,
+1
+);
 
 
 
-        if (snapshot.empty) {
+request.onsuccess = (event)=>{
 
-            box.innerHTML =
-            "No clothes added yet.";
+resolve(event.target.result);
 
-            return;
-
-        }
+};
 
 
 
-        let html = "";
+request.onerror = (event)=>{
+
+reject(event.target.error);
+
+};
+
+
+});
+
+}
 
 
 
-        snapshot.forEach((doc) => {
 
 
-            const item = doc.data();
+// LOAD CLOTHES FROM INDEXEDDB
+
+async function loadLaundry(user){
 
 
+if(!user){
 
-            html += `
+box.innerHTML =
+"Please login first.";
 
-            <div class="card">
+return;
 
-                <img 
-                src="${item.imageUrl || 'placeholder.jpg'}"
-                width="150"
-                alt="clothing"
-                >
-
-
-                <h3>
-                ${item.type || item.category || "Clothing"}
-                </h3>
-
-
-                <p>
-                Color:
-                ${item.color || "Unknown"}
-                </p>
-
-
-                <p>
-                Status:
-                ${item.status || "Clean"}
-                </p>
-
-
-            </div>
-
-            `;
-
-
-        });
+}
 
 
 
-        box.innerHTML = html;
+try{
+
+
+box.innerHTML =
+"🧺 Loading your wardrobe...";
 
 
 
-    } catch(error) {
+const db =
+await openDatabase(user.uid);
 
 
-        console.error(error);
+
+const transaction =
+db.transaction(
+"wardrobe",
+"readonly"
+);
 
 
-        box.innerHTML =
-        "Error: " + error.message;
+
+const store =
+transaction.objectStore(
+"wardrobe"
+);
 
 
-    }
+
+const request =
+store.getAll();
+
+
+
+request.onsuccess = ()=>{
+
+
+const clothes =
+request.result;
+
+
+
+if(clothes.length === 0){
+
+box.innerHTML =
+"No clothes uploaded yet.";
+
+return;
+
+}
+
+
+
+let html="";
+
+
+
+clothes.reverse().forEach((item)=>{
+
+
+html += `
+
+
+<div class="cloth-card">
+
+
+<img 
+src="${item.image}"
+alt="clothing"
+>
+
+
+<h3>
+${item.type || "Clothing"}
+</h3>
+
+
+<p>
+🎨 Color:
+${item.color || "Unknown"}
+</p>
+
+
+<p>
+✨ Style:
+${item.style || "Casual"}
+</p>
+
+
+<p>
+🌦 Season:
+${item.season || "All"}
+</p>
+
+
+
+<button onclick="deleteCloth(${item.id})">
+🗑 Delete
+</button>
+
+
+</div>
+
+
+`;
+
+});
+
+
+box.innerHTML = html;
+
+
+};
+
+
+
+}catch(error){
+
+
+console.error(
+"Loading error:",
+error
+);
+
+
+box.innerHTML =
+"Error loading clothes";
+
+
+}
 
 
 }
 
 
 
-// Wait for Firebase login
-
-onAuthStateChanged(auth, (user)=>{
 
 
-    loadLaundry(user);
+// DELETE CLOTH
+
+window.deleteCloth = async function(id){
+
+
+const user = auth.currentUser;
+
+
+if(!user) return;
+
+
+
+const db =
+await openDatabase(user.uid);
+
+
+
+const transaction =
+db.transaction(
+"wardrobe",
+"readwrite"
+);
+
+
+
+const store =
+transaction.objectStore(
+"wardrobe"
+);
+
+
+
+store.delete(id);
+
+
+
+transaction.oncomplete=()=>{
+
+
+loadLaundry(user);
+
+
+};
+
+
+};
+
+
+
+
+
+// WAIT FOR LOGIN
+
+onAuthStateChanged(
+auth,
+(user)=>{
+
+
+loadLaundry(user);
 
 
 });
