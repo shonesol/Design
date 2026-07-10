@@ -7,18 +7,23 @@ import {
     getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+
 import {
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+
 import { askGemini } from "./gemini.js";
+
 
 
 let currentUser = null;
 
 
-// Check login status
-onAuthStateChanged(auth, (user) => {
+
+// Check logged in user
+
+onAuthStateChanged(auth, (user)=>{
 
     currentUser = user;
 
@@ -26,162 +31,274 @@ onAuthStateChanged(auth, (user) => {
 
 
 
-window.askStylist = async function () {
 
 
-    const question =
-    document.getElementById("question").value.trim();
-
-
-    const answer =
-    document.getElementById("answer");
+window.askStylist = async function(){
 
 
 
-    if(question === ""){
-
-        answer.innerText =
-        "Please ask me what you want to wear.";
-
-        return;
-
-    }
+const question =
+document
+.getElementById("question")
+.value
+.trim();
 
 
 
-    if(!currentUser){
-
-        answer.innerText =
-        "Please login first.";
-
-        return;
-
-    }
+const answer =
+document
+.getElementById("answer");
 
 
 
-    try{
-
-
-        answer.innerText =
-        "🤖 AI Stylist is thinking...";
-
-
-
-        // Get wardrobe
-
-        const snapshot =
-        await getDocs(
-
-            collection(
-                db,
-                "users",
-                currentUser.uid,
-                "wardrobe"
-            )
-
-        );
+const imageInput =
+document
+.getElementById("personPhoto");
 
 
 
-        let clothes = [];
+
+if(question === ""){
+
+
+answer.innerText =
+"Please tell me what outfit you need help with.";
+
+
+return;
+
+
+}
 
 
 
-        snapshot.forEach((doc)=>{
 
-            clothes.push(doc.data());
-
-        });
+if(!currentUser){
 
 
+answer.innerText =
+"Please login first.";
 
-        if(clothes.length === 0){
+
+return;
 
 
-            answer.innerText =
-            "Your wardrobe is empty. Upload clothes first.";
-
-            return;
-
-        }
+}
 
 
 
-        // Send wardrobe + question to Gemini
 
-        const prompt = `
+try{
 
-You are an expert personal fashion stylist.
+
+answer.innerText =
+"🤖 AI Stylist is creating your outfit...";
+
+
+
+
+
+// GET USER WARDROBE
+
+
+const snapshot = await getDocs(
+
+collection(
+
+db,
+
+"users",
+
+currentUser.uid,
+
+"wardrobe"
+
+)
+
+);
+
+
+
+
+let clothes = [];
+
+
+
+
+snapshot.forEach((doc)=>{
+
+
+clothes.push(doc.data());
+
+
+});
+
+
+
+
+
+if(clothes.length === 0){
+
+
+answer.innerText =
+"Your wardrobe is empty. Upload clothes first.";
+
+
+return;
+
+
+}
+
+
+
+
+
+// CHECK USER PHOTO
+
+
+let photoMessage = "";
+
+
+if(imageInput && imageInput.files.length > 0){
+
+
+photoMessage = `
+
+The user has uploaded a personal photo.
+Consider body appearance and styling when giving advice.
+
+`;
+
+}
+
+
+
+
+// GEMINI PROMPT
+
+
+const prompt = `
+
+
+You are an advanced AI personal fashion stylist.
+
+
+${photoMessage}
+
 
 User wardrobe:
 
-${JSON.stringify(clothes, null, 2)}
+${JSON.stringify(
+clothes,
+null,
+2
+)}
 
 
-User question:
+
+User request:
 
 ${question}
 
 
-Create a personalized outfit recommendation.
+
+Create a complete fashion recommendation.
+
 
 Include:
 
-👕 Clothes to wear
-👟 Shoes suggestion
-⌚ Accessories suggestion
-🎨 Color matching advice
-✨ Style explanation
 
-Use only items from the wardrobe when possible.
+👕 Main outfit
 
-Keep the answer friendly and clear.
+👖 Bottom wear
+
+👟 Shoes
+
+⌚ Accessories
+
+🎨 Color matching
+
+💇 Hair/style suggestion
+
+✨ Why this outfit works
+
+
+Use the user's wardrobe whenever possible.
+
+
+Be friendly, detailed and professional.
+
 
 `;
 
 
 
-        const result =
-        await askGemini(prompt);
 
 
 
-        answer.innerText =
-        result;
+const result =
+await askGemini(prompt);
 
 
 
-        // Voice response
-
-        if("speechSynthesis" in window){
-
-            speechSynthesis.cancel();
 
 
-            const speech =
-            new SpeechSynthesisUtterance(result);
-
-
-            speechSynthesis.speak(speech);
-
-        }
+answer.innerText = result;
 
 
 
-    }
-
-    catch(error){
 
 
-        console.error(error);
+
+// VOICE AI
 
 
-        answer.innerText =
-        "Something went wrong: " + error.message;
+if("speechSynthesis" in window){
 
 
-    }
+speechSynthesis.cancel();
+
+
+
+const voice =
+new SpeechSynthesisUtterance(result);
+
+
+
+voice.rate = 0.9;
+
+voice.pitch = 1;
+
+
+speechSynthesis.speak(voice);
+
+
+
+}
+
+
+
+
+}
+
+catch(error){
+
+
+console.error(
+"AI Stylist Error:",
+error
+);
+
+
+
+answer.innerText =
+"Something went wrong: "
++
+error.message;
+
+
+
+}
 
 
 
