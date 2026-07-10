@@ -1,43 +1,82 @@
+// auth.js
+
 import { auth } from "./firebase.js";
 
+import { createWardrobeDB } from "./wardrobe-db.js";
+
+
 import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  sendPasswordResetEmail,
-  signOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+createUserWithEmailAndPassword,
+
+signInWithEmailAndPassword,
+
+sendPasswordResetEmail,
+
+signOut,
+
+onAuthStateChanged
+
+} from 
+"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+
+
 
 
 // ==========================
 // SIGN UP
 // ==========================
 
+
 window.signup = async function(){
 
+
 const email =
-document.getElementById("email").value.trim();
+document
+.getElementById("email")
+.value
+.trim();
+
 
 const password =
-document.getElementById("password").value.trim();
+document
+.getElementById("password")
+.value
+.trim();
+
+
 
 const msg =
-document.getElementById("msg");
+document
+.getElementById("msg");
+
+
 
 
 if(!email || !password){
 
+
 msg.innerHTML =
 "Please enter email and password";
+
 
 return;
 
 }
 
 
+
+
 try{
 
 
+msg.innerHTML =
+"Creating account...";
+
+
+
+const userCredential =
 await createUserWithEmailAndPassword(
 
 auth,
@@ -49,31 +88,70 @@ password
 );
 
 
+
+
+
+const user =
+userCredential.user;
+
+
+
+
+// CREATE USER WARDROBE DATABASE
+
+createWardrobeDB(
+user.uid
+);
+
+
+
+
+
 msg.innerHTML =
 "Account created successfully ✅";
 
 
+
+
+
 setTimeout(()=>{
 
-window.location.href="dashboard.html";
+
+window.location.href =
+"dashboard.html";
+
 
 },1000);
 
 
 
+
+
 }
 
+
+
 catch(error){
+
+
+
+console.error(error);
 
 
 msg.innerHTML =
 error.message;
 
 
+
 }
 
 
+
 };
+
+
+
+
 
 
 
@@ -85,33 +163,56 @@ error.message;
 window.login = async function(){
 
 
+
 const email =
-document.getElementById("email").value.trim();
+document
+.getElementById("email")
+.value
+.trim();
+
 
 
 const password =
-document.getElementById("password").value.trim();
+document
+.getElementById("password")
+.value
+.trim();
+
 
 
 const msg =
-document.getElementById("msg");
+document
+.getElementById("msg");
+
+
 
 
 
 if(!email || !password){
 
+
 msg.innerHTML =
 "Please enter email and password";
 
+
 return;
 
+
 }
+
+
 
 
 
 try{
 
 
+msg.innerHTML =
+"Logging in...";
+
+
+
+const userCredential =
 await signInWithEmailAndPassword(
 
 auth,
@@ -124,35 +225,63 @@ password
 
 
 
+
+
+// Make sure wardrobe exists
+
+createWardrobeDB(
+userCredential.user.uid
+);
+
+
+
+
+
 msg.innerHTML =
 "Login successful ✅";
+
+
 
 
 
 setTimeout(()=>{
 
 
-window.location.href="dashboard.html";
+window.location.href =
+"dashboard.html";
 
 
 },1000);
 
 
 
+
+
 }
 
 
+
 catch(error){
+
+
+
+console.error(error);
 
 
 msg.innerHTML =
 error.message;
 
 
+
 }
 
 
+
 };
+
+
+
+
 
 
 
@@ -164,20 +293,31 @@ error.message;
 window.resetPassword = async function(){
 
 
+
 const email =
-document.getElementById("email").value.trim();
+document
+.getElementById("email")
+.value
+.trim();
+
+
 
 
 
 if(!email){
 
+
 alert(
 "Enter your email first"
 );
 
+
 return;
 
+
 }
+
+
 
 
 
@@ -194,6 +334,7 @@ email
 
 
 
+
 alert(
 "Password reset email sent ✅"
 );
@@ -202,12 +343,16 @@ alert(
 
 }
 
+
+
 catch(error){
+
 
 
 alert(
 error.message
 );
+
 
 
 }
@@ -218,12 +363,17 @@ error.message
 
 
 
+
+
+
+
 // ==========================
 // LOGOUT
 // ==========================
 
 
 window.logout = async function(){
+
 
 
 try{
@@ -240,37 +390,42 @@ window.location.href =
 
 }
 
+
 catch(error){
 
 
-console.log(error.message);
+console.error(error.message);
 
 
 }
+
 
 
 };
 
 
 
+
+
+
+
 // ==========================
-// CHECK LOGIN STATUS
+// AUTH CHECK
 // ==========================
 
 
 onAuthStateChanged(auth,(user)=>{
 
 
+
 if(user){
 
 
 console.log(
-
-"User logged in:",
-
+"Logged in:",
 user.email
-
 );
+
 
 
 }
@@ -279,10 +434,9 @@ else{
 
 
 console.log(
-
 "No user logged in"
-
 );
+
 
 
 }
