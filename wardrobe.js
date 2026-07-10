@@ -1,67 +1,93 @@
-import { storage, db, auth } from "./firebase.js";
-
-import {
-ref,
-uploadBytes,
-getDownloadURL
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+// wardrobe.js
+// Local AI Wardrobe using IndexedDB
 
 
-import {
-collection,
-addDoc,
-getDocs,
-deleteDoc,
-doc,
-updateDoc
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+let db;
 
 
 
 // ==========================
-// SAVE CLOTHES
+// CREATE DATABASE
 // ==========================
 
-window.saveClothes = async function(){
+const request =
+indexedDB.open("FashionAI_Wardrobe",1);
+
+
+
+request.onupgradeneeded = function(e){
+
+db = e.target.result;
+
+
+if(!db.objectStoreNames.contains("clothes")){
+
+db.createObjectStore(
+"clothes",
+{
+keyPath:"id",
+autoIncrement:true
+}
+
+);
+
+}
+
+};
+
+
+
+request.onsuccess=function(e){
+
+db=e.target.result;
+
+loadWardrobe();
+
+};
+
+
+
+
+// ==========================
+// SAVE CLOTH
+// ==========================
+
+
+window.saveClothes=function(){
+
 
 
 const file =
-document.getElementById("clothesImage").files[0];
+document
+.getElementById("clothesImage")
+.files[0];
 
 
-let category =
-document.getElementById("category").value;
+
+const category =
+document
+.getElementById("category")
+.value;
+
 
 
 const color =
-document.getElementById("color").value;
+document
+.getElementById("color")
+.value;
+
 
 
 const message =
-document.getElementById("message");
-
-
-
-const user =
-auth.currentUser;
-
-
-
-if(!user){
-
-message.innerHTML =
-"Please login first";
-
-return;
-
-}
+document
+.getElementById("message");
 
 
 
 if(!file){
 
-message.innerHTML =
-"Choose an image";
+message.innerHTML=
+"Choose clothing image";
 
 return;
 
@@ -69,124 +95,71 @@ return;
 
 
 
-// Convert categories to AI friendly names
-
-category = category.toLowerCase();
-
-
-
-if(category.includes("t-shirt") || category.includes("tshirt")){
-category = "shirt";
-}
-
-
-if(category.includes("pant")){
-category = "trousers";
-}
-
-
-if(category.includes("sneaker") || category.includes("shoe")){
-category = "shoes";
-}
-
-
-try{
-
-
-message.innerHTML="Uploading...";
+const reader =
+new FileReader();
 
 
 
-// Upload image
+reader.onload=function(){
 
-const imageRef =
-ref(
-storage,
-"wardrobe/" + user.uid + "/" + Date.now()
+
+
+const transaction =
+db.transaction(
+["clothes"],
+"readwrite"
 );
 
 
 
-await uploadBytes(
-imageRef,
-file
+const store =
+transaction.objectStore(
+"clothes"
 );
 
 
 
-const imageUrl =
-await getDownloadURL(imageRef);
+store.add({
 
-
-
-
-
-// Save to Firestore
-
-await addDoc(
-
-collection(
-db,
-"users",
-user.uid,
-"wardrobe"
-),
-
-{
-
-
-imageUrl:imageUrl,
-
+image:reader.result,
 
 type:category,
 
-
 color:color,
-
 
 style:"casual",
 
-
 favorite:false,
 
+date:new Date()
 
-createdAt:Date.now()
-
-
-}
-
-);
+});
 
 
 
-message.innerHTML =
-"Clothing saved successfully ✅";
+transaction.oncomplete=function(){
 
+
+message.innerHTML=
+"Clothing saved ✅";
 
 
 loadWardrobe();
 
 
-
-}
-
-
-catch(error){
-
-
-console.error(error);
-
-
-message.innerHTML =
-error.message;
-
-
-}
+};
 
 
 
 };
 
+
+
+reader.readAsDataURL(file);
+
+
+
+};
 
 
 
@@ -197,49 +170,50 @@ error.message;
 // ==========================
 
 
-async function loadWardrobe(){
+function loadWardrobe(){
+
 
 
 const box =
 document.getElementById("wardrobe");
 
 
+
 if(!box)return;
 
 
 
-const user =
-auth.currentUser;
+box.innerHTML=
+"Loading...";
 
 
 
-if(!user){
-
-box.innerHTML =
-"Login first";
-
-return;
-
-}
-
-
-
-box.innerHTML =
-"Loading clothes...";
-
-
-
-const snapshot =
-await getDocs(
-
-collection(
-db,
-"users",
-user.uid,
-"wardrobe"
-)
-
+const transaction =
+db.transaction(
+["clothes"],
+"readonly"
 );
+
+
+
+const store =
+transaction.objectStore(
+"clothes"
+);
+
+
+
+const request =
+store.getAll();
+
+
+
+request.onsuccess=function(){
+
+
+
+const clothes =
+request.result;
 
 
 
@@ -247,10 +221,10 @@ box.innerHTML="";
 
 
 
-if(snapshot.empty){
+if(clothes.length===0){
 
-box.innerHTML =
-"No clothes uploaded yet";
+box.innerHTML=
+"No clothes saved";
 
 return;
 
@@ -258,11 +232,7 @@ return;
 
 
 
-snapshot.forEach((item)=>{
-
-
-const data =
-item.data();
+clothes.forEach(item=>{
 
 
 
@@ -272,32 +242,33 @@ box.innerHTML += `
 <div class="card">
 
 
-<img src="${data.imageUrl}" width="200">
+<img 
+src="${item.image}"
+width="200">
 
 
 <h3>
-${data.type}
+${item.type}
 </h3>
 
 
 <p>
-Color: ${data.color}
+Color: ${item.color}
 </p>
 
 
 <p>
-Style: ${data.style}
+Style: ${item.style}
 </p>
-
 
 
 <p>
-${data.favorite ? "❤️ Favorite" : ""}
+${item.favorite?"❤️ Favorite":""}
 </p>
 
 
 
-<button onclick="favoriteCloth('${item.id}')">
+<button onclick="favoriteCloth(${item.id})">
 
 ❤️ Favorite
 
@@ -305,15 +276,15 @@ ${data.favorite ? "❤️ Favorite" : ""}
 
 
 
-<button onclick="removeCloth('${item.id}')">
+<button onclick="deleteCloth(${item.id})">
 
 🗑 Delete
 
 </button>
 
 
-
 </div>
+
 
 
 `;
@@ -323,8 +294,12 @@ ${data.favorite ? "❤️ Favorite" : ""}
 });
 
 
-}
 
+};
+
+
+
+}
 
 
 
@@ -336,31 +311,39 @@ ${data.favorite ? "❤️ Favorite" : ""}
 // ==========================
 
 
-window.favoriteCloth = async function(id){
+window.favoriteCloth=function(id){
 
 
-const user =
-auth.currentUser;
-
-
-await updateDoc(
-
-doc(
-db,
-"users",
-user.uid,
-"wardrobe",
-id
-),
-
-{
-
-favorite:true
-
-}
-
+const transaction =
+db.transaction(
+["clothes"],
+"readwrite"
 );
 
+
+
+const store =
+transaction.objectStore(
+"clothes"
+);
+
+
+
+const get =
+store.get(id);
+
+
+
+get.onsuccess=function(){
+
+
+let item=get.result;
+
+
+item.favorite=true;
+
+
+store.put(item);
 
 
 loadWardrobe();
@@ -368,6 +351,8 @@ loadWardrobe();
 
 };
 
+
+};
 
 
 
@@ -379,42 +364,28 @@ loadWardrobe();
 // ==========================
 
 
-window.removeCloth = async function(id){
+window.deleteCloth=function(id){
 
 
-const user =
-auth.currentUser;
-
-
-
-await deleteDoc(
-
-doc(
-db,
-"users",
-user.uid,
-"wardrobe",
-id
-)
-
+const transaction =
+db.transaction(
+["clothes"],
+"readwrite"
 );
 
 
 
-loadWardrobe();
+transaction
+.objectStore("clothes")
+.delete(id);
 
+
+
+transaction.oncomplete=function(){
+
+loadWardrobe();
 
 };
 
 
-
-
-
-
-// Load after login
-
-onAuthStateChanged(auth,()=>{
-
-loadWardrobe();
-
-});
+};
