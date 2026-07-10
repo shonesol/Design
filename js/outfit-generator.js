@@ -1,7 +1,4 @@
-import {
-analyzeUserStyle
-}
-from "./style-learning.js";
+
 import {auth} from "./firebase.js";
 
 
@@ -18,7 +15,10 @@ getClothes
 }
 from "./db.js";
 
-
+import {
+analyzeUserStyle
+}
+from "./style-learning.js";
 
 let database = null;
 
