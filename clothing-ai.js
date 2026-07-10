@@ -1,40 +1,102 @@
-// AI Clothing Analyzer
+// clothing-ai.js
+
+import { askGemini } from "./gemini.js";
 
 
-export async function analyzeClothing(imageURL){
+export async function analyzeClothing(imageBase64){
 
 
-console.log(
-"Analyzing clothing:",
-imageURL
+const prompt = `
+
+You are an AI fashion vision expert.
+
+Analyze this clothing image.
+
+Return ONLY valid JSON.
+
+{
+"type":"",
+"color":"",
+"hex":"",
+"secondaryColor":"",
+"pattern":"",
+"material":"",
+"style":"",
+"occasion":"",
+"season":"",
+"confidence":""
+}
+
+
+Rules:
+
+type examples:
+shirt, tshirt, jeans, trousers, dress, shoes, jacket, hoodie, skirt
+
+style examples:
+casual, formal, luxury, sporty, streetwear, elegant
+
+Identify the exact main color name and HEX code.
+
+`;
+
+
+
+try{
+
+
+const result =
+await askGemini(
+prompt,
+imageBase64
 );
 
 
 
-// Temporary AI result
-// Later connect real AI Vision here
+return JSON.parse(result);
+
+
+
+}
+
+catch(error){
+
+
+console.error(
+"AI analysis failed:",
+error
+);
+
+
 
 return {
 
 
-type:"Shirt",
+type:"unknown",
 
-color:"Royal Blue",
+color:"unknown",
 
-hex:"#4169E1",
+hex:"#000000",
 
-secondaryColor:"White",
+secondaryColor:"",
 
-pattern:"Plain",
+pattern:"unknown",
 
-material:"Cotton",
+material:"unknown",
 
-style:"Casual",
+style:"casual",
 
-season:"All Season"
+occasion:"any",
+
+season:"all",
+
+confidence:"0%"
 
 
 };
+
+
+}
 
 
 }
