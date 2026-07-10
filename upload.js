@@ -1,10 +1,10 @@
-// upload.js
-
 import { auth } from "./firebase.js";
 
 import {
 onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+import { askGemini } from "./gemini.js";
 
 
 let currentUser = null;
@@ -12,39 +12,26 @@ let wardrobeDB = null;
 
 
 
-// CHECK USER
 
 onAuthStateChanged(auth, async(user)=>{
 
-
 if(user){
 
-currentUser = user;
-
+currentUser=user;
 
 wardrobeDB =
 await openDatabase(user.uid);
 
-
-console.log(
-"Wardrobe ready:",
-user.uid
-);
-
-
 }
-
 
 });
 
 
 
 
-
-// OPEN USER DATABASE
+// OPEN DATABASE
 
 function openDatabase(uid){
-
 
 return new Promise((resolve,reject)=>{
 
@@ -57,11 +44,10 @@ indexedDB.open(
 
 
 
-request.onupgradeneeded=(event)=>{
+request.onupgradeneeded=(e)=>{
 
 
-const db =
-event.target.result;
+const db=e.target.result;
 
 
 if(!db.objectStoreNames.contains("wardrobe")){
@@ -83,35 +69,93 @@ autoIncrement:true
 
 
 
+request.onsuccess=(e)=>{
 
-
-request.onsuccess=(event)=>{
-
-
-resolve(
-event.target.result
-);
-
+resolve(e.target.result);
 
 };
 
 
-
-
-request.onerror=(error)=>{
-
-
-reject(error);
-
-
-};
-
+request.onerror=reject;
 
 
 });
 
 
 }
+
+
+
+
+
+
+// AI VISION CLOTHING ANALYSIS
+
+async function analyzeClothing(image){
+
+
+const prompt = `
+
+You are a fashion AI vision expert.
+
+Analyze this clothing image.
+
+Return ONLY JSON:
+
+{
+"type":"",
+"color":"",
+"style":"",
+"season":""
+}
+
+Examples:
+
+type:
+shirt, tshirt, jeans, trousers, dress, shoes, jacket
+
+style:
+casual, formal, luxury, sporty, elegant
+
+`;
+
+
+
+const result =
+await askGemini(prompt);
+
+
+
+try{
+
+
+return JSON.parse(result);
+
+
+}
+
+catch{
+
+
+return {
+
+type:"unknown",
+
+color:"unknown",
+
+style:"casual",
+
+season:"all"
+
+};
+
+
+}
+
+
+
+}
+
 
 
 
@@ -141,13 +185,10 @@ document
 
 if(!file){
 
-
-status.innerText =
-"Select a clothing image";
-
+status.innerText=
+"Select clothing image";
 
 return;
-
 
 }
 
@@ -155,21 +196,18 @@ return;
 
 if(!currentUser){
 
-
-status.innerText =
+status.innerText=
 "Please login first";
 
-
 return;
-
 
 }
 
 
 
 
-status.innerText =
-"Saving clothing...";
+status.innerText=
+"🤖 AI is analyzing clothing...";
 
 
 
@@ -180,9 +218,21 @@ new FileReader();
 
 
 
+reader.onload=async()=>{
 
 
-reader.onload=function(){
+
+const image =
+reader.result;
+
+
+
+
+
+const ai =
+await analyzeClothing(image);
+
+
 
 
 
@@ -203,19 +253,22 @@ transaction.objectStore(
 
 
 
+
 store.add({
 
-
-image:reader.result,
-
-
-type:"unknown",
+image:image,
 
 
-color:"unknown",
+type:ai.type,
 
 
-style:"casual",
+color:ai.color,
+
+
+style:ai.style,
+
+
+season:ai.season,
 
 
 createdAt:new Date()
@@ -230,8 +283,12 @@ createdAt:new Date()
 transaction.oncomplete=()=>{
 
 
-status.innerText =
-"✅ Clothing saved to your wardrobe";
+status.innerText=
+
+`✅ Saved:
+${ai.type}
+${ai.color}
+${ai.style}`;
 
 
 };
