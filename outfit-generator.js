@@ -1,14 +1,9 @@
+// outfit-generator.js
+
 console.log("Outfit Generator Loaded");
 
 
-import { db, auth } from "./firebase.js";
-
-
-import {
-getDocs,
-collection
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
+import { auth } from "./firebase.js";
 
 import {
 onAuthStateChanged
@@ -16,37 +11,62 @@ onAuthStateChanged
 
 
 import { calculateOutfitScore } from "./outfit-score.js";
+
 import { checkColorMatch } from "./color-ai.js";
 
 
 
-const generateBtn = document.getElementById("generateBtn");
+const generateBtn =
+document.getElementById("generateBtn");
 
-const output = document.getElementById("outfitResult");
+
+const output =
+document.getElementById("outfitResult");
+
+
 
 let currentUser = null;
 
+let wardrobeDB = null;
 
 
-// CHECK LOGIN
 
-onAuthStateChanged(auth,(user)=>{
+
+// ==========================
+// LOGIN CHECK
+// ==========================
+
+onAuthStateChanged(auth, async(user)=>{
 
 
 if(user){
 
+
 currentUser=user;
 
-console.log("Logged user:",user.uid);
+
+wardrobeDB =
+await openWardrobeDB(user.uid);
+
+
+
+console.log(
+"User:",
+user.uid
+);
+
 
 
 }else{
 
 
-console.log("No user logged in");
+console.log(
+"No user logged in"
+);
 
 
 }
+
 
 
 });
@@ -55,57 +75,201 @@ console.log("No user logged in");
 
 
 
-generateBtn.addEventListener("click", async()=>{
+
+// ==========================
+// OPEN USER WARDROBE
+// ==========================
 
 
-if(!currentUser){
+function openWardrobeDB(uid){
 
-output.innerText="Please login first";
 
-return;
+return new Promise((resolve,reject)=>{
+
+
+const request =
+indexedDB.open(
+"FashionAI_"+uid,
+1
+);
+
+
+
+request.onsuccess=(event)=>{
+
+
+resolve(
+event.target.result
+);
+
+
+};
+
+
+
+request.onerror=(error)=>{
+
+
+reject(error);
+
+
+};
+
+
+
+});
+
+
 
 }
 
 
 
+
+
+
+
+
+// ==========================
+// GET CLOTHES
+// ==========================
+
+
+function getWardrobe(){
+
+
+return new Promise((resolve,reject)=>{
+
+
+const transaction =
+wardrobeDB.transaction(
+"wardrobe",
+"readonly"
+);
+
+
+
+const store =
+transaction.objectStore(
+"wardrobe"
+);
+
+
+
+const request =
+store.getAll();
+
+
+
+
+request.onsuccess=()=>{
+
+
+resolve(
+request.result
+);
+
+
+};
+
+
+
+request.onerror=(error)=>{
+
+
+reject(error);
+
+
+};
+
+
+
+});
+
+
+
+}
+
+
+
+
+
+
+
+
+// ==========================
+// GENERATE OUTFIT
+// ==========================
+
+
+generateBtn.addEventListener(
+"click",
+async()=>{
+
+
+
+if(!currentUser){
+
+
+output.innerText =
+"Please login first";
+
+
+return;
+
+
+}
+
+
+
+
+if(!wardrobeDB){
+
+
+output.innerText =
+"Loading wardrobe...";
+
+
+return;
+
+
+}
+
+
+
+
 const occasion =
-document.getElementById("occasion").value;
+document
+.getElementById("occasion")
+.value;
+
 
 
 
 try{
 
 
-// LOAD WARDROBE
+output.innerText =
+"🤖 Creating your outfit...";
 
-const snapshot = await getDocs(
 
-collection(
-db,
-"users",
-currentUser.uid,
-"wardrobe"
-)
 
+
+
+// GET PHONE WARDROBE
+
+
+const wardrobe =
+await getWardrobe();
+
+
+
+
+console.log(
+"Wardrobe:",
+wardrobe
 );
 
-
-
-let wardrobe=[];
-
-
-
-snapshot.forEach((doc)=>{
-
-
-wardrobe.push(doc.data());
-
-
-});
-
-
-
-console.log("Wardrobe:",wardrobe);
 
 
 
@@ -114,7 +278,7 @@ console.log("Wardrobe:",wardrobe);
 if(wardrobe.length===0){
 
 
-output.innerText=
+output.innerText =
 "Upload clothes first";
 
 
@@ -126,42 +290,71 @@ return;
 
 
 
+
+
+
+
 // FIND CLOTHES
 
 
-let top = wardrobe.find(item=>
+const top =
+wardrobe.find(item=>
 
 [
+
 "shirt",
+
 "tshirt",
-"t-shirt"
+
+"t-shirt",
+
+"hoodie",
+
+"jacket"
+
 ]
+
 .includes(
-item.type?.toLowerCase()
+item.type.toLowerCase()
 )
 
 );
 
 
 
-let bottom = wardrobe.find(item=>
+
+
+const bottom =
+wardrobe.find(item=>
 
 [
+
 "jeans",
+
 "trousers",
-"pants"
+
+"pants",
+
+"skirt"
+
 ]
+
 .includes(
-item.type?.toLowerCase()
+item.type.toLowerCase()
 )
 
 );
 
 
 
-let shoes = wardrobe.find(item=>
 
-item.type?.toLowerCase()
+
+
+const shoes =
+wardrobe.find(item=>
+
+item.type
+.toLowerCase()
 .includes("shoe")
 
 );
@@ -170,19 +363,28 @@ item.type?.toLowerCase()
 
 
 
+
+
 let colors=[];
 
 
+
 if(top?.color)
+
 colors.push(top.color);
 
 
+
 if(bottom?.color)
+
 colors.push(bottom.color);
 
 
+
 if(shoes?.color)
+
 colors.push(shoes.color);
+
 
 
 
@@ -194,17 +396,22 @@ checkColorMatch(colors);
 
 
 
+
+
 const score =
 calculateOutfitScore({
 
 colorScore:
 colorResult.score,
 
+
 weatherScore:90,
+
 
 occasionScore:95,
 
-styleScore:85
+
+styleScore:90
 
 
 });
@@ -217,40 +424,49 @@ styleScore:85
 const result = `
 
 
-✨ AI GENERATED OUTFIT
+✨ AI OUTFIT GENERATOR
 
 
 🎯 Occasion:
+
 ${occasion}
 
 
 
 👕 Top:
-${top?.color || "Any shirt"}
+
+${top?.color || "Choose a matching top"}
 
 
 
 👖 Bottom:
-${bottom?.color || "Matching trousers"}
+
+${bottom?.color || "Choose matching trousers"}
 
 
 
 👟 Shoes:
-${shoes?.color || "Clean shoes"}
+
+${shoes?.color || "Clean matching shoes"}
 
 
 
 ⭐ Fashion Score:
+
 ${score}%
 
 
 
 🤖 AI Advice:
 
-This outfit matches your wardrobe style.
+
+This outfit was created from your personal wardrobe.
 
 
 `;
+
+
+
 
 
 
@@ -258,10 +474,19 @@ output.innerText=result;
 
 
 
+
+
+
 // VOICE
+
+speechSynthesis.cancel();
+
 
 const speech =
 new SpeechSynthesisUtterance(result);
+
+
+speech.rate=0.9;
 
 
 speechSynthesis.speak(speech);
@@ -270,17 +495,22 @@ speechSynthesis.speak(speech);
 
 }
 
+
+
 catch(error){
+
 
 
 console.error(error);
 
 
-output.innerText=
+output.innerText =
 "Error: "+error.message;
 
 
+
 }
+
 
 
 });
