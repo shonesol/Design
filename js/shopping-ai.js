@@ -205,3 +205,134 @@ recommendations
 
 
 }
+// FashionAI Shopping Intelligence
+
+
+export function analyzeWardrobeNeeds(
+clothes
+){
+
+
+let categories={};
+
+
+clothes.forEach(item=>{
+
+
+let category =
+item.category
+||
+"Unknown";
+
+
+
+categories[category] =
+(categories[category] || 0)+1;
+
+
+});
+
+
+
+
+let suggestions=[];
+
+
+
+
+
+// Missing essentials
+
+
+if(!categories["Outerwear"]){
+
+
+suggestions.push({
+
+item:
+"Blazer or Jacket",
+
+reason:
+"Adds smart casual and formal outfit options"
+
+});
+
+
+}
+
+
+
+
+
+if(!categories["Shoes"]){
+
+
+suggestions.push({
+
+item:
+"Quality shoes",
+
+reason:
+"Completes outfit combinations"
+
+});
+
+
+}
+
+
+
+
+
+if(
+!categories["Accessories"]
+){
+
+
+suggestions.push({
+
+item:
+"Accessories",
+
+reason:
+"Watches, belts and bags improve styling"
+
+});
+
+
+}
+
+
+
+
+
+
+// Too many similar items
+
+
+if(
+categories["Top"] > 10
+){
+
+
+suggestions.push({
+
+item:
+"More bottoms or jackets",
+
+reason:
+"You have many tops but need balance"
+
+});
+
+
+}
+
+
+
+
+
+return suggestions;
+
+
+}
