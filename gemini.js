@@ -1,115 +1,233 @@
-
-
 // gemini.js
 
-const GEMINI_API_KEY = "AIzaSyBoEegr5WWmivKvgmct594OK7guPSoc9vY";
-
-
-export async function askGemini(prompt) {
-
-    try {
-
-
-        const response = await fetch(
-
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-
-            {
-
-                method: "POST",
-
-                headers: {
-
-                    "Content-Type": "application/json"
-
-                },
-
-
-                body: JSON.stringify({
-
-                    contents: [
-
-                        {
-
-                            parts: [
-
-                                {
-
-                                    text: prompt
-
-                                }
-
-                            ]
-
-                        }
-
-                    ],
-
-                    generationConfig: {
-
-                        temperature: 0.7,
-
-                        maxOutputTokens: 500
-
-                    }
-
-                })
-
-            }
-
-        );
+const GEMINI_API_KEY = "YOUR_NEW_GEMINI_API_KEY";
 
 
 
-        const data = await response.json();
+export async function askGemini(prompt, imageBase64 = null) {
+
+
+try {
+
+
+let parts = [
+
+{
+text: prompt
+}
+
+];
 
 
 
-        if(!response.ok){
 
-            console.error("Gemini Error:", data);
+// ADD IMAGE FOR VISION AI
 
-            return "Gemini error: " + 
-            (data.error?.message || "Unknown error");
-
-        }
+if(imageBase64){
 
 
-
-        if(
-            !data.candidates ||
-            data.candidates.length === 0
-        ){
-
-            return "No response from Gemini.";
-
-        }
+const base64Data =
+imageBase64.split(",")[1];
 
 
 
-        return (
-            data
-            .candidates[0]
-            .content
-            .parts[0]
-            .text
-        );
+parts.push({
+
+inline_data:{
+
+mime_type:"image/jpeg",
+
+data:base64Data
+
+}
+
+});
+
+
+}
 
 
 
-    }
-
-    catch(error){
 
 
-        console.error(
-            "Connection error:",
-            error
-        );
+const response = await fetch(
+
+`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+
+{
 
 
-        return "Unable to connect to Gemini AI.";
+method:"POST",
 
-    }
+
+headers:{
+
+
+"Content-Type":"application/json"
+
+
+},
+
+
+
+body:JSON.stringify({
+
+
+contents:[
+
+{
+
+parts:parts
+
+}
+
+],
+
+
+
+generationConfig:{
+
+
+temperature:0.4,
+
+
+maxOutputTokens:1000,
+
+
+topP:0.9,
+
+
+topK:40
+
+
+},
+
+
+
+safetySettings:[
+
+
+{
+
+category:"HARM_CATEGORY_HARASSMENT",
+
+threshold:"BLOCK_NONE"
+
+},
+
+
+{
+
+category:"HARM_CATEGORY_HATE_SPEECH",
+
+threshold:"BLOCK_NONE"
+
+},
+
+
+{
+
+category:"HARM_CATEGORY_DANGEROUS_CONTENT",
+
+threshold:"BLOCK_NONE"
+
+}
+
+
+]
+
+
+})
+
+
+}
+
+);
+
+
+
+
+
+const data =
+await response.json();
+
+
+
+
+
+if(!response.ok){
+
+
+console.error(
+"Gemini API Error:",
+data
+);
+
+
+
+return "AI Error: "+
+(data.error?.message ||
+"Unknown error");
+
+
+}
+
+
+
+
+
+
+
+if(
+!data.candidates ||
+data.candidates.length===0
+){
+
+
+return "No AI response";
+
+
+}
+
+
+
+
+
+
+let answer =
+data
+.candidates[0]
+.content
+.parts[0]
+.text;
+
+
+
+
+
+
+return answer.trim();
+
+
+
+
+
+}
+
+catch(error){
+
+
+console.error(
+"Gemini Connection Error:",
+error
+);
+
+
+
+return "AI connection failed";
+
+
+}
+
 
 }
