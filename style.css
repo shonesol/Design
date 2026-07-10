@@ -369,3 +369,65 @@ select{
 
 
 }
+.clothes-grid{
+
+display:grid;
+
+grid-template-columns:
+repeat(auto-fit,minmax(120px,1fr));
+
+gap:20px;
+
+}
+
+
+
+.cloth-card{
+
+background:white;
+
+padding:12px;
+
+border-radius:15px;
+
+text-align:center;
+
+box-shadow:0 4px 12px rgba(0,0,0,0.15);
+
+}
+
+
+
+.cloth-card img{
+
+width:100px;
+
+height:100px;
+
+object-fit:cover;
+
+border-radius:12px;
+
+cursor:pointer;
+
+}
+
+
+
+.cloth-card h3{
+
+font-size:16px;
+
+margin:8px 0;
+
+}
+
+
+
+.cloth-card p{
+
+font-size:14px;
+
+color:#555;
+
+}
