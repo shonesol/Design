@@ -172,15 +172,150 @@ return 60;
 // ==========================
 
 
+// ==========================
+// FASHIONAI SMART OUTFIT SCORE
+// ==========================
+
 function scoreOutfit(
 top,
 bottom,
 shoe,
-profile
+profile,
+weather,
+occasionStyles
 ){
 
 
-let score=0;
+let score = 0;
+
+
+
+// COLOR MATCHING
+
+score += colorScore(
+top.color,
+bottom.color
+);
+
+
+score += colorScore(
+bottom.color,
+shoe.color
+);
+
+
+
+
+// PERSONAL STYLE MATCH
+
+let styles = [
+
+top.style?.toLowerCase(),
+
+bottom.style?.toLowerCase(),
+
+shoe.style?.toLowerCase()
+
+];
+
+
+
+profile.favoriteStyles.forEach(style=>{
+
+
+if(
+styles.includes(
+style.toLowerCase()
+)
+
+){
+
+score += 15;
+
+}
+
+
+});
+
+
+
+
+// FAVORITE COLORS
+
+profile.favoriteColors.forEach(color=>{
+
+
+if(
+
+top.color
+?.toLowerCase()
+.includes(color)
+
+){
+
+score +=10;
+
+}
+
+
+});
+
+
+
+
+// OCCASION MATCH
+
+occasionStyles.forEach(style=>{
+
+
+if(
+styles.includes(
+style.toLowerCase()
+)
+
+){
+
+score +=15;
+
+}
+
+
+});
+
+
+
+
+// WEATHER MATCH
+
+if(
+weather.condition==="Rainy"
+){
+
+
+if(
+shoe.name
+?.toLowerCase()
+.includes("boot")
+
+){
+
+score +=10;
+
+}
+
+
+}
+
+
+
+
+return Math.min(
+100,
+Math.round(score)
+);
+
+
+}
 
 
 
