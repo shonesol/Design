@@ -1,139 +1,38 @@
-import { storage, auth, db } from "./firebase.js";
+// upload.js
 
-
-import { 
-ref,
-uploadBytes,
-getDownloadURL
-} 
-from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
-
+import { auth } from "./firebase.js";
 
 import {
-collection,
-addDoc
-}
-from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+
+let currentUser = null;
+let wardrobeDB = null;
 
 
 
+// CHECK USER
+
+onAuthStateChanged(auth, async(user)=>{
 
 
-// AI CLOTHING ANALYSIS
+if(user){
 
-async function analyzeClothingWithAI(imageUrl){
-
-
-const API_KEY = "AIzaSyA1wmHCfPLOmw1u3zUM-M2bUl 
-";
+currentUser = user;
 
 
-const body = {
-
-requests:[
-
-{
-
-image:{
-source:{
-imageUri:imageUrl
-}
-},
-
-features:[
-
-{
-type:"LABEL_DETECTION",
-maxResults:10
-},
-
-{
-type:"IMAGE_PROPERTIES"
-}
-
-]
-
-}
-
-]
-
-};
+wardrobeDB =
+await openDatabase(user.uid);
 
 
-
-const response = await fetch(
-
-`https://vision.googleapis.com/v1/images:annotate?key=${API_KEY}`,
-
-{
-
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify(body)
-
-}
-
+console.log(
+"Wardrobe ready:",
+user.uid
 );
 
 
-
-const data = await response.json();
-
-
-
-const labels =
-data.responses?.[0]?.labelAnnotations || [];
-
-
-const colors =
-data.responses?.[0]
-?.imagePropertiesAnnotation
-?.dominantColors
-?.colors || [];
-
-
-
-
-let type="unknown";
-
-let color="unknown";
-
-let style="casual";
-
-
-
-
-
-labels.forEach(item=>{
-
-
-let text =
-item.description.toLowerCase();
-
-
-
-if(text.includes("shirt"))
-type="shirt";
-
-
-if(text.includes("jeans"))
-type="jeans";
-
-
-if(text.includes("shoe"))
-type="shoes";
-
-
-if(text.includes("dress"))
-type="dress";
-
-
-if(text.includes("hoodie"))
-type="hoodie";
+}
 
 
 });
@@ -142,63 +41,76 @@ type="hoodie";
 
 
 
-if(colors.length){
+// OPEN USER DATABASE
+
+function openDatabase(uid){
 
 
-const rgb =
-colors[0].color;
+return new Promise((resolve,reject)=>{
+
+
+const request =
+indexedDB.open(
+"FashionAI_"+uid,
+1
+);
 
 
 
-if(rgb.red>200 && rgb.green<100)
-color="red";
+request.onupgradeneeded=(event)=>{
 
 
-else if(rgb.blue>150)
-color="blue";
+const db =
+event.target.result;
 
 
-else if(
-rgb.red<60 &&
-rgb.green<60 &&
-rgb.blue<60
-)
-color="black";
+if(!db.objectStoreNames.contains("wardrobe")){
 
 
-else if(
-rgb.red>200 &&
-rgb.green>200 &&
-rgb.blue>200
-)
-color="white";
+db.createObjectStore(
+"wardrobe",
+{
+keyPath:"id",
+autoIncrement:true
+}
+);
 
 
 }
 
 
-
-
-if(type==="shirt")
-style="formal";
-
-
-if(type==="dress")
-style="elegant";
-
-
-if(type==="hoodie")
-style="casual";
-
-
-
-return {
-type,
-color,
-style
 };
 
 
+
+
+
+request.onsuccess=(event)=>{
+
+
+resolve(
+event.target.result
+);
+
+
+};
+
+
+
+
+request.onerror=(error)=>{
+
+
+reject(error);
+
+
+};
+
+
+
+});
+
+
 }
 
 
@@ -207,139 +119,132 @@ style
 
 
 
-// UPLOAD FUNCTION
+// UPLOAD CLOTHES
 
 window.uploadClothes = async function(){
 
 
+
 const file =
-document.getElementById("file").files[0];
+document
+.getElementById("file")
+.files[0];
+
 
 
 const status =
-document.getElementById("status");
+document
+.getElementById("status");
+
 
 
 
 if(!file){
 
-status.innerText="Select a file first";
+
+status.innerText =
+"Select a clothing image";
+
 
 return;
+
+
+}
+
+
+
+if(!currentUser){
+
+
+status.innerText =
+"Please login first";
+
+
+return;
+
 
 }
 
 
 
 
-const user =
-auth.currentUser;
-
-
-
-if(!user){
-
-status.innerText="Please login first";
-
-return;
-
-}
+status.innerText =
+"Saving clothing...";
 
 
 
 
-try{
+
+const reader =
+new FileReader();
 
 
 
-status.innerText="Uploading...";
+
+
+reader.onload=function(){
 
 
 
-const storageRef =
-ref(
-storage,
-"clothes/"+Date.now()+"_"+file.name
+const transaction =
+wardrobeDB.transaction(
+"wardrobe",
+"readwrite"
 );
 
 
 
-await uploadBytes(
-storageRef,
-file
-);
-
-
-
-const url =
-await getDownloadURL(storageRef);
-
-
-
-
-
-status.innerText="Analyzing clothing...";
-
-
-
-const ai =
-await analyzeClothingWithAI(url);
-
-
-
-
-
-await addDoc(
-
-collection(
-db,
-"users",
-user.uid,
+const store =
+transaction.objectStore(
 "wardrobe"
-),
+);
 
-{
 
-imageUrl:url,
 
-type:ai.type,
 
-color:ai.color,
 
-style:ai.style,
+store.add({
+
+
+image:reader.result,
+
+
+type:"unknown",
+
+
+color:"unknown",
+
+
+style:"casual",
+
 
 createdAt:new Date()
 
-}
 
-);
-
+});
 
 
 
 
-status.innerText=
-"✅ Clothing uploaded and AI analyzed!";
+
+transaction.oncomplete=()=>{
+
+
+status.innerText =
+"✅ Clothing saved to your wardrobe";
+
+
+};
 
 
 
-console.log("Saved:",ai);
+};
 
 
 
-}
-
-catch(error){
 
 
-console.error(error);
-
-
-status.innerText=
-"Error: "+error.message;
-
-
-}
+reader.readAsDataURL(file);
 
 
 
