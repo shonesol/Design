@@ -20,8 +20,21 @@ export function openDatabase(uid) {
 
 
         request.onupgradeneeded = (event) => {
+// Feedback memory
 
+if(
+!db.objectStoreNames.contains("feedback")
+){
 
+db.createObjectStore(
+"feedback",
+{
+keyPath:"id",
+autoIncrement:true
+}
+);
+
+}
             const db = event.target.result;
 
 
