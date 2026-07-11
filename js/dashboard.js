@@ -36,7 +36,11 @@ analyzeShoppingNeeds
 }
 from "./shopping-ai.js";
 
-
+import {
+exportFashionAI,
+importFashionAI
+}
+from "./backup-restore.js";
 
 
 let database;
@@ -391,6 +395,77 @@ alert(
 
 
 }
+// ==========================
+// BACKUP
+// ==========================
 
+
+document
+.getElementById(
+"backupBtn"
+)
+.onclick = ()=>{
+
+
+exportFashionAI(
+database
+);
+
+
+};
+
+
+
+
+
+
+// ==========================
+// RESTORE
+// ==========================
+
+
+document
+.getElementById(
+"restoreBtn"
+)
+.onclick = async()=>{
+
+
+const file =
+
+document
+.getElementById(
+"restoreFile"
+)
+.files[0];
+
+
+
+
+
+if(file){
+
+
+await importFashionAI(
+
+database,
+
+file
+
+);
+
+
+
+alert(
+"✅ FashionAI restored successfully"
+);
+
+
+
+}
+
+
+
+};
 
 };
