@@ -12,14 +12,13 @@
 
 <body>
 
-
 <div class="container">
 
 
+<!-- Upload Section -->
 <div class="card">
 
 <h1>🤖 Add Clothing With AI</h1>
-
 
 <input 
 type="file"
@@ -27,19 +26,17 @@ id="clothingImage"
 accept="image/*"
 >
 
-
 <button id="uploadBtn">
 ✨ Upload & Analyze
 </button>
 
-
 <p id="message"></p>
-
 
 </div>
 
 
 
+<!-- Dashboard -->
 <div class="card">
 
 <h1>📊 Wardrobe Dashboard</h1>
@@ -48,11 +45,11 @@ accept="image/*"
 Loading statistics...
 </div>
 
-
 </div>
 
 
 
+<!-- Search -->
 <input 
 class="search"
 id="search"
@@ -61,25 +58,26 @@ placeholder="🔍 Search clothes"
 
 
 
+<!-- Category Filter -->
 <select id="category">
 
-<option>
+<option value="all">
 All Categories
 </option>
 
-<option>
+<option value="Shirt">
 Shirt
 </option>
 
-<option>
+<option value="Dress">
 Dress
 </option>
 
-<option>
+<option value="Trouser">
 Trouser
 </option>
 
-<option>
+<option value="Shoes">
 Shoes
 </option>
 
@@ -87,6 +85,8 @@ Shoes
 
 
 
+<!-- Collection -->
+<div class="card">
 
 <h1>
 👕 My Clothes Collection
@@ -95,14 +95,19 @@ Shoes
 
 <div id="clothesList">
 
+Loading clothes...
+
 </div>
 
+
+</div>
 
 
 </div>
 
 
 <script type="module" src="app.js"></script>
+
 
 </body>
 </html>
