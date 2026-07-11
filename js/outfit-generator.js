@@ -824,3 +824,68 @@ alert(
 
 
 };
+// ==========================
+// PLAN OUTFIT
+// ==========================
+
+
+window.planOutfit =
+
+async function(outfit){
+
+
+const plan = {
+
+
+date:
+
+new Date()
+.toISOString()
+.split("T")[0],
+
+
+
+occasion:
+
+currentOccasion || "Casual",
+
+
+
+notes:
+
+"Created from AI Outfit Generator",
+
+
+
+outfit,
+
+
+
+createdAt:
+
+Date.now()
+
+
+};
+
+
+
+
+await saveOutfitPlan(
+
+database,
+
+plan
+
+);
+
+
+
+alert(
+
+"📅 Outfit added to planner"
+
+);
+
+
+};
