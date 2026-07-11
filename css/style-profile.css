@@ -1,26 +1,285 @@
+/* ======================================
+   FashionAI Premium Profile Design
+====================================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
 body{
 
-font-family:Arial;
+    font-family:'Segoe UI', Arial, sans-serif;
 
-background:#f5f0e6;
+    background:linear-gradient(135deg,#fff4e8,#ffe6f2,#eef4ff);
+
+    min-height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    padding:40px;
 
 }
 
+/* Main Profile Card */
 
 .profile{
 
-width:90%;
+    width:95%;
 
-max-width:600px;
+    max-width:900px;
 
-margin:auto;
+    background:white;
 
-background:white;
+    padding:50px;
 
-padding:30px;
+    border-radius:35px;
 
-border-radius:20px;
+    text-align:center;
 
-text-align:center;
+    box-shadow:0 20px 50px rgba(0,0,0,.15);
+
+    transition:.35s;
+
+}
+
+.profile:hover{
+
+    transform:translateY(-8px);
+
+    box-shadow:0 30px 60px rgba(0,0,0,.20);
+
+}
+
+/* Profile Image */
+
+.profile img{
+
+    width:180px;
+
+    height:180px;
+
+    border-radius:50%;
+
+    object-fit:cover;
+
+    border:6px solid #ff5fa2;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.18);
+
+    margin-bottom:25px;
+
+}
+
+/* Headings */
+
+.profile h1{
+
+    font-size:42px;
+
+    color:#7b61ff;
+
+    margin-bottom:10px;
+
+}
+
+.profile h2{
+
+    font-size:28px;
+
+    color:#ff5fa2;
+
+    margin-bottom:20px;
+
+}
+
+/* Text */
+
+.profile p{
+
+    font-size:20px;
+
+    line-height:1.8;
+
+    color:#555;
+
+    margin-bottom:25px;
+
+}
+
+/* Form Labels */
+
+.profile label{
+
+    display:block;
+
+    text-align:left;
+
+    font-size:18px;
+
+    font-weight:600;
+
+    margin:20px 0 8px;
+
+}
+
+/* Input Fields */
+
+.profile input,
+.profile select,
+.profile textarea{
+
+    width:100%;
+
+    padding:18px;
+
+    border:2px solid #ddd;
+
+    border-radius:18px;
+
+    font-size:18px;
+
+    transition:.3s;
+
+}
+
+.profile input:focus,
+.profile select:focus,
+.profile textarea:focus{
+
+    outline:none;
+
+    border-color:#7b61ff;
+
+    box-shadow:0 0 15px rgba(123,97,255,.25);
+
+}
+
+/* Buttons */
+
+.profile button{
+
+    width:100%;
+
+    margin-top:30px;
+
+    padding:18px;
+
+    border:none;
+
+    border-radius:35px;
+
+    background:linear-gradient(135deg,#ff5fa2,#7b61ff);
+
+    color:white;
+
+    font-size:20px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+    box-shadow:0 10px 25px rgba(123,97,255,.35);
+
+}
+
+.profile button:hover{
+
+    transform:translateY(-5px);
+
+    box-shadow:0 15px 35px rgba(123,97,255,.45);
+
+}
+
+/* Information Cards */
+
+.info-card{
+
+    background:#f8f9ff;
+
+    border-radius:20px;
+
+    padding:20px;
+
+    margin-top:20px;
+
+    text-align:left;
+
+    box-shadow:0 8px 20px rgba(0,0,0,.08);
+
+}
+
+.info-card h3{
+
+    color:#7b61ff;
+
+    margin-bottom:10px;
+
+    font-size:22px;
+
+}
+
+.info-card p{
+
+    font-size:18px;
+
+    margin:0;
+
+}
+
+/* Mobile */
+
+@media(max-width:768px){
+
+    body{
+
+        padding:20px;
+
+    }
+
+    .profile{
+
+        padding:30px;
+
+    }
+
+    .profile img{
+
+        width:140px;
+
+        height:140px;
+
+    }
+
+    .profile h1{
+
+        font-size:32px;
+
+    }
+
+    .profile h2{
+
+        font-size:22px;
+
+    }
+
+    .profile p{
+
+        font-size:17px;
+
+    }
+
+    .profile button{
+
+        font-size:18px;
+
+    }
 
 }
