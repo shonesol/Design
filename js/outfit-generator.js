@@ -73,19 +73,14 @@ from "./outfit-score.js";
 
 
 
-// ==========================
-// DATABASE
-// ==========================
+let database=null;
 
 
-let database = null;
+let currentProfile=null;
 
+let currentWeather=null;
 
-let currentProfile = null;
-
-let currentWeather = null;
-
-let currentOccasion = null;
+let currentOccasion=null;
 
 
 
@@ -94,11 +89,15 @@ let currentOccasion = null;
 
 
 // ==========================
-// CONNECT DATABASE
+// DATABASE CONNECTION
 // ==========================
 
 
-database = await getDatabase();
+try{
+
+
+database =
+await getDatabase();
 
 
 
@@ -107,22 +106,35 @@ console.log(
 );
 
 
+}
+
+catch(error){
+
+
+console.error(
+"Database Error:",
+error
+);
+
+
+}
+
+
+
+
 
 
 
 
 
 const button =
-
 document.getElementById(
 "generateBtn"
 );
 
 
 
-
 const output =
-
 document.getElementById(
 "outfitResult"
 );
@@ -135,9 +147,7 @@ document.getElementById(
 
 
 
-// ==========================
-// GENERATE BUTTON
-// ==========================
+if(button){
 
 
 button.onclick = async()=>{
@@ -147,7 +157,7 @@ if(!database){
 
 
 output.innerHTML =
-"Loading FashionAI...";
+"Database loading...";
 
 
 return;
@@ -157,6 +167,10 @@ return;
 
 
 
+
+
+
+try{
 
 
 const clothes =
@@ -169,9 +183,11 @@ database
 
 
 
+
 await learnUserFashion(
 database
 );
+
 
 
 
@@ -201,9 +217,11 @@ document
 
 
 
+
 const location =
 
 await getUserLocation();
+
 
 
 
@@ -225,6 +243,7 @@ location.longitude
 
 
 
+
 const occasionStyles =
 
 getOccasionStyle(
@@ -236,7 +255,8 @@ currentOccasion
 
 
 
-await generateOutfits(
+
+generateOutfits(
 
 clothes,
 
@@ -249,7 +269,30 @@ occasionStyles
 );
 
 
+
+
+
+}
+
+catch(error){
+
+
+console.error(error);
+
+
+output.innerHTML =
+"❌ FashionAI could not generate outfit";
+
+
+}
+
+
+
 };
+
+
+
+}
 
 
 
@@ -260,7 +303,7 @@ occasionStyles
 
 
 // ==========================
-// AI OUTFIT ENGINE
+// GENERATE OUTFITS
 // ==========================
 
 
@@ -277,15 +320,16 @@ occasionStyles
 ){
 
 
+
 let outfits=[];
 
 
 
 
 
-const cleanClothes =
+const clean =
 
-clothes.filter(item=>
+clothes.filter(item =>
 
 item.laundryStatus==="Clean"
 
@@ -300,9 +344,10 @@ item.laundryStatus==="Ready"
 
 
 
+
 const tops =
 
-cleanClothes.filter(item=>
+clean.filter(item=>
 
 item.category==="Top"
 
@@ -314,7 +359,7 @@ item.category==="Top"
 
 const bottoms =
 
-cleanClothes.filter(item=>
+clean.filter(item=>
 
 item.category==="Bottom"
 
@@ -326,7 +371,7 @@ item.category==="Bottom"
 
 const shoes =
 
-cleanClothes.filter(item=>
+clean.filter(item=>
 
 item.category==="Shoes"
 
@@ -339,37 +384,32 @@ item.category==="Shoes"
 
 
 if(
-
-tops.length===0 ||
-
-bottoms.length===0 ||
-
-shoes.length===0
-
+!tops.length ||
+!bottoms.length ||
+!shoes.length
 ){
 
 
-output.innerHTML =
+output.innerHTML=
 
 `
 
 <h3>
-Upload more clothes
+👗 Wardrobe incomplete
 </h3>
 
 
 <p>
-FashionAI needs tops, bottoms and shoes.
+Upload tops, bottoms and shoes.
 </p>
 
 `;
+
 
 return;
 
 
 }
-
-
 
 
 
@@ -406,6 +446,7 @@ weather,
 occasionStyles
 
 );
+
 
 
 
@@ -451,17 +492,13 @@ score
 
 
 
+}
+
 
 }
 
 
-
 }
-
-
-
-}
-
 
 
 
@@ -488,6 +525,7 @@ outfits.slice(0,5)
 );
 
 
+
 }
 
 
@@ -499,11 +537,12 @@ outfits.slice(0,5)
 
 
 // ==========================
-// DISPLAY OUTFITS
+// DISPLAY
 // ==========================
 
 
 async function displayOutfits(outfits){
+
 
 
 output.innerHTML="";
@@ -512,7 +551,7 @@ output.innerHTML="";
 
 
 
-if(outfits.length===0){
+if(!outfits.length){
 
 
 output.innerHTML=
@@ -520,7 +559,7 @@ output.innerHTML=
 `
 
 <h3>
-No new outfit found
+No new outfit available
 </h3>
 
 `;
@@ -535,7 +574,15 @@ return;
 
 
 
-for(const outfit of outfits){
+for(
+let i=0;
+i<outfits.length;
+i++
+){
+
+
+const outfit =
+outfits[i];
 
 
 
@@ -560,7 +607,17 @@ currentWeather
 
 
 
+window[
+"outfit_"+i
+]=outfit;
+
+
+
+
+
+
 output.innerHTML +=
+
 
 `
 
@@ -570,7 +627,6 @@ output.innerHTML +=
 <h2>
 🤖 AI Match ${outfit.score}%
 </h2>
-
 
 
 <img src="${outfit.top.image}" width="120">
@@ -610,9 +666,7 @@ ${explanation}
 
 
 
-
-
-<button onclick='wearOutfit(${JSON.stringify(outfit)})'>
+<button onclick="wearOutfit(${i})">
 
 👕 Wear This Outfit
 
@@ -620,8 +674,7 @@ ${explanation}
 
 
 
-
-<button onclick='loveOutfit(${JSON.stringify(outfit)})'>
+<button onclick="loveOutfit(${i})">
 
 ❤️ Love It
 
@@ -629,13 +682,11 @@ ${explanation}
 
 
 
-
-<button onclick='hateOutfit(${JSON.stringify(outfit)})'>
+<button onclick="hateOutfit(${i})">
 
 ❌ Don't Like
 
 </button>
-
 
 
 </div>
@@ -647,6 +698,7 @@ ${explanation}
 }
 
 
+
 }
 
 
@@ -658,13 +710,18 @@ ${explanation}
 
 
 // ==========================
-// SAVE WEAR HISTORY
+// WEAR MEMORY
 // ==========================
 
 
-window.wearOutfit =
+window.wearOutfit = async(index)=>{
 
-async function(outfit){
+
+const outfit =
+window[
+"outfit_"+index
+];
+
 
 
 await saveWearHistory(
@@ -678,10 +735,9 @@ outfit
 
 
 alert(
-
 "✅ FashionAI remembered this outfit"
-
 );
+
 
 
 };
@@ -699,9 +755,14 @@ alert(
 // ==========================
 
 
-window.loveOutfit =
+window.loveOutfit = async(index)=>{
 
-async function(outfit){
+
+const outfit =
+window[
+"outfit_"+index
+];
+
 
 
 await likeOutfit(
@@ -715,10 +776,9 @@ outfit
 
 
 alert(
-
-"❤️ FashionAI learned your preference"
-
+"❤️ FashionAI learned your style"
 );
+
 
 
 };
@@ -729,9 +789,14 @@ alert(
 
 
 
-window.hateOutfit =
+window.hateOutfit = async(index)=>{
 
-async function(outfit){
+
+const outfit =
+window[
+"outfit_"+index
+];
+
 
 
 await dislikeOutfit(
@@ -745,10 +810,9 @@ outfit
 
 
 alert(
-
-"❌ FashionAI will improve future suggestions"
-
+"❌ FashionAI will adjust future outfits"
 );
+
 
 
 };
