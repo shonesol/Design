@@ -4,6 +4,7 @@
 
 import { auth } from "./firebase.js";
 
+
 import {
 onAuthStateChanged
 }
@@ -29,21 +30,11 @@ optimizeImage
 from "./image-preprocessor.js";
 
 
-
-// Gemini imports
-// Make sure gemini.js exists
-
+// AI clothing recognition
 import {
-askGemini
+analyzeClothing
 }
-from "./gemini.js";
-
-
-import {
-FASHION_VISION_PROMPT
-}
-from "./fashion-vision-prompt.js";
-
+from "./clothing-ai.js";
 
 
 
@@ -61,8 +52,10 @@ let database = null;
 
 
 
+
+
 // ==========================
-// LOGIN DATABASE
+// LOGIN
 // ==========================
 
 
@@ -92,7 +85,11 @@ user = currentUser;
 
 
 
-database = await getDatabase();
+database = await getDatabase(
+
+user.uid
+
+);
 
 
 
@@ -112,8 +109,10 @@ console.log(
 
 
 
+
+
 // ==========================
-// BUTTON
+// UPLOAD BUTTON
 // ==========================
 
 
@@ -127,8 +126,6 @@ document.getElementById(
 
 
 
-
-
 if(uploadButton){
 
 
@@ -136,24 +133,8 @@ if(uploadButton){
 uploadButton.onclick = async()=>{
 
 
+
 try{
-
-
-
-if(!user){
-
-
-alert(
-"Please login first"
-);
-
-
-return;
-
-
-}
-
-
 
 
 
@@ -169,8 +150,6 @@ return;
 
 
 }
-
-
 
 
 
@@ -191,7 +170,7 @@ if(!file){
 
 
 alert(
-"Select an image first"
+"Choose clothing image"
 );
 
 
@@ -204,18 +183,12 @@ return;
 
 
 
-
-
-
-// ==========================
-// IMAGE OPTIMIZATION
-// ==========================
+// Optimize image
 
 
 const image =
 
 await optimizeImage(file);
-
 
 
 
@@ -228,16 +201,9 @@ document
 )
 .innerHTML =
 
-
 `
 
-<img 
-
-src="${image}"
-
-width="220"
-
->
+<img src="${image}" width="220">
 
 `;
 
@@ -253,11 +219,10 @@ document
 )
 .innerHTML =
 
-
 `
 
 <h3>
-🤖 FashionAI Analysing...
+🤖 FashionAI analysing...
 </h3>
 
 `;
@@ -269,17 +234,12 @@ document
 
 
 
-
-// ==========================
 // AI ANALYSIS
-// ==========================
 
 
-const response =
+const ai =
 
-await askGemini(
-
-FASHION_VISION_PROMPT,
+await analyzeClothing(
 
 image
 
@@ -289,52 +249,17 @@ image
 
 
 
-let ai;
-
-
-
-try{
-
-
-ai = JSON.parse(response);
-
-
-
-}
-
-catch(error){
-
-
-console.error(
-"AI JSON Error",
-error
-);
-
-
-
-ai={};
-
-
-
-}
 
 
 
 
-
-
-
-
-
-// ==========================
-// SAVE CLOTHING DATA
-// ==========================
+// CREATE CLOTHING OBJECT
 
 
 const clothing = {
 
 
-image:image,
+image,
 
 
 name:
@@ -342,7 +267,6 @@ name:
 ai.name ||
 
 "Unknown Clothing",
-
 
 
 
@@ -358,7 +282,9 @@ ai.type ||
 category:
 
 normalizeCategory(
+
 ai.category
+
 ),
 
 
@@ -366,26 +292,9 @@ ai.category
 
 color:
 
-ai.primaryColor ||
-
 ai.color ||
 
 "Unknown",
-
-
-
-
-secondaryColor:
-
-ai.secondaryColors
-
-?
-
-ai.secondaryColors.join(",")
-
-:
-
-"",
 
 
 
@@ -447,10 +356,13 @@ ai.brand ||
 confidence:
 
 Number(
+
 ai.confidence
+
 )
 
 || 0,
+
 
 
 
@@ -467,15 +379,11 @@ laundryStatus:"Clean",
 
 
 
-
-createdAt:
-
-Date.now()
+createdAt:Date.now()
 
 
 
 };
-
 
 
 
@@ -498,6 +406,7 @@ clothing
 
 
 
+
 document
 .getElementById(
 "result"
@@ -513,37 +422,31 @@ document
 
 
 <p>
-Name:
-${clothing.name}
+Name: ${clothing.name}
 </p>
 
 
 <p>
-Category:
-${clothing.category}
+Category: ${clothing.category}
 </p>
 
 
 <p>
-Color:
-${clothing.color}
+Color: ${clothing.color}
 </p>
 
 
 <p>
-Style:
-${clothing.style}
+Style: ${clothing.style}
 </p>
 
 
 <p>
-Laundry:
-${clothing.laundryStatus}
+Laundry: ${clothing.laundryStatus}
 </p>
+
 
 `;
-
-
 
 
 
@@ -551,7 +454,6 @@ ${clothing.laundryStatus}
 }
 
 catch(error){
-
 
 
 console.error(
@@ -582,7 +484,6 @@ ${error.message}
 `;
 
 
-
 }
 
 
@@ -602,7 +503,7 @@ ${error.message}
 
 
 // ==========================
-// CATEGORY AI NORMALIZER
+// CATEGORY NORMALIZER
 // ==========================
 
 
@@ -610,20 +511,15 @@ function normalizeCategory(category){
 
 
 
-if(!category){
+if(!category)
 
 return "Other";
-
-}
 
 
 
 category =
 
-category
-.toLowerCase();
-
-
+category.toLowerCase();
 
 
 
@@ -644,14 +540,9 @@ category.includes("blouse")
 
 category.includes("tshirt")
 
-){
-
+)
 
 return "Top";
-
-
-}
-
 
 
 
@@ -663,24 +554,19 @@ category.includes("jean")
 
 ||
 
-category.includes("trouser")
+category.includes("pant")
 
 ||
 
-category.includes("pant")
+category.includes("trouser")
 
 ||
 
 category.includes("skirt")
 
-){
-
+)
 
 return "Bottom";
-
-
-}
-
 
 
 
@@ -699,13 +585,9 @@ category.includes("sneaker")
 
 category.includes("boot")
 
-){
-
+)
 
 return "Shoes";
-
-
-}
 
 
 
@@ -717,19 +599,14 @@ if(
 
 category.includes("dress")
 
-){
-
+)
 
 return "Dress";
-
-
-}
 
 
 
 
 
 return "Other";
-
 
 }
