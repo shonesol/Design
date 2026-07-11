@@ -1,5 +1,5 @@
 // fashion-stylist-ai.js
-// FashionAI Personal Stylist Explanation
+// FashionAI Personal Stylist Explanation Engine
 
 
 import {
@@ -10,38 +10,62 @@ from "./gemini.js";
 
 
 
+// ==========================
+// EXPLAIN OUTFIT
+// ==========================
+
 
 export async function explainOutfit(
+
 outfit,
+
 profile,
+
 occasion,
+
 weather
+
 ){
 
 
 
 const prompt = `
 
-You are FashionAI, an expert global fashion stylist.
 
-Analyze this outfit recommendation.
-
-
-USER STYLE:
-
-${profile.fashionPersonality || "Fashion Explorer"}
+You are FashionAI, a professional global fashion stylist.
 
 
 
-FAVOURITE COLORS:
-
-${profile.favoriteColors?.join(", ") || "No preferences yet"}
+Create a short stylish explanation for this recommended outfit.
 
 
 
-FAVOURITE STYLES:
+USER FASHION PERSONALITY:
 
-${profile.favoriteStyles?.join(", ") || "Learning style"}
+${profile.fashionPersonality || "Smart Casual Explorer"}
+
+
+
+
+USER FAVOURITE COLORS:
+
+${
+(profile.favoriteColors || [])
+.join(", ")
+}
+
+
+
+
+
+USER FAVOURITE STYLES:
+
+${
+(profile.favoriteStyles || [])
+.join(", ")
+}
+
+
 
 
 
@@ -51,18 +75,22 @@ ${occasion}
 
 
 
+
 WEATHER:
 
-${weather?.condition || "Unknown weather"}
+${weather?.condition || "Normal weather"}
 
 
 
-CLOTHING:
 
 
 
-Top:
 
+OUTFIT DETAILS:
+
+TOP:
+
+Name:
 ${outfit.top.name || outfit.top.type}
 
 Color:
@@ -72,12 +100,16 @@ Style:
 ${outfit.top.style}
 
 Material:
-${outfit.top.material}
+${outfit.top.material || "Unknown"}
 
 
 
-Bottom:
 
+
+
+BOTTOM:
+
+Name:
 ${outfit.bottom.name || outfit.bottom.type}
 
 Color:
@@ -86,10 +118,18 @@ ${outfit.bottom.color}
 Style:
 ${outfit.bottom.style}
 
+Material:
+${outfit.bottom.material || "Unknown"}
 
 
-Shoes:
 
+
+
+
+
+SHOES:
+
+Name:
 ${outfit.shoe.name || outfit.shoe.type}
 
 Color:
@@ -101,18 +141,32 @@ ${outfit.shoe.style}
 
 
 
+
+
+
+
 Explain:
 
-1. Why these pieces match.
-2. Why the colors work.
-3. When to wear this outfit.
-4. One fashion improvement tip.
+1. Why these clothes match.
+
+2. Why the colors create harmony.
+
+3. Why this outfit fits the occasion.
+
+4. One professional fashion tip.
 
 
 
-Keep the answer short, stylish and professional.
+Rules:
+
+- Keep it under 120 words.
+- Sound like a luxury fashion consultant.
+- Be encouraging.
+- Do not mention AI.
 
 `;
+
+
 
 
 
