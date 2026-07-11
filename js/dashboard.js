@@ -5,20 +5,16 @@ from "./firebase.js";
 import {
 onAuthStateChanged
 }
-from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+from 
+"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 
 import {
 openDatabase,
-getClothes
-}
-from "./db.js";
-
-
-import {
+getClothes,
 getWearHistory
 }
-from "./history.js";
+from "./db.js";
 
 
 import {
@@ -27,10 +23,16 @@ analyzeUserStyle
 from "./style-learning.js";
 
 
+import {
+analyzeShoppingNeeds
+}
+from "./shopping-ai.js";
+
 
 
 
 let database;
+
 
 
 
@@ -48,15 +50,14 @@ user.uid
 );
 
 
-
 loadDashboard();
 
 
 }
 
 
-
 });
+
 
 
 
@@ -90,6 +91,8 @@ database
 
 
 
+// CLOTHING COUNT
+
 document
 .getElementById(
 "totalClothes"
@@ -100,6 +103,8 @@ clothes.length;
 
 
 
+
+// OUTFITS WORN
 
 document
 .getElementById(
@@ -112,32 +117,49 @@ history.length;
 
 
 
+
+
+// COLORS
+
 document
 .getElementById(
 "favoriteColors"
 )
 .innerHTML =
-style.favoriteColors.join(
-", "
-);
+
+style.favoriteColors.length
+
+?
+
+style.favoriteColors.join(", ")
+
+:
+
+"No style data yet";
 
 
 
 
+
+
+
+// STYLE
 
 document
 .getElementById(
 "favoriteStyle"
 )
 .innerHTML =
-style.favoriteStyles.join(
-", "
-);
+
+style.fashionPersonality;
 
 
 
 
 
+
+
+// AI SUGGESTIONS
 
 generateSuggestions(
 style,
@@ -146,7 +168,88 @@ clothes
 
 
 
+
+
+
+
+// SHOPPING AI
+
+loadShoppingAdvice();
+
+
+
 }
+
+
+
+
+
+
+
+
+
+async function loadShoppingAdvice(){
+
+
+const result =
+await analyzeShoppingNeeds(
+database
+);
+
+
+
+let box =
+document.getElementById(
+"suggestions"
+);
+
+
+
+box.innerHTML += `
+
+<h3>
+🛍 AI Shopping Advice
+</h3>
+
+`;
+
+
+
+
+
+result.shoppingRecommendations
+.slice(0,3)
+.forEach(item=>{
+
+
+box.innerHTML += `
+
+
+<div class="suggestion-card">
+
+
+<h4>
+${item.item}
+</h4>
+
+
+<p>
+${item.reason}
+</p>
+
+
+</div>
+
+
+`;
+
+
+});
+
+
+}
+
+
 
 
 
@@ -171,33 +274,54 @@ document
 box.innerHTML = `
 
 
+<div class="suggestion-card">
+
+
+<h3>
+🤖 FashionAI Memory
+</h3>
+
+
 <p>
-🤖 FashionAI learned your style:
+
+Style Personality:
+
+${style.fashionPersonality}
+
 </p>
 
 
-<ul>
 
-<li>
-You prefer:
+<p>
+
+Favourite Styles:
+
 ${style.favoriteStyles.join(", ")}
-</li>
+
+</p>
 
 
-<li>
-Your favorite colors:
+
+<p>
+
+Favourite Colors:
+
 ${style.favoriteColors.join(", ")}
-</li>
+
+</p>
 
 
-<li>
-Your wardrobe contains:
-${clothes.length}
-items
-</li>
+
+<p>
+
+Wardrobe Size:
+
+${clothes.length} items
+
+</p>
 
 
-</ul>
+</div>
 
 
 `;
