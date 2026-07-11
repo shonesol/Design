@@ -1,3 +1,7 @@
+// fashion-stylist-ai.js
+// FashionAI Personal Stylist Explanation
+
+
 import {
 askGemini
 }
@@ -25,12 +29,19 @@ Analyze this outfit recommendation.
 
 USER STYLE:
 
-${profile.fashionPersonality}
+${profile.fashionPersonality || "Fashion Explorer"}
+
 
 
 FAVOURITE COLORS:
 
-${profile.favoriteColors.join(", ")}
+${profile.favoriteColors?.join(", ") || "No preferences yet"}
+
+
+
+FAVOURITE STYLES:
+
+${profile.favoriteStyles?.join(", ") || "Learning style"}
 
 
 
@@ -42,11 +53,12 @@ ${occasion}
 
 WEATHER:
 
-${weather.condition}
+${weather?.condition || "Unknown weather"}
 
 
 
 CLOTHING:
+
 
 
 Top:
@@ -58,6 +70,9 @@ ${outfit.top.color}
 
 Style:
 ${outfit.top.style}
+
+Material:
+${outfit.top.material}
 
 
 
@@ -91,11 +106,11 @@ Explain:
 1. Why these pieces match.
 2. Why the colors work.
 3. When to wear this outfit.
-4. Fashion advice to improve the look.
+4. One fashion improvement tip.
 
 
 
-Keep answer short and stylish.
+Keep the answer short, stylish and professional.
 
 `;
 
@@ -104,8 +119,11 @@ Keep answer short and stylish.
 
 
 const response =
+
 await askGemini(
+
 prompt
+
 );
 
 
