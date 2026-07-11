@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>FashionAI Planner</title>
+
+<link
+rel="stylesheet"
+href="../css/planner.css">
+
+<meta
+name="theme-color"
+content="#1b1b1b">
+
+</head>
+
+<body>
+
+<header>
+
+<h1>
+📅 FashionAI Outfit Planner
+</h1>
+
+<p>
+
+Plan your outfits in advance with AI.
+
+</p>
+
+</header>
+
+
+
+<section class="planner-card">
+
+<h2>
+
+Create Outfit Plan
+
+</h2>
+
+<label>
+
+Date
+
+</label>
+
+<input
+type="date"
+id="planDate">
+
+<label>
+
+Occasion
+
+</label>
+
+<select id="planOccasion">
+
+<option value="Office">
+Office
+</option>
+
+<option value="Casual">
+Casual
+</option>
+
+<option value="Travel">
+Travel
+</option>
+
+<option value="Wedding">
+Wedding
+</option>
+
+<option value="Party">
+Party
+</option>
+
+<option value="Sport">
+Sport
+</option>
+
+<option value="Dinner">
+Dinner
+</option>
+
+<option value="Formal">
+Formal
+</option>
+
+</select>
+
+<label>
+
+Notes
+
+</label>
+
+<textarea
+id="planNotes"
+rows="4"
+placeholder="Optional notes..."></textarea>
+
+<button id="generatePlan">
+
+🤖 Generate AI Outfit
+
+</button>
+
+<button id="savePlan">
+
+💾 Save Plan
+
+</button>
+
+</section>
+
+
+
+<section class="planner-card">
+
+<h2>
+
+Today's Weather
+
+</h2>
+
+<div id="weatherBox">
+
+Loading weather...
+
+</div>
+
+</section>
+
+
+
+<section class="planner-card">
+
+<h2>
+
+Generated Outfit
+
+</h2>
+
+<div id="generatedOutfit">
+
+No outfit generated yet.
+
+</div>
+
+</section>
+
+
+
+<section class="planner-card">
+
+<h2>
+
+Upcoming Plans
+
+</h2>
+
+<div id="plansList">
+
+No plans available.
+
+</div>
+
+</section>
+
+
+
+<script
+type="module"
+src="../js/planner.js">
+
+</script>
+
+</body>
+
+</html>
