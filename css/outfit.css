@@ -1,48 +1,154 @@
+/* ===========================
+   FashionAI Premium Theme
+=========================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
 body{
 
-font-family:Arial;
+    font-family:'Segoe UI', Arial, sans-serif;
 
-background:#f5f0e6;
+    background:linear-gradient(135deg,#fff5ec,#ffe4f1,#eef4ff);
+
+    color:#333;
+
+    min-height:100vh;
 
 }
 
 
+
+/* Container */
 
 .container{
 
-width:90%;
+    width:95%;
 
-margin:auto;
+    max-width:1300px;
 
-text-align:center;
+    margin:auto;
+
+    padding:50px 20px;
+
+    text-align:center;
 
 }
 
 
+
+/* Page Title */
+
+.container h1{
+
+    font-size:42px;
+
+    color:#7b61ff;
+
+    margin-bottom:15px;
+
+}
+
+
+
+.container p{
+
+    font-size:20px;
+
+    color:#666;
+
+    margin-bottom:35px;
+
+}
+
+
+
+/* Outfit Card */
 
 .outfit-card{
 
-background:white;
+    background:white;
 
-padding:20px;
+    padding:35px;
 
-margin:20px;
+    margin:30px auto;
 
-border-radius:15px;
+    border-radius:30px;
 
-box-shadow:0 5px 15px #ccc;
+    box-shadow:0 15px 40px rgba(0,0,0,.12);
+
+    transition:.35s;
+
+    max-width:1000px;
 
 }
 
 
 
+.outfit-card:hover{
+
+    transform:translateY(-10px);
+
+    box-shadow:0 25px 50px rgba(0,0,0,.18);
+
+}
+
+
+
+/* Card Headings */
+
+.outfit-card h2{
+
+    font-size:32px;
+
+    color:#ff5fa2;
+
+    margin-bottom:15px;
+
+}
+
+
+
+.outfit-card h3{
+
+    font-size:24px;
+
+    color:#7b61ff;
+
+    margin:15px 0;
+
+}
+
+
+
+.outfit-card p{
+
+    font-size:18px;
+
+    line-height:1.8;
+
+    color:#555;
+
+}
+
+
+
+/* Images */
+
 .images{
 
-display:flex;
+    display:flex;
 
-justify-content:center;
+    justify-content:center;
 
-gap:10px;
+    gap:20px;
+
+    flex-wrap:wrap;
+
+    margin:30px 0;
 
 }
 
@@ -50,28 +156,130 @@ gap:10px;
 
 .images img{
 
-width:150px;
+    width:220px;
 
-height:150px;
+    height:220px;
 
-object-fit:cover;
+    object-fit:cover;
 
-border-radius:10px;
+    border-radius:25px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.18);
+
+    transition:.3s;
 
 }
 
 
 
+.images img:hover{
+
+    transform:scale(1.08) rotate(2deg);
+
+}
+
+
+
+/* AI Recommendation Badge */
+
+.ai-badge{
+
+    display:inline-block;
+
+    background:linear-gradient(135deg,#7b61ff,#ff5fa2);
+
+    color:white;
+
+    padding:10px 22px;
+
+    border-radius:30px;
+
+    font-size:16px;
+
+    font-weight:bold;
+
+    margin-top:15px;
+
+}
+
+
+
+/* Buttons */
+
 button{
 
-padding:12px;
+    padding:18px 35px;
 
-margin:10px;
+    margin:12px;
 
-border:none;
+    border:none;
 
-border-radius:10px;
+    border-radius:35px;
 
-cursor:pointer;
+    cursor:pointer;
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    color:white;
+
+    background:linear-gradient(135deg,#ff5fa2,#7b61ff);
+
+    box-shadow:0 10px 25px rgba(123,97,255,.35);
+
+    transition:.3s;
+
+}
+
+
+
+button:hover{
+
+    transform:translateY(-5px) scale(1.05);
+
+}
+
+
+
+/* Responsive */
+
+@media(max-width:768px){
+
+    .container{
+
+        width:95%;
+
+        padding:30px 15px;
+
+    }
+
+    .container h1{
+
+        font-size:30px;
+
+    }
+
+    .outfit-card{
+
+        padding:25px;
+
+    }
+
+    .images img{
+
+        width:160px;
+
+        height:160px;
+
+    }
+
+    button{
+
+        width:100%;
+
+        margin-top:15px;
+
+    }
 
 }
