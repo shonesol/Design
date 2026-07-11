@@ -9,7 +9,9 @@ from "./database-manager.js";
 
 
 import {
-getClothes
+saveOutfitPlan,
+getOutfitPlans,
+deleteOutfitPlan
 }
 from "./db.js";
 
