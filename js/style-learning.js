@@ -1,3 +1,4 @@
+// style-learning.js
 // FashionAI Personal Style Brain
 
 
@@ -9,26 +10,45 @@ from "./db.js";
 
 
 
+
+// ==========================
 // ANALYZE USER STYLE
+// ==========================
+
 
 export async function analyzeUserStyle(db){
 
 
+
 const clothes =
+
 await getClothes(db);
 
 
 
-if(clothes.length===0){
+
+
+
+if(
+clothes.length===0
+){
 
 
 return {
+
 
 favoriteColors:[],
 
 favoriteStyles:[],
 
+favoriteOccasions:[],
+
+favoriteMaterials:[],
+
+favoritePatterns:[],
+
 fashionPersonality:"New User"
+
 
 };
 
@@ -37,9 +57,20 @@ fashionPersonality:"New User"
 
 
 
+
+
+
 let colors={};
 
 let styles={};
+
+let occasions={};
+
+let materials={};
+
+let patterns={};
+
+
 
 
 
@@ -48,14 +79,14 @@ let styles={};
 clothes.forEach(item=>{
 
 
+
 // COLORS
 
 if(item.color){
 
 
-let color =
-item.color
-.toLowerCase();
+const color =
+item.color.toLowerCase();
 
 
 colors[color] =
@@ -68,18 +99,76 @@ colors[color] =
 
 
 
-// STYLES
+// STYLE
 
 if(item.style){
 
 
-let style =
-item.style
-.toLowerCase();
+const style =
+item.style;
 
 
 styles[style] =
 (styles[style] || 0)+1;
+
+
+}
+
+
+
+
+
+// OCCASION
+
+if(item.occasion){
+
+
+const occasion =
+item.occasion;
+
+
+occasions[occasion] =
+(occasions[occasion] || 0)+1;
+
+
+}
+
+
+
+
+
+
+// MATERIAL
+
+if(item.material){
+
+
+const material =
+item.material;
+
+
+materials[material] =
+(materials[material] || 0)+1;
+
+
+}
+
+
+
+
+
+
+// PATTERN
+
+if(item.pattern){
+
+
+const pattern =
+item.pattern;
+
+
+patterns[pattern] =
+(patterns[pattern] || 0)+1;
 
 
 }
@@ -94,49 +183,56 @@ styles[style] =
 
 
 
-let favoriteColors =
-Object.keys(colors)
-.sort(
-(a,b)=>
-colors[b]-colors[a]
-)
-.slice(0,5);
-
-
-
-
-
-
-
-let favoriteStyles =
-Object.keys(styles)
-.sort(
-(a,b)=>
-styles[b]-styles[a]
-)
-.slice(0,3);
-
-
-
 
 
 
 return {
 
 
-favoriteColors,
+favoriteColors:
+
+getTopValues(colors,5),
 
 
-favoriteStyles,
+
+favoriteStyles:
+
+getTopValues(styles,5),
+
+
+
+favoriteOccasions:
+
+getTopValues(occasions,5),
+
+
+
+favoriteMaterials:
+
+getTopValues(materials,5),
+
+
+
+favoritePatterns:
+
+getTopValues(patterns,5),
+
 
 
 fashionPersonality:
+
 detectPersonality(
-favoriteStyles
+
+styles,
+
+colors
+
 )
 
 
+
 };
+
 
 
 
@@ -148,14 +244,80 @@ favoriteStyles
 
 
 
-function detectPersonality(styles){
+
+
+// ==========================
+// TOP VALUES
+// ==========================
+
+
+function getTopValues(
+
+object,
+
+limit
+
+){
+
+
+return Object.keys(object)
+
+.sort(
+
+(a,b)=>
+
+object[b]-object[a]
+
+)
+
+.slice(
+
+0,
+
+limit
+
+);
+
+
+}
+
+
+
+
+
+
+
+
+
+// ==========================
+// FASHION PERSONALITY
+// ==========================
+
+
+function detectPersonality(
+
+styles,
+
+colors
+
+){
+
+
+
+const userStyles =
+
+Object.keys(styles);
+
+
 
 
 
 if(
-styles.some(
-s=>s.includes("old money")
+
+userStyles.includes(
+"Old Money"
 )
+
 )
 
 return "Elegant Classic";
@@ -165,9 +327,11 @@ return "Elegant Classic";
 
 
 if(
-styles.some(
-s=>s.includes("streetwear")
+
+userStyles.includes(
+"Streetwear"
 )
+
 )
 
 return "Urban Trendsetter";
@@ -177,9 +341,11 @@ return "Urban Trendsetter";
 
 
 if(
-styles.some(
-s=>s.includes("minimal")
+
+userStyles.includes(
+"Minimalist"
 )
+
 )
 
 return "Modern Minimalist";
@@ -189,9 +355,11 @@ return "Modern Minimalist";
 
 
 if(
-styles.some(
-s=>s.includes("business")
+
+userStyles.includes(
+"Business"
 )
+
 )
 
 return "Professional Style";
@@ -200,19 +368,24 @@ return "Professional Style";
 
 
 
+
 if(
-styles.some(
-s=>s.includes("traditional")
-)
+
+userStyles.includes(
+"Traditional"
 )
 
-return "Cultural Fashion Explorer";
+)
+
+return "Cultural Fashion Lover";
+
 
 
 
 
 
 return "Balanced Fashion Explorer";
+
 
 
 }
