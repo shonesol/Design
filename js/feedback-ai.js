@@ -2,6 +2,14 @@
 // FashionAI Preference Learning Memory
 
 
+import {
+exportFashionAI
+}
+from "./backup-manager.js";
+
+
+
+
 // ==========================
 // SAVE LIKE
 // ==========================
@@ -16,7 +24,10 @@ outfit
 ){
 
 
-return saveFeedback(
+
+const result =
+
+await saveFeedback(
 
 db,
 
@@ -24,7 +35,9 @@ db,
 
 type:"like",
 
-outfit:extractOutfitData(outfit),
+outfit:
+
+extractOutfitData(outfit),
 
 date:Date.now()
 
@@ -33,7 +46,23 @@ date:Date.now()
 );
 
 
+
+// AUTO BACKUP
+
+await exportFashionAI(
+
+db
+
+);
+
+
+
+return result;
+
+
 }
+
+
 
 
 
@@ -55,7 +84,10 @@ outfit
 ){
 
 
-return saveFeedback(
+
+const result =
+
+await saveFeedback(
 
 db,
 
@@ -63,13 +95,29 @@ db,
 
 type:"dislike",
 
-outfit:extractOutfitData(outfit),
+outfit:
+
+extractOutfitData(outfit),
 
 date:Date.now()
 
 }
 
 );
+
+
+
+// AUTO BACKUP
+
+await exportFashionAI(
+
+db
+
+);
+
+
+
+return result;
 
 
 }
@@ -96,7 +144,9 @@ data
 ){
 
 
+
 return new Promise((resolve,reject)=>{
+
 
 
 const transaction =
@@ -121,6 +171,7 @@ transaction.objectStore(
 
 
 
+
 const request =
 
 store.add(data);
@@ -129,7 +180,7 @@ store.add(data);
 
 
 
-request.onsuccess=()=>{
+request.onsuccess = ()=>{
 
 
 resolve(
@@ -145,7 +196,7 @@ request.result
 
 
 
-request.onerror=()=>{
+request.onerror = ()=>{
 
 
 reject(
@@ -159,7 +210,9 @@ request.error
 
 
 
+
 });
+
 
 
 }
@@ -177,10 +230,16 @@ request.error
 // ==========================
 
 
-export function getLearningData(db){
+export function getLearningData(
+
+db
+
+){
+
 
 
 return new Promise((resolve,reject)=>{
+
 
 
 const transaction =
@@ -205,6 +264,8 @@ transaction.objectStore(
 
 
 
+
+
 const request =
 
 store.getAll();
@@ -213,7 +274,7 @@ store.getAll();
 
 
 
-request.onsuccess=()=>{
+request.onsuccess = ()=>{
 
 
 resolve(
@@ -229,7 +290,7 @@ request.result || []
 
 
 
-request.onerror=()=>{
+request.onerror = ()=>{
 
 
 reject(
@@ -243,7 +304,9 @@ request.error
 
 
 
+
 });
+
 
 
 }
@@ -257,11 +320,16 @@ request.error
 
 
 // ==========================
-// EXTRACT IMPORTANT STYLE DATA
+// EXTRACT OUTFIT DATA
 // ==========================
 
 
-function extractOutfitData(outfit){
+function extractOutfitData(
+
+outfit
+
+){
+
 
 
 return {
@@ -269,50 +337,100 @@ return {
 
 top:{
 
+
 name:
-outfit.top?.name,
+outfit.top?.name || "",
+
+
+type:
+outfit.top?.type || "",
+
 
 color:
-outfit.top?.color,
+outfit.top?.color || "",
+
 
 style:
-outfit.top?.style
+outfit.top?.style || "",
+
+
+material:
+outfit.top?.material || "",
+
+
+occasion:
+outfit.top?.occasion || ""
 
 },
+
+
+
+
 
 
 
 bottom:{
 
+
 name:
-outfit.bottom?.name,
+outfit.bottom?.name || "",
+
+
+type:
+outfit.bottom?.type || "",
+
 
 color:
-outfit.bottom?.color,
+outfit.bottom?.color || "",
+
 
 style:
-outfit.bottom?.style
+outfit.bottom?.style || "",
+
+
+material:
+outfit.bottom?.material || "",
+
+
+occasion:
+outfit.bottom?.occasion || ""
 
 },
 
 
 
+
+
+
+
 shoe:{
 
+
 name:
-outfit.shoe?.name,
+outfit.shoe?.name || "",
+
+
+type:
+outfit.shoe?.type || "",
+
 
 color:
-outfit.shoe?.color,
+outfit.shoe?.color || "",
+
 
 style:
-outfit.shoe?.style
+outfit.shoe?.style || "",
+
+
+material:
+outfit.shoe?.material || ""
 
 }
 
 
 
 };
+
 
 
 }
