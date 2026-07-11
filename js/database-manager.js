@@ -2,18 +2,7 @@
 // FashionAI IndexedDB Manager
 
 
-import { auth } from "./firebase.js";
-
-import {
-onAuthStateChanged
-}
-from 
-"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-
-
 let database = null;
-
 
 
 const DATABASE_VERSION = 6;
@@ -22,38 +11,38 @@ const DATABASE_VERSION = 6;
 
 
 
+// ==========================
+// OPEN USER DATABASE
+// ==========================
 
-export async function getDatabase(){
+
+export async function getDatabase(userId){
 
 
 return new Promise((resolve,reject)=>{
 
 
-onAuthStateChanged(
 
-auth,
+if(!userId){
 
-(user)=>{
-
-
-if(!user){
 
 reject(
-"No logged in user"
+"No User ID provided"
 );
 
+
 return;
+
 
 }
 
 
 
 
-const request =
 
-indexedDB.open(
+const request = indexedDB.open(
 
-"FashionAI_"+user.uid,
+"FashionAI_" + userId,
 
 DATABASE_VERSION
 
@@ -65,28 +54,28 @@ DATABASE_VERSION
 
 
 
-request.onupgradeneeded=(event)=>{
+// ==========================
+// CREATE DATABASE
+// ==========================
 
 
-const db =
-event.target.result;
+request.onupgradeneeded = (event)=>{
+
+
+const db = event.target.result;
 
 
 
 
 
-// ======================
 // WARDROBE
-// ======================
-
 
 if(
 !db.objectStoreNames.contains("wardrobe")
 ){
 
 
-const store =
-db.createObjectStore(
+const store = db.createObjectStore(
 
 "wardrobe",
 
@@ -129,6 +118,7 @@ store.createIndex(
 );
 
 
+
 }
 
 
@@ -137,11 +127,7 @@ store.createIndex(
 
 
 
-
-// ======================
 // HISTORY
-// ======================
-
 
 if(
 !db.objectStoreNames.contains("history")
@@ -171,10 +157,7 @@ autoIncrement:true
 
 
 
-// ======================
-// OUTFIT PLANS
-// ======================
-
+// PLANS
 
 if(
 !db.objectStoreNames.contains("plans")
@@ -206,12 +189,15 @@ store.createIndex(
 "date",
 
 {
+
 unique:false
+
 }
 
 );
 
 
+
 }
 
 
@@ -221,10 +207,7 @@ unique:false
 
 
 
-// ======================
 // FEEDBACK
-// ======================
-
 
 if(
 !db.objectStoreNames.contains("feedback")
@@ -254,10 +237,8 @@ autoIncrement:true
 
 
 
-// ======================
-// AI MEMORY
-// ======================
 
+// AI MEMORY
 
 if(
 !db.objectStoreNames.contains("preferences")
@@ -282,8 +263,6 @@ keyPath:"id"
 
 
 
-
-
 };
 
 
@@ -294,18 +273,15 @@ keyPath:"id"
 
 
 
-request.onsuccess=(event)=>{
+request.onsuccess = (event)=>{
 
 
-database =
-event.target.result;
+database = event.target.result;
 
 
 
 console.log(
-
-"✅ FashionAI Database Ready"
-
+"✅ FashionAI IndexedDB Connected"
 );
 
 
@@ -322,7 +298,14 @@ resolve(database);
 
 
 
-request.onerror=()=>{
+request.onerror = ()=>{
+
+
+console.error(
+"❌ IndexedDB Error",
+request.error
+);
+
 
 
 reject(
@@ -334,18 +317,9 @@ request.error
 
 
 
-
-
-}
-
-
-);
-
-
 });
 
 
-
 }
 
 
@@ -353,6 +327,10 @@ request.error
 
 
 
+
+// ==========================
+// CLOSE DATABASE
+// ==========================
 
 
 export function closeDatabase(){
@@ -363,10 +341,12 @@ if(database){
 
 database.close();
 
+
 database=null;
 
 
 }
+
 
 
 }
