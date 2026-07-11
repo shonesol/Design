@@ -10,15 +10,11 @@ from "./database-manager.js";
 
 import {
 getClothes,
-deleteClothing
+deleteClothing,
+updateLaundryStatus
 }
 from "./db.js";
 
-
-import {
-updateLaundryStatus
-}
-from "./laundry-ai.js";
 
 
 
@@ -26,8 +22,16 @@ from "./laundry-ai.js";
 // DATABASE
 // ==========================
 
-const database =
-await getDatabase();
+let database = null;
+
+
+
+database = await getDatabase();
+
+console.log(
+"✅ FashionAI Wardrobe Connected"
+);
+
 
 
 
@@ -35,15 +39,20 @@ await getDatabase();
 // ELEMENTS
 // ==========================
 
+
 const wardrobe =
 document.getElementById(
 "wardrobe"
 );
 
+
+
 const search =
 document.getElementById(
 "searchClothes"
 );
+
+
 
 const filter =
 document.getElementById(
@@ -52,17 +61,14 @@ document.getElementById(
 
 
 
-// ==========================
-// LOAD WARDROBE
-// ==========================
-
-loadWardrobe();
-
 
 
 // ==========================
-// SEARCH
+// EVENTS
 // ==========================
+
+
+if(search){
 
 search.oninput = ()=>{
 
@@ -70,11 +76,11 @@ loadWardrobe();
 
 };
 
+}
 
 
-// ==========================
-// FILTER
-// ==========================
+
+if(filter){
 
 filter.onchange = ()=>{
 
@@ -82,28 +88,42 @@ loadWardrobe();
 
 };
 
+}
+
+
+
+
 
 
 // ==========================
-// LOAD CLOTHES
+// LOAD WARDROBE
 // ==========================
+
 
 async function loadWardrobe(){
 
 
+try{
+
+
 const clothes =
+
 await getClothes(
 database
 );
 
 
 
-let items =
-[...clothes];
+let items = [...clothes];
+
+
 
 
 
 // SEARCH
+
+if(search){
+
 
 const keyword =
 
@@ -115,11 +135,14 @@ search.value
 
 if(keyword){
 
+
 items = items.filter(item=>
+
 
 (item.name || "")
 .toLowerCase()
 .includes(keyword)
+
 
 ||
 
@@ -127,62 +150,121 @@ items = items.filter(item=>
 .toLowerCase()
 .includes(keyword)
 
+
 ||
 
 (item.style || "")
 .toLowerCase()
 .includes(keyword)
 
-||
 
-(item.brand || "")
-.toLowerCase()
-.includes(keyword)
 
 );
+
+
+
+}
+
 
 }
 
 
 
-// CATEGORY FILTER
-
-const category =
-
-filter.value;
 
 
 
-if(category!="All"){
+// FILTER
 
-items =
 
-items.filter(item=>
+if(filter && filter.value !== "All"){
 
-item.category===category
+
+items = items.filter(item=>
+
+item.category === filter.value
 
 );
+
 
 }
 
 
 
-// DISPLAY
+
 
 displayWardrobe(items);
 
+
+
+updateStatistics();
+
+
+
 }
+
+
+
+catch(error){
+
+
+console.error(
+
+"Wardrobe Error:",
+
+error
+
+);
+
+
+
+wardrobe.innerHTML =
+
+`
+<h3>
+❌ Unable to load wardrobe
+</h3>
+`;
+
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+
 // ==========================
-// DISPLAY WARDROBE
+// DISPLAY CLOTHES
 // ==========================
+
 
 function displayWardrobe(items){
 
-wardrobe.innerHTML = "";
+
+if(!wardrobe){
+
+return;
+
+}
+
+
+
+wardrobe.innerHTML="";
+
+
 
 
 
 if(items.length===0){
+
 
 wardrobe.innerHTML =
 
@@ -190,13 +272,16 @@ wardrobe.innerHTML =
 
 <div class="empty-wardrobe">
 
-<h2>👕 No clothing found</h2>
+
+<h2>
+👕 No clothes found
+</h2>
+
 
 <p>
-
-Upload clothing or change your search.
-
+Upload clothes to start FashionAI
 </p>
+
 
 </div>
 
@@ -208,29 +293,51 @@ return;
 
 
 
+
+
+
 items.forEach(item=>{
 
-const card =
-document.createElement("div");
 
-card.className="wardrobe-card";
+const card =
+
+document.createElement(
+"div"
+);
+
+
+
+card.className =
+"wardrobe-card";
+
+
 
 
 
 card.innerHTML =
 
+
 `
 
 <img
+
 src="${item.image}"
+
 class="wardrobe-image"
+
 >
+
+
+
 
 <h3>
 
-${item.name || item.type}
+${item.name || item.type || "Clothing"}
 
 </h3>
+
+
+
 
 <p>
 
@@ -240,364 +347,413 @@ ${item.category}
 
 </p>
 
+
+
+
 <p>
 
 <b>Color:</b>
 
-${item.color}
+${item.color || "Unknown"}
 
 </p>
+
+
 
 <p>
 
 <b>Style:</b>
 
-${item.style}
+${item.style || "Unknown"}
 
 </p>
 
-<p>
 
-<b>Brand:</b>
-
-${item.brand || "Unknown"}
-
-</p>
-
-<p>
-
-<b>Material:</b>
-
-${item.material}
-
-</p>
-
-<p>
-
-<b>Season:</b>
-
-${item.season}
-
-</p>
-
-<p>
-
-<b>Occasion:</b>
-
-${item.occasion}
-
-</p>
 
 <p>
 
 <b>Laundry:</b>
 
-${item.laundryStatus}
+${item.laundryStatus || "Clean"}
 
 </p>
 
+
+
+
 <p>
 
-<b>Times Worn:</b>
+<b>Times worn:</b>
 
 ${item.timesWorn || 0}
 
 </p>
 
-<p>
 
-<b>Confidence:</b>
 
-${item.confidence || 0}%
-
-</p>
-
-${
-item.favorite
-?
-"<p>⭐ Favorite</p>"
-:
-""
-}
 
 <div class="wardrobe-buttons">
 
-<button
-class="favorite-btn"
-data-id="${item.id}"
->
+
+<button class="favorite-btn">
 
 ⭐ Favorite
 
 </button>
 
-<button
-class="clean-btn"
-data-id="${item.id}"
->
 
-🧺 Mark Clean
 
-</button>
+<button class="clean-btn">
 
-<button
-class="dirty-btn"
-data-id="${item.id}"
->
-
-👕 Mark Dirty
+🧺 Clean
 
 </button>
 
-<button
-class="delete-btn"
-data-id="${item.id}"
->
+
+
+<button class="dirty-btn">
+
+👕 Dirty
+
+</button>
+
+
+
+<button class="delete-btn">
 
 🗑 Delete
 
 </button>
 
+
+
 </div>
 
+
 `;
+
+
 
 
 
 wardrobe.appendChild(card);
 
-});
 
 
 
-// ==========================
-// FAVORITE BUTTONS
-// ==========================
 
-document
-.querySelectorAll(".favorite-btn")
-.forEach(button=>{
+// BUTTONS
 
-button.onclick=()=>{
 
-toggleFavorite(
+card.querySelector(
+".favorite-btn"
+)
+.onclick = ()=>{
 
-Number(button.dataset.id)
 
-);
+toggleFavorite(item.id);
+
 
 };
 
-});
 
 
 
-// ==========================
-// CLEAN BUTTON
-// ==========================
 
-document
-.querySelectorAll(".clean-btn")
-.forEach(button=>{
+card.querySelector(
+".clean-btn"
+)
+.onclick = async()=>{
 
-button.onclick=async()=>{
 
 await updateLaundryStatus(
 
 database,
 
-Number(button.dataset.id),
+item.id,
 
 "Clean"
 
 );
 
+
+
 loadWardrobe();
+
 
 };
 
-});
 
 
 
-// ==========================
-// DIRTY BUTTON
-// ==========================
 
-document
-.querySelectorAll(".dirty-btn")
-.forEach(button=>{
 
-button.onclick=async()=>{
+card.querySelector(
+".dirty-btn"
+)
+.onclick = async()=>{
+
 
 await updateLaundryStatus(
 
 database,
 
-Number(button.dataset.id),
+item.id,
 
 "Dirty"
 
 );
 
+
+
 loadWardrobe();
+
 
 };
 
-});
 
 
 
-// ==========================
-// DELETE BUTTON
-// ==========================
 
-document
-.querySelectorAll(".delete-btn")
-.forEach(button=>{
 
-button.onclick=async()=>{
+card.querySelector(
+".delete-btn"
+)
+.onclick = async()=>{
 
-if(
+
+const confirmDelete =
 
 confirm(
+"Delete this clothing?"
+);
 
-"Delete this clothing item?"
 
-)
 
-){
+if(confirmDelete){
+
 
 await deleteClothing(
 
 database,
 
-Number(button.dataset.id)
+item.id
 
 );
+
+
 
 loadWardrobe();
 
+
 }
+
+
 
 };
 
+
+
 });
 
+
+
 }
+
+
+
+
+
+
+
+
+
 // ==========================
-// TOGGLE FAVORITE
+// FAVORITE
 // ==========================
+
 
 async function toggleFavorite(id){
 
+
 const clothes =
-await getClothes(database);
 
-const item =
-clothes.find(c=>c.id===id);
-
-if(!item) return;
-
-item.favorite =
-!item.favorite;
-
-const transaction =
-database.transaction(
-"wardrobe",
-"readwrite"
+await getClothes(
+database
 );
 
+
+
+const item =
+
+clothes.find(
+c=>c.id===id
+);
+
+
+
+if(!item){
+
+return;
+
+}
+
+
+
+item.favorite =
+
+!item.favorite;
+
+
+
+
+
+const transaction =
+
+database.transaction(
+
+"wardrobe",
+
+"readwrite"
+
+);
+
+
+
 const store =
+
 transaction.objectStore(
 "wardrobe"
 );
 
-await new Promise((resolve,reject)=>{
 
-const request =
+
 store.put(item);
 
-request.onsuccess=()=>resolve();
 
-request.onerror=()=>reject(request.error);
 
-});
+
+transaction.oncomplete = ()=>{
+
 
 loadWardrobe();
 
+
+};
+
+
+
 }
 
 
 
+
+
+
+
+
+
 // ==========================
-// WARDROBE STATISTICS
+// STATISTICS
 // ==========================
+
 
 async function updateStatistics(){
 
-const clothes =
-await getClothes(database);
 
-const total =
-clothes.length;
-
-const favorites =
-clothes.filter(item=>item.favorite).length;
-
-const clean =
-clothes.filter(item=>
-item.laundryStatus==="Clean"
-).length;
-
-const dirty =
-clothes.filter(item=>
-item.laundryStatus==="Dirty"
-).length;
 
 const stats =
+
 document.getElementById(
+
 "wardrobeStats"
+
 );
 
-if(!stats) return;
+
+
+if(!stats){
+
+return;
+
+}
+
+
+
+
+
+const clothes =
+
+await getClothes(
+database
+);
+
+
+
+
 
 stats.innerHTML =
 
+
 `
 
-<h2>📊 Wardrobe Statistics</h2>
+<h2>
+📊 Wardrobe Statistics
+</h2>
 
-<p><b>Total Clothes:</b> ${total}</p>
 
-<p><b>Favorites:</b> ${favorites}</p>
+<p>
+Total Clothes:
+${clothes.length}
+</p>
 
-<p><b>Clean:</b> ${clean}</p>
 
-<p><b>Needs Laundry:</b> ${dirty}</p>
+<p>
+Clean:
+${
+clothes.filter(
+x=>x.laundryStatus==="Clean"
+).length
+}
+</p>
+
+
+<p>
+Dirty:
+${
+clothes.filter(
+x=>x.laundryStatus==="Dirty"
+).length
+}
+</p>
+
+
+<p>
+Favorites:
+${
+clothes.filter(
+x=>x.favorite
+).length
+}
+</p>
+
 
 `;
 
-}
 
-
-
-// ==========================
-// REFRESH
-// ==========================
-
-async function refreshWardrobe(){
-
-await loadWardrobe();
-
-await updateStatistics();
 
 }
 
 
 
+
+
+
+
+
 // ==========================
-// INITIALIZE
+// START
 // ==========================
 
-refreshWardrobe();
+
+loadWardrobe();
