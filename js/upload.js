@@ -1,66 +1,114 @@
 // upload.js
-// FashionAI Upload & AI Recognition Engine
+// FashionAI Upload & Clothing Recognition
+
 
 import { auth } from "./firebase.js";
 
 import {
-    onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+onAuthStateChanged
+}
+from 
+"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
 
 import {
-    askGemini
-} from "./gemini.js";
+addClothing
+}
+from "./db.js";
+
 
 import {
-    FASHION_VISION_PROMPT
-} from "./fashion-vision-prompt.js";
+getDatabase
+}
+from "./database-manager.js";
+
 
 import {
-    optimizeImage
-} from "./image-preprocessor.js";
+optimizeImage
+}
+from "./image-preprocessor.js";
+
+
+
+// Gemini imports
+// Make sure gemini.js exists
 
 import {
-    addClothing
-} from "./db.js";
+askGemini
+}
+from "./gemini.js";
+
 
 import {
-    getDatabase
-} from "./database-manager.js";
+FASHION_VISION_PROMPT
+}
+from "./fashion-vision-prompt.js";
 
-import {
-    exportFashionAI
-} from "./backup-manager.js";
+
 
 
 
 // ==========================
-// USER & DATABASE
+// VARIABLES
 // ==========================
+
 
 let user = null;
+
 let database = null;
 
 
+
+
+
 // ==========================
-// LOGIN
+// LOGIN DATABASE
 // ==========================
+
 
 onAuthStateChanged(
-    auth,
-    async (current) => {
 
-        if (!current) {
-            return;
-        }
+auth,
 
-        user = current;
+async(currentUser)=>{
 
-        database = await getDatabase();
 
-        console.log("✅ FashionAI Local Database Ready");
+if(!currentUser){
 
-    }
+
+console.log(
+"Waiting for login..."
 );
+
+
+return;
+
+
+}
+
+
+
+user = currentUser;
+
+
+
+database = await getDatabase();
+
+
+
+console.log(
+"✅ Upload Database Ready"
+);
+
+
+
+}
+
+);
+
+
+
+
 
 
 
@@ -68,304 +116,620 @@ onAuthStateChanged(
 // BUTTON
 // ==========================
 
-const button =
-document.getElementById("uploadBtn");
 
+const uploadButton =
 
+document.getElementById(
+"uploadBtn"
+);
 
-button.onclick = async () => {
 
-    if (!user) {
 
-        alert("Please login first.");
 
-        return;
 
-    }
 
-    if (!database) {
 
-        alert("Database is loading...");
+if(uploadButton){
 
-        return;
 
-    }
 
+uploadButton.onclick = async()=>{
 
 
-    const file =
-    document
-    .getElementById("clothingImage")
-    .files[0];
+try{
 
 
 
-    if (!file) {
+if(!user){
 
-        alert("Choose a clothing image.");
 
-        return;
+alert(
+"Please login first"
+);
 
-    }
 
+return;
 
 
-    // ==========================
-    // OPTIMIZE IMAGE
-    // ==========================
+}
 
-    const image =
-    await optimizeImage(file);
 
 
 
-    // ==========================
-    // PREVIEW
-    // ==========================
 
-    document
-    .getElementById("preview")
-    .innerHTML =
+if(!database){
 
-    `
-    <img src="${image}" width="220">
-    `;
 
+alert(
+"Database loading..."
+);
 
 
-    document
-    .getElementById("result")
-    .innerHTML =
+return;
 
-    `
-    <h3>🤖 FashionAI Vision Pro</h3>
-    <p>Analyzing clothing...</p>
-    `;
-      // ==========================
-    // GEMINI AI ANALYSIS
-    // ==========================
 
-    try {
+}
 
-        const answer =
-        await askGemini(
 
-            FASHION_VISION_PROMPT,
 
-            image
 
-        );
 
 
+const file =
 
-        let ai =
-        JSON.parse(answer);
+document
+.getElementById(
+"clothingImage"
+)
+.files[0];
 
 
 
-        // ==========================
-        // NORMALIZE AI DATA
-        // ==========================
 
-        const clothing = {
 
-            image,
+if(!file){
 
-            name:
-            ai.name || "Unknown",
 
-            type:
-            ai.type || "Unknown",
+alert(
+"Select an image first"
+);
 
-            category:
-            ai.category || "Unknown",
 
-            subcategory:
-            ai.subcategory || "",
+return;
 
-            color:
-            ai.primaryColor ||
-            ai.color ||
-            "Unknown",
 
-            secondaryColor:
-            Array.isArray(ai.secondaryColors)
-            ? ai.secondaryColors.join(", ")
-            : (ai.secondaryColor || ""),
+}
 
-            pattern:
-            ai.pattern || "Plain",
 
-            material:
-            ai.material || "Unknown",
 
-            texture:
-            ai.texture || "",
 
-            fit:
-            ai.fit || "",
 
-            length:
-            ai.length || "",
 
-            sleeveLength:
-            ai.sleeveLength || "",
 
-            neckline:
-            ai.neckline || "",
 
-            closure:
-            ai.closure || "",
+// ==========================
+// IMAGE OPTIMIZATION
+// ==========================
 
-            style:
-            ai.style || "Casual",
 
-            aesthetic:
-            ai.aesthetic || "",
+const image =
 
-            occasion:
-            ai.occasion || "Daily Wear",
+await optimizeImage(file);
 
-            season:
-            ai.season || "All Seasons",
 
-            formality:
-            ai.formality || "",
 
-            brand:
-            ai.brand || "Unknown",
 
-            logoVisible:
-            ai.logoVisible || false,
 
-            countryStyle:
-            ai.countryStyle || "",
 
-            traditionalWear:
-            ai.traditionalWear || false,
 
-            gender:
-            ai.gender || "Unisex",
+document
+.getElementById(
+"preview"
+)
+.innerHTML =
 
-            ageGroup:
-            ai.ageGroup || "Adult",
 
-            confidence:
-            Number(ai.confidence) || 0,
+`
 
-            favorite: false,
+<img 
 
-            timesWorn: 0,
+src="${image}"
 
-            laundryStatus: "Clean",
+width="220"
 
-            createdAt: Date.now()
+>
 
-        };
+`;
 
 
 
-        // ==========================
-        // SAVE TO DATABASE
-        // ==========================
 
-        await addClothing(
-            database,
-            clothing
-        );
 
 
 
-        // ==========================
-        // AUTOMATIC BACKUP
-        // ==========================
+document
+.getElementById(
+"result"
+)
+.innerHTML =
 
-        await exportFashionAI(
-            database
-        );
-              // ==========================
-        // SUCCESS
-        // ==========================
 
-        document
-        .getElementById("result")
-        .innerHTML =
+`
 
-        `
+<h3>
+🤖 FashionAI Analysing...
+</h3>
 
-        <h2>✅ Clothing Saved Successfully</h2>
+`;
 
-        <p><b>Name:</b> ${clothing.name}</p>
 
-        <p><b>Category:</b> ${clothing.category}</p>
 
-        <p><b>Type:</b> ${clothing.type}</p>
 
-        <p><b>Primary Color:</b> ${clothing.color}</p>
 
-        <p><b>Secondary Color:</b> ${clothing.secondaryColor}</p>
 
-        <p><b>Material:</b> ${clothing.material}</p>
 
-        <p><b>Pattern:</b> ${clothing.pattern}</p>
 
-        <p><b>Style:</b> ${clothing.style}</p>
 
-        <p><b>Occasion:</b> ${clothing.occasion}</p>
+// ==========================
+// AI ANALYSIS
+// ==========================
 
-        <p><b>Season:</b> ${clothing.season}</p>
 
-        <p><b>Brand:</b> ${clothing.brand}</p>
+const response =
 
-        <p><b>Confidence:</b> ${clothing.confidence}%</p>
+await askGemini(
 
-        <hr>
+FASHION_VISION_PROMPT,
 
-        <p>
-        💾 FashionAI automatically backed up your wardrobe.
-        </p>
+image
 
-        `;
+);
 
-    }
 
-    catch(error){
 
-        console.error(
-            "FashionAI Error:",
-            error
-        );
 
-        document
-        .getElementById("result")
-        .innerHTML =
 
-        `
+let ai;
 
-        <h2>❌ AI Error</h2>
 
-        <p>
-        FashionAI could not analyze this clothing image.
-        </p>
 
-        <p>
-        Please try another photo with:
-        </p>
+try{
 
-        <ul>
 
-        <li>✅ Good lighting</li>
+ai = JSON.parse(response);
 
-        <li>✅ One clothing item only</li>
 
-        <li>✅ Plain background</li>
 
-        <li>✅ Entire clothing visible</li>
+}
 
-        </ul>
+catch(error){
 
-        `;
 
-    }
+console.error(
+"AI JSON Error",
+error
+);
+
+
+
+ai={};
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// ==========================
+// SAVE CLOTHING DATA
+// ==========================
+
+
+const clothing = {
+
+
+image:image,
+
+
+name:
+
+ai.name ||
+
+"Unknown Clothing",
+
+
+
+
+type:
+
+ai.type ||
+
+"",
+
+
+
+
+category:
+
+normalizeCategory(
+ai.category
+),
+
+
+
+
+color:
+
+ai.primaryColor ||
+
+ai.color ||
+
+"Unknown",
+
+
+
+
+secondaryColor:
+
+ai.secondaryColors
+
+?
+
+ai.secondaryColors.join(",")
+
+:
+
+"",
+
+
+
+
+material:
+
+ai.material ||
+
+"Unknown",
+
+
+
+
+pattern:
+
+ai.pattern ||
+
+"Plain",
+
+
+
+
+style:
+
+ai.style ||
+
+"Casual",
+
+
+
+
+occasion:
+
+ai.occasion ||
+
+"Daily Wear",
+
+
+
+
+season:
+
+ai.season ||
+
+"All Season",
+
+
+
+
+brand:
+
+ai.brand ||
+
+"Unknown",
+
+
+
+
+confidence:
+
+Number(
+ai.confidence
+)
+
+|| 0,
+
+
+
+
+favorite:false,
+
+
+
+timesWorn:0,
+
+
+
+laundryStatus:"Clean",
+
+
+
+
+createdAt:
+
+Date.now()
+
+
 
 };
+
+
+
+
+
+
+
+
+
+await addClothing(
+
+database,
+
+clothing
+
+);
+
+
+
+
+
+
+
+document
+.getElementById(
+"result"
+)
+.innerHTML =
+
+
+`
+
+<h2>
+✅ Clothing Saved
+</h2>
+
+
+<p>
+Name:
+${clothing.name}
+</p>
+
+
+<p>
+Category:
+${clothing.category}
+</p>
+
+
+<p>
+Color:
+${clothing.color}
+</p>
+
+
+<p>
+Style:
+${clothing.style}
+</p>
+
+
+<p>
+Laundry:
+${clothing.laundryStatus}
+</p>
+
+`;
+
+
+
+
+
+
+}
+
+catch(error){
+
+
+
+console.error(
+"Upload Error:",
+error
+);
+
+
+
+document
+.getElementById(
+"result"
+)
+.innerHTML =
+
+
+`
+
+<h2>
+❌ Upload Failed
+</h2>
+
+
+<p>
+${error.message}
+</p>
+
+`;
+
+
+
+}
+
+
+
+};
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// ==========================
+// CATEGORY AI NORMALIZER
+// ==========================
+
+
+function normalizeCategory(category){
+
+
+
+if(!category){
+
+return "Other";
+
+}
+
+
+
+category =
+
+category
+.toLowerCase();
+
+
+
+
+
+
+if(
+
+category.includes("shirt")
+
+||
+
+category.includes("top")
+
+||
+
+category.includes("blouse")
+
+||
+
+category.includes("tshirt")
+
+){
+
+
+return "Top";
+
+
+}
+
+
+
+
+
+
+if(
+
+category.includes("jean")
+
+||
+
+category.includes("trouser")
+
+||
+
+category.includes("pant")
+
+||
+
+category.includes("skirt")
+
+){
+
+
+return "Bottom";
+
+
+}
+
+
+
+
+
+
+
+if(
+
+category.includes("shoe")
+
+||
+
+category.includes("sneaker")
+
+||
+
+category.includes("boot")
+
+){
+
+
+return "Shoes";
+
+
+}
+
+
+
+
+
+
+
+if(
+
+category.includes("dress")
+
+){
+
+
+return "Dress";
+
+
+}
+
+
+
+
+
+return "Other";
+
+
+}
