@@ -728,3 +728,102 @@ transaction.error
 
 
 }
+// ==========================
+// SAVE AI PREFERENCE MEMORY
+// ==========================
+
+
+export function savePreference(
+
+database,
+
+key,
+
+data
+
+){
+
+
+
+return new Promise((resolve,reject)=>{
+
+
+
+const transaction =
+
+database.transaction(
+
+"preferences",
+
+"readwrite"
+
+);
+
+
+
+
+
+const store =
+
+transaction.objectStore(
+
+"preferences"
+
+);
+
+
+
+
+
+
+const request =
+
+store.put({
+
+id:key,
+
+...data
+
+});
+
+
+
+
+
+
+request.onsuccess = ()=>{
+
+
+resolve(
+
+request.result
+
+);
+
+
+};
+
+
+
+
+
+
+request.onerror = ()=>{
+
+
+reject(
+
+request.error
+
+);
+
+
+};
+
+
+
+
+
+});
+
+}
