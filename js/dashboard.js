@@ -1,40 +1,32 @@
-import {auth}
-from "./firebase.js";
+// dashboard.js
+// FashionAI AI Dashboard Controller
+
+
+import { auth } from "./firebase.js";
 
 
 import {
 onAuthStateChanged
 }
-from 
+from
 "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 
+
 import {
-openDatabase,
+getDatabase
+}
+from "./database-manager.js";
+
+
+
+import {
 getClothes,
 getWearHistory
 }
 from "./db.js";
 
-import {
 
-exportFashionAI,
-importFashionAI
-
-}
-
-from "./backup-ai.js";
-
-import {
-analyzeUserStyle
-}
-from "./style-learning.js";
-
-
-import {
-analyzeShoppingNeeds
-}
-from "./shopping-ai.js";
 
 import {
 exportFashionAI,
@@ -43,103 +35,314 @@ importFashionAI
 from "./backup-restore.js";
 
 
-let database;
+
+import {
+analyzeUserStyle
+}
+from "./style-learning.js";
 
 
+
+import {
+analyzeShoppingNeeds
+}
+from "./shopping-ai.js";
+
+
+
+
+
+let database = null;
+
+
+
+
+
+
+
+// =====================================
+// AUTHENTICATION
+// =====================================
 
 
 onAuthStateChanged(
+
 auth,
+
 async(user)=>{
 
 
-if(user){
+if(!user){
 
 
-database =
-await openDatabase(
-user.uid
+console.log(
+"User not logged in"
 );
 
 
-loadDashboard();
+return;
 
 
 }
 
 
-});
+
+
+
+try{
+
+
+database = await getDatabase();
+
+
+
+console.log(
+"✅ FashionAI Dashboard Connected"
+);
+
+
+
+loadDashboard();
+
+
+
+}
+
+
+catch(error){
+
+
+console.error(
+
+"Dashboard Database Error:",
+
+error
+
+);
+
+
+}
+
+
+
+}
+
+);
 
 
 
 
 
+
+
+
+
+// =====================================
+// LOAD DASHBOARD
+// =====================================
 
 
 async function loadDashboard(){
 
 
+try{
+
+
 
 const clothes =
+
 await getClothes(
+
 database
+
 );
+
+
+
 
 
 
 const history =
+
 await getWearHistory(
+
 database
+
 );
+
+
+
 
 
 
 const style =
+
 await analyzeUserStyle(
+
 database
+
 );
 
 
 
 
 
-// CLOTHING COUNT
 
-document
-.getElementById(
+
+updateDashboard(
+
+clothes,
+
+history,
+
+style
+
+);
+
+
+
+
+
+
+
+generateSuggestions(
+
+style,
+
+clothes
+
+);
+
+
+
+
+
+
+
+loadShoppingAdvice();
+
+
+
+}
+
+
+
+catch(error){
+
+
+console.error(
+
+"Dashboard Loading Error:",
+
+error
+
+);
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// =====================================
+// UPDATE STATISTICS
+// =====================================
+
+
+function updateDashboard(
+
+clothes,
+
+history,
+
+style
+
+){
+
+
+
+
+
+const totalClothes =
+
+document.getElementById(
+
 "totalClothes"
-)
-.innerHTML =
+
+);
+
+
+
+if(totalClothes){
+
+
+totalClothes.innerHTML =
+
 clothes.length;
 
 
+}
 
 
 
-// OUTFITS WORN
 
-document
-.getElementById(
+
+
+
+
+const totalWorn =
+
+document.getElementById(
+
 "totalWorn"
-)
-.innerHTML =
+
+);
+
+
+
+if(totalWorn){
+
+
+totalWorn.innerHTML =
+
 history.length;
 
 
+}
 
 
 
 
 
-// COLORS
 
-document
-.getElementById(
+
+
+const favoriteColors =
+
+document.getElementById(
+
 "favoriteColors"
-)
-.innerHTML =
 
-style.favoriteColors.length
+);
+
+
+
+if(favoriteColors){
+
+
+favoriteColors.innerHTML =
+
+
+style.favoriteColors?.length
 
 ?
 
@@ -150,43 +353,36 @@ style.favoriteColors.join(", ")
 "No style data yet";
 
 
+}
 
 
 
 
 
-// STYLE
 
-document
-.getElementById(
+
+
+const favoriteStyle =
+
+document.getElementById(
+
 "favoriteStyle"
-)
-.innerHTML =
+
+);
+
+
+
+if(favoriteStyle){
+
+
+favoriteStyle.innerHTML =
 
 style.fashionPersonality;
 
 
+}
 
 
-
-
-
-// AI SUGGESTIONS
-
-generateSuggestions(
-style,
-clothes
-);
-
-
-
-
-
-
-
-// SHOPPING AI
-
-loadShoppingAdvice();
 
 
 
@@ -200,86 +396,38 @@ loadShoppingAdvice();
 
 
 
-async function loadShoppingAdvice(){
-
-
-const result =
-await analyzeShoppingNeeds(
-database
-);
-
-
-
-let box =
-document.getElementById(
-"suggestions"
-);
-
-
-
-box.innerHTML += `
-
-<h3>
-🛍 AI Shopping Advice
-</h3>
-
-`;
-
-
-
-
-
-result.shoppingRecommendations
-.slice(0,3)
-.forEach(item=>{
-
-
-box.innerHTML += `
-
-
-<div class="suggestion-card">
-
-
-<h4>
-${item.item}
-</h4>
-
-
-<p>
-${item.reason}
-</p>
-
-
-</div>
-
-
-`;
-
-
-});
-
-
-}
-
-
-
-
-
-
-
+// =====================================
+// AI MEMORY DISPLAY
+// =====================================
 
 
 function generateSuggestions(
+
 style,
+
 clothes
+
 ){
 
 
-let box =
-document
-.getElementById(
+
+const box =
+
+document.getElementById(
+
 "suggestions"
+
 );
+
+
+
+if(!box){
+
+return;
+
+}
+
+
 
 
 
@@ -298,7 +446,11 @@ box.innerHTML = `
 
 Style Personality:
 
+<strong>
+
 ${style.fashionPersonality}
+
+</strong>
 
 </p>
 
@@ -308,7 +460,13 @@ ${style.fashionPersonality}
 
 Favourite Styles:
 
-${style.favoriteStyles.join(", ")}
+${
+
+style.favoriteStyles?.join(", ")
+
+|| "Learning..."
+
+}
 
 </p>
 
@@ -318,7 +476,13 @@ ${style.favoriteStyles.join(", ")}
 
 Favourite Colors:
 
-${style.favoriteColors.join(", ")}
+${
+
+style.favoriteColors?.join(", ")
+
+|| "Learning..."
+
+}
 
 </p>
 
@@ -328,9 +492,12 @@ ${style.favoriteColors.join(", ")}
 
 Wardrobe Size:
 
-${clothes.length} items
+${clothes.length}
+
+items
 
 </p>
+
 
 
 </div>
@@ -341,109 +508,267 @@ ${clothes.length} items
 
 
 }
-document
-.getElementById(
-"backupBtn"
-)
-.onclick = ()=>{
 
 
-exportFashionAI(
+
+
+
+
+
+
+
+// =====================================
+// SHOPPING AI
+// =====================================
+
+
+async function loadShoppingAdvice(){
+
+
+try{
+
+
+const result =
+
+await analyzeShoppingNeeds(
+
 database
-);
-
-
-};
-
-
-
-
-
-document
-.getElementById(
-"restoreBtn"
-)
-.onclick = async()=>{
-
-
-const file =
-
-document
-.getElementById(
-"restoreFile"
-)
-.files[0];
-
-
-
-if(file){
-
-
-await importFashionAI(
-
-database,
-
-file
 
 );
 
 
 
-alert(
-"✅ FashionAI wardrobe restored"
+
+
+const box =
+
+document.getElementById(
+
+"suggestions"
+
+);
+
+
+
+
+
+if(
+
+!box ||
+
+!result ||
+
+!result.shoppingRecommendations
+
+){
+
+
+return;
+
+
+}
+
+
+
+
+
+
+box.innerHTML += `
+
+
+<h3>
+🛍 AI Shopping Advice
+</h3>
+
+`;
+
+
+
+
+
+
+
+
+result.shoppingRecommendations
+
+.slice(0,3)
+
+.forEach(item=>{
+
+
+
+box.innerHTML += `
+
+
+<div class="suggestion-card">
+
+
+<h4>
+
+${item.item}
+
+</h4>
+
+
+
+<p>
+
+${item.reason}
+
+</p>
+
+
+
+</div>
+
+
+`;
+
+
+
+});
+
+
+
+}
+
+
+
+catch(error){
+
+
+console.error(
+
+"Shopping AI Error:",
+
+error
+
 );
 
 
 }
-// ==========================
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// =====================================
 // BACKUP
-// ==========================
+// =====================================
 
 
-document
-.getElementById(
+const backupBtn =
+
+document.getElementById(
+
 "backupBtn"
-)
-.onclick = ()=>{
+
+);
+
+
+
+if(backupBtn){
+
+
+backupBtn.onclick = ()=>{
 
 
 exportFashionAI(
+
 database
+
+);
+
+
+alert(
+
+"✅ FashionAI backup created"
+
 );
 
 
 };
 
 
+}
 
 
 
 
-// ==========================
+
+
+
+
+
+// =====================================
 // RESTORE
-// ==========================
+// =====================================
 
 
-document
-.getElementById(
+const restoreBtn =
+
+document.getElementById(
+
 "restoreBtn"
-)
-.onclick = async()=>{
+
+);
+
+
+
+if(restoreBtn){
+
+
+restoreBtn.onclick = async()=>{
+
+
+
+const fileInput =
+
+document.getElementById(
+
+"restoreFile"
+
+);
+
+
+
 
 
 const file =
 
-document
-.getElementById(
-"restoreFile"
-)
-.files[0];
+fileInput?.files[0];
 
 
 
 
 
-if(file){
+
+if(!file){
+
+
+alert(
+
+"Choose a backup file first"
+
+);
+
+
+return;
+
+
+}
+
+
+
+
 
 
 await importFashionAI(
@@ -456,16 +781,24 @@ file
 
 
 
+
+
 alert(
+
 "✅ FashionAI restored successfully"
+
 );
 
 
 
+
+
+loadDashboard();
+
+
+
+};
+
+
+
 }
-
-
-
-};
-
-};
