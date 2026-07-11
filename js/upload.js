@@ -1,5 +1,5 @@
 // upload.js
-// FashionAI Upload & Clothing Recognition
+// FashionAI AI Clothing Upload System
 
 
 import { auth } from "./firebase.js";
@@ -8,14 +8,8 @@ import { auth } from "./firebase.js";
 import {
 onAuthStateChanged
 }
-from
+from 
 "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-
-import {
-addClothing
-}
-from "./db.js";
 
 
 import {
@@ -25,12 +19,16 @@ from "./database-manager.js";
 
 
 import {
+addClothing
+}
+from "./db.js";
+
+
+import {
 optimizeImage
 }
 from "./image-preprocessor.js";
 
-
-// AI clothing recognition
 
 import {
 analyzeClothing
@@ -44,10 +42,11 @@ from "./clothing-ai.js";
 // VARIABLES
 // ==========================
 
+let database = null;
 
 let user = null;
 
-let database = null;
+
 
 
 
@@ -84,31 +83,13 @@ user = currentUser;
 
 
 
-try{
-
-
 database = await getDatabase();
 
 
 
 console.log(
-"✅ FashionAI Upload Database Ready"
+"✅ Upload Database Ready"
 );
-
-
-
-}
-
-catch(error){
-
-
-console.error(
-"Database Error:",
-error
-);
-
-
-}
 
 
 
@@ -125,11 +106,11 @@ error
 
 
 // ==========================
-// UPLOAD BUTTON
+// BUTTON
 // ==========================
 
 
-const uploadButton =
+const uploadBtn =
 
 document.getElementById(
 "uploadBtn"
@@ -139,32 +120,15 @@ document.getElementById(
 
 
 
-
-if(uploadButton){
-
+if(uploadBtn){
 
 
-uploadButton.onclick = async()=>{
+
+uploadBtn.onclick = async()=>{
 
 
 
 try{
-
-
-
-if(!user){
-
-
-alert(
-"Please login first"
-);
-
-
-return;
-
-
-}
-
 
 
 
@@ -185,18 +149,13 @@ return;
 
 
 
-
 const file =
 
 document
-
 .getElementById(
 "clothingImage"
 )
-
 .files[0];
-
-
 
 
 
@@ -206,7 +165,7 @@ if(!file){
 
 
 alert(
-"Choose a clothing image"
+"Please select clothing image"
 );
 
 
@@ -214,6 +173,8 @@ return;
 
 
 }
+
+
 
 
 
@@ -235,65 +196,40 @@ await optimizeImage(file);
 
 
 
-
-const preview =
-
-document.getElementById(
+document
+.getElementById(
 "preview"
-);
-
-
-
-if(preview){
-
-
-preview.innerHTML =
+)
+.innerHTML =
 
 `
 
-<img 
-
-src="${image}"
-
-width="220"
-
->
+<img src="${image}">
 
 `;
 
 
 
-}
 
 
 
 
-
-
-
-
-const result =
-
-document.getElementById(
+document
+.getElementById(
 "result"
-);
-
-
-
-if(result){
-
-
-result.innerHTML =
+)
+.innerHTML =
 
 `
 
 <h3>
-🤖 FashionAI analysing clothing...
+🤖 FashionAI analysing...
 </h3>
 
 `;
 
-}
+
+
 
 
 
@@ -304,37 +240,22 @@ result.innerHTML =
 // ==========================
 
 
-let ai;
+const ai =
 
-
-
-try{
-
-
-ai = await analyzeClothing(
-
+await analyzeClothing(
 image
-
 );
 
 
-}
-
-catch(error){
 
 
-console.error(
-"AI Error:",
-error
+
+
+
+console.log(
+"AI RESULT",
+ai
 );
-
-
-throw new Error(
-"AI could not analyse image"
-);
-
-
-}
 
 
 
@@ -345,19 +266,22 @@ throw new Error(
 
 
 // ==========================
-// CREATE CLOTHING OBJECT
+// CLOTHING OBJECT
 // ==========================
 
 
 const clothing = {
 
 
-image,
+image:image,
+
 
 
 name:
 
 ai.name ||
+
+ai.type ||
 
 "Unknown Clothing",
 
@@ -367,19 +291,15 @@ type:
 
 ai.type ||
 
-"Unknown",
-
+"Clothing",
 
 
 
 category:
 
 normalizeCategory(
-
 ai.category
-
 ),
-
 
 
 
@@ -387,17 +307,9 @@ color:
 
 ai.primaryColor ||
 
+ai.color ||
+
 "Unknown",
-
-
-
-
-secondaryColor:
-
-ai.secondaryColor ||
-
-"",
-
 
 
 
@@ -405,19 +317,7 @@ material:
 
 ai.material ||
 
-ai.fabric ||
-
 "Unknown",
-
-
-
-
-texture:
-
-ai.texture ||
-
-"",
-
 
 
 
@@ -429,22 +329,11 @@ ai.pattern ||
 
 
 
-
 style:
 
 ai.style ||
 
 "Casual",
-
-
-
-
-formality:
-
-ai.formality ||
-
-"",
-
 
 
 
@@ -458,8 +347,7 @@ ai.occasions.join(", ")
 
 :
 
-"Daily Wear",
-
+(ai.occasion || "Daily Wear"),
 
 
 
@@ -473,47 +361,7 @@ ai.season.join(", ")
 
 :
 
-"All Season",
-
-
-
-
-weatherSuitability:
-
-Array.isArray(ai.weatherSuitability)
-
-?
-
-ai.weatherSuitability.join(", ")
-
-:
-
-"",
-
-
-
-
-matchingColors:
-
-Array.isArray(ai.matchingColors)
-
-?
-
-ai.matchingColors.join(", ")
-
-:
-
-"",
-
-
-
-
-fashionTips:
-
-ai.fashionTips ||
-
-"",
-
+(ai.season || "All Season"),
 
 
 
@@ -525,13 +373,11 @@ ai.brand ||
 
 
 
-
 confidence:
 
-Number(ai.confidence)
-
-|| 0,
-
+Number(
+ai.confidence
+)||0,
 
 
 
@@ -552,7 +398,6 @@ createdAt:
 Date.now()
 
 
-
 };
 
 
@@ -564,7 +409,7 @@ Date.now()
 
 
 // ==========================
-// SAVE TO DATABASE
+// SAVE
 // ==========================
 
 
@@ -583,21 +428,36 @@ clothing
 
 
 
-
 // ==========================
-// SUCCESS MESSAGE
+// REFRESH WARDROBE
 // ==========================
 
 
-if(result){
+window.dispatchEvent(
+
+new Event(
+"clothingAdded"
+)
+
+);
 
 
-result.innerHTML =
+
+
+
+
+
+document
+.getElementById(
+"result"
+)
+.innerHTML =
+
 
 `
 
 <h2>
-✅ Clothing Saved Successfully
+✅ Clothing Saved
 </h2>
 
 
@@ -626,34 +486,13 @@ ${clothing.style}
 
 
 <p>
-<b>Material:</b>
-${clothing.material}
-</p>
-
-
-<p>
-<b>Occasion:</b>
-${clothing.occasion}
-</p>
-
-
-<p>
-<b>Laundry:</b>
-${clothing.laundryStatus}
-</p>
-
-
-<p>
-<b>AI Confidence:</b>
+<b>Confidence:</b>
 ${clothing.confidence}%
 </p>
 
 
 `;
 
-
-
-}
 
 
 
@@ -664,24 +503,18 @@ catch(error){
 
 
 console.error(
-"Upload Failed:",
+"Upload Error",
 error
 );
 
 
 
-const result =
-
-document.getElementById(
+document
+.getElementById(
 "result"
-);
+)
+.innerHTML =
 
-
-
-if(result){
-
-
-result.innerHTML =
 
 `
 
@@ -691,16 +524,10 @@ result.innerHTML =
 
 
 <p>
-
 ${error.message}
-
 </p>
 
 `;
-
-
-
-}
 
 
 
@@ -723,12 +550,11 @@ ${error.message}
 
 
 // ==========================
-// CATEGORY NORMALIZER
+// CATEGORY CLEANER
 // ==========================
 
 
 function normalizeCategory(category){
-
 
 
 if(!category){
@@ -740,9 +566,7 @@ return "Other";
 
 
 category =
-
 category.toLowerCase();
-
 
 
 
@@ -762,15 +586,13 @@ category.includes("blouse")
 
 ||
 
-category.includes("t-shirt")
-
-||
-
 category.includes("tshirt")
 
 ){
 
+
 return "Top";
+
 
 }
 
@@ -779,13 +601,14 @@ return "Top";
 
 
 
+
 if(
 
-category.includes("jean")
+category.includes("pant")
 
 ||
 
-category.includes("pant")
+category.includes("jean")
 
 ||
 
@@ -797,7 +620,9 @@ category.includes("skirt")
 
 ){
 
+
 return "Bottom";
+
 
 }
 
@@ -821,9 +646,12 @@ category.includes("boot")
 
 ){
 
+
 return "Shoes";
 
+
 }
+
 
 
 
@@ -836,7 +664,9 @@ category.includes("dress")
 
 ){
 
+
 return "Dress";
+
 
 }
 
@@ -854,7 +684,9 @@ category.includes("coat")
 
 ){
 
+
 return "Outerwear";
+
 
 }
 
