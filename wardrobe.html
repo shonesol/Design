@@ -7,13 +7,17 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>FashionAI Wardrobe</title>
 
-<link rel="stylesheet" href="../css/wardrobe.css">
+<title>
+FashionAI Wardrobe
+</title>
 
+
+<link rel="stylesheet" href="css/wardrobe.css">
 
 
 <meta name="theme-color" content="#1b1b1b">
+
 
 <style>
 
@@ -21,9 +25,11 @@
 box-sizing:border-box;
 }
 
+
 body{
 
 margin:0;
+
 padding:20px;
 
 font-family:Arial,sans-serif;
@@ -31,6 +37,8 @@ font-family:Arial,sans-serif;
 background:#f5f0e6;
 
 }
+
+
 
 h1{
 
@@ -42,6 +50,8 @@ margin-bottom:25px;
 
 }
 
+
+
 .upload-box{
 
 background:white;
@@ -52,17 +62,13 @@ border-radius:15px;
 
 max-width:650px;
 
-margin:auto;
+margin:20px auto;
 
 box-shadow:0 5px 15px rgba(0,0,0,.1);
 
 }
 
-.upload-box h2{
 
-margin-top:0;
-
-}
 
 input,
 select,
@@ -80,6 +86,8 @@ font-size:16px;
 
 }
 
+
+
 button{
 
 background:#1b1b1b;
@@ -90,15 +98,17 @@ border:none;
 
 cursor:pointer;
 
-transition:.3s;
-
 }
+
+
 
 button:hover{
 
 background:#c9a66b;
 
 }
+
+
 
 .message{
 
@@ -110,6 +120,22 @@ margin-top:15px;
 
 }
 
+
+
+#preview img{
+
+display:block;
+
+margin:20px auto;
+
+border-radius:15px;
+
+max-width:220px;
+
+}
+
+
+
 #wardrobeStats{
 
 background:white;
@@ -118,27 +144,28 @@ padding:15px;
 
 border-radius:12px;
 
-margin:25px auto;
-
-max-width:900px;
-
-box-shadow:0 5px 15px rgba(0,0,0,.08);
+margin-top:15px;
 
 }
+
+
 
 .search-box{
 
 max-width:900px;
 
-margin:auto;
+margin:20px auto;
 
 }
+
+
 
 #wardrobe{
 
 display:grid;
 
-grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+grid-template-columns:
+repeat(auto-fit,minmax(250px,1fr));
 
 gap:20px;
 
@@ -146,17 +173,21 @@ margin-top:30px;
 
 }
 
+
+
 .wardrobe-card{
 
 background:white;
 
-border-radius:15px;
-
 padding:15px;
+
+border-radius:15px;
 
 box-shadow:0 5px 15px rgba(0,0,0,.1);
 
 }
+
+
 
 .wardrobe-card img{
 
@@ -170,6 +201,8 @@ border-radius:10px;
 
 }
 
+
+
 .wardrobe-buttons{
 
 display:flex;
@@ -178,9 +211,9 @@ flex-direction:column;
 
 gap:10px;
 
-margin-top:15px;
-
 }
+
+
 
 .favorite-btn{
 
@@ -190,11 +223,15 @@ color:black;
 
 }
 
+
+
 .clean-btn{
 
 background:#4caf50;
 
 }
+
+
 
 .dirty-btn{
 
@@ -202,11 +239,15 @@ background:#ff9800;
 
 }
 
+
+
 .delete-btn{
 
 background:#f44336;
 
 }
+
+
 
 .empty-wardrobe{
 
@@ -218,15 +259,19 @@ border-radius:15px;
 
 text-align:center;
 
-grid-column:1/-1;
-
 }
+
+
 
 </style>
 
+
 </head>
 
+
 <body>
+
+
 
 <h1>
 
@@ -234,7 +279,75 @@ grid-column:1/-1;
 
 </h1>
 
+
+
+
+
+<!-- ==========================
+UPLOAD SECTION
+========================== -->
+
+
 <div class="upload-box">
+
+
+<h2>
+
+🤖 Add Clothing With AI
+
+</h2>
+
+
+
+<input
+
+id="clothingImage"
+
+type="file"
+
+accept="image/*"
+
+>
+
+
+
+<button id="uploadBtn">
+
+✨ Upload & Analyze
+
+</button>
+
+
+
+<div id="preview">
+
+</div>
+
+
+
+<div id="result" class="message">
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<!-- ==========================
+STATISTICS
+========================== -->
+
+
+<div class="upload-box">
+
 
 <h2>
 
@@ -242,15 +355,32 @@ grid-column:1/-1;
 
 </h2>
 
+
+
 <div id="wardrobeStats">
 
 Loading statistics...
 
 </div>
 
+
+
 </div>
 
+
+
+
+
+
+
+
+<!-- ==========================
+SEARCH FILTER
+========================== -->
+
+
 <div class="search-box">
+
 
 <input
 
@@ -258,11 +388,14 @@ type="text"
 
 id="searchClothes"
 
-placeholder="🔍 Search by name, color, style or brand"
+placeholder="🔍 Search clothes"
 
 >
 
+
+
 <select id="categoryFilter">
+
 
 <option value="All">
 
@@ -270,57 +403,66 @@ All Categories
 
 </option>
 
+
+
 <option value="Top">
 
-👕
-
-Top
+👕 Top
 
 </option>
+
+
 
 <option value="Bottom">
 
-👖
-
-Bottom
+👖 Bottom
 
 </option>
+
+
 
 <option value="Shoes">
 
-👟
-
-Shoes
+👟 Shoes
 
 </option>
+
+
 
 <option value="Dress">
 
-👗
-
-Dress
+👗 Dress
 
 </option>
+
+
 
 <option value="Outerwear">
 
-🧥
-
-Outerwear
+🧥 Outerwear
 
 </option>
+
+
 
 <option value="Accessories">
 
-👜
-
-Accessories
+👜 Accessories
 
 </option>
 
+
+
 </select>
 
+
 </div>
+
+
+
+
+
+
 
 <h2>
 
@@ -328,14 +470,43 @@ Accessories
 
 </h2>
 
+
+
+
+
 <div id="wardrobe">
 
 Loading wardrobe...
 
 </div>
-<!-- JavaScript -->
 
-<script type="module" src="../js/wardrobe.js"></script>
+
+
+
+
+
+
+
+<!-- ==========================
+JAVASCRIPT
+========================== -->
+
+
+<script 
+type="module"
+src="js/upload.js">
+</script>
+
+
+
+<script 
+type="module"
+src="js/wardrobe.js">
+</script>
+
+
+
+
 
 </body>
 
