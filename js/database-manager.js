@@ -241,7 +241,50 @@ autoIncrement:true
 }
 
 
+// ======================
+// PLANNER
+// ======================
 
+if(
+!db.objectStoreNames.contains(
+"plans"
+)
+
+){
+
+const store =
+
+db.createObjectStore(
+
+"plans",
+
+{
+
+keyPath:"id",
+
+autoIncrement:true
+
+}
+
+);
+
+
+store.createIndex(
+
+"date",
+
+"date",
+
+{
+
+unique:false
+
+}
+
+);
+
+
+}
 
 
 
