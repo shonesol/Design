@@ -1,488 +1,108 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
 
-<meta charset="UTF-8">
+<title>FashionAI Wardrobe</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-
-<title>FashionAI Dashboard</title>
-
-
-<link rel="stylesheet" href="./css/style.css">
-
-
-<meta name="theme-color" content="#1b1b1b">
-
+<link rel="stylesheet" href="style.css">
 
 </head>
-
-
 
 <body>
 
 
-<header class="header">
-
-
-<h1>
-🤖 FashionAI
-</h1>
-
-
-<p>
-Your Personal AI Wardrobe Assistant
-</p>
-
-
-</header>
-
-
-
-
-
-<section class="welcome-card">
-
-
-<h2>
-Welcome Back 👋
-</h2>
-
-
-<p>
-
-FashionAI learns your clothes, style preferences, weather,
-occasions and wearing history to create smart outfit recommendations.
-
-</p>
-
-
-</section>
-
-
-
-
-
-
-
-<section class="dashboard">
-
+<div class="container">
 
 
 <div class="card">
 
+<h1>🤖 Add Clothing With AI</h1>
 
-<div class="icon">
-👗
-</div>
 
+<input 
+type="file"
+id="clothingImage"
+accept="image/*"
+>
 
-<h3>
-My Wardrobe
-</h3>
 
-
-<p>
-Upload, view and manage your clothes.
-</p>
-
-
-<a href="./wardrobe.html">
-
-Open Wardrobe
-
-</a>
-
-
-</div>
-
-
-
-
-
-
-
-
-<div class="card">
-
-
-<div class="icon">
-🤖
-</div>
-
-
-<h3>
-AI Outfit Generator
-</h3>
-
-
-<p>
-Generate outfits using AI scoring and style learning.
-</p>
-
-
-<a href="./outfit.html">
-
-Generate Outfit
-
-</a>
-
-
-</div>
-
-
-
-
-
-
-
-
-<div class="card">
-
-
-<div class="icon">
-📅
-</div>
-
-
-<h3>
-Outfit Planner
-</h3>
-
-
-<p>
-Save future outfits and special occasions.
-</p>
-
-
-<a href="./planner.html">
-
-Open Planner
-
-</a>
-
-
-</div>
-
-
-
-
-
-
-
-
-<div class="card">
-
-
-<div class="icon">
-🧺
-</div>
-
-
-<h3>
-Laundry Intelligence
-</h3>
-
-
-<p>
-Track clean clothes and laundry status.
-</p>
-
-
-<a href="./laundry.html">
-
-Laundry
-
-</a>
-
-
-</div>
-
-
-
-
-
-
-
-
-<div class="card">
-
-
-<div class="icon">
-💬
-</div>
-
-
-<h3>
-Ask FashionAI
-</h3>
-
-
-<p>
-Chat with your AI fashion assistant.
-</p>
-
-
-<a href="./fashion-chat.html">
-
-Chat Now
-
-</a>
-
-
-</div>
-
-
-
-
-
-</section>
-
-
-
-
-
-
-
-
-
-<section class="ai-card">
-
-
-<h2>
-🧠 FashionAI Memory
-</h2>
-
-
-
-
-<div class="stats">
-
-
-
-<div class="stat-box">
-
-<h3 id="totalClothes">
-0
-</h3>
-
-<p>
-Clothes
-</p>
-
-</div>
-
-
-
-
-
-<div class="stat-box">
-
-<h3 id="totalWorn">
-0
-</h3>
-
-<p>
-Outfits Worn
-</p>
-
-</div>
-
-
-
-
-
-<div class="stat-box">
-
-<h3 id="favoriteColors">
-Loading...
-</h3>
-
-<p>
-Favourite Colors
-</p>
-
-</div>
-
-
-
-
-
-<div class="stat-box">
-
-<h3 id="favoriteStyle">
-Explorer
-</h3>
-
-<p>
-Style Personality
-</p>
-
-</div>
-
-
-
-
-
-<div class="stat-box">
-
-<h3 id="confidence">
-0%
-</h3>
-
-<p>
-AI Confidence
-</p>
-
-</div>
-
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-
-
-<section class="ai-card">
-
-
-<h2>
-✨ AI Suggestions
-</h2>
-
-
-<div id="suggestions">
-
-Loading FashionAI memory...
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-
-
-<section class="ai-card">
-
-
-<h2>
-🔥 Recent Outfits
-</h2>
-
-
-<div id="recent">
-
-No outfits yet.
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-
-
-<section class="backup-section">
-
-
-<h2>
-💾 Backup & Restore
-</h2>
-
-
-
-<button id="backupBtn">
-
-Backup FashionAI
-
+<button id="uploadBtn">
+✨ Upload & Analyze
 </button>
 
 
-
-<br><br>
-
+<p id="message"></p>
 
 
-<input
+</div>
 
-type="file"
 
-id="restoreFile"
 
-accept=".json"
+<div class="card">
 
+<h1>📊 Wardrobe Dashboard</h1>
+
+<div id="stats">
+Loading statistics...
+</div>
+
+
+</div>
+
+
+
+<input 
+class="search"
+id="search"
+placeholder="🔍 Search clothes"
 >
 
 
 
-<button id="restoreBtn">
+<select id="category">
 
-Restore Wardrobe
+<option>
+All Categories
+</option>
 
-</button>
+<option>
+Shirt
+</option>
 
+<option>
+Dress
+</option>
 
+<option>
+Trouser
+</option>
 
-</section>
+<option>
+Shoes
+</option>
 
-
-
-
-
-
-
-
-
-<footer>
-
-
-<p>
-
-© 2026 FashionAI | Smart Wardrobe Technology
-
-</p>
-
-
-</footer>
+</select>
 
 
 
 
+<h1>
+👕 My Clothes Collection
+</h1>
+
+
+<div id="clothesList">
+
+</div>
 
 
 
-<script
-
-type="module"
-
-src="./js/dashboard.js">
-
-</script>
+</div>
 
 
+<script type="module" src="app.js"></script>
 
 </body>
-
-
 </html>
