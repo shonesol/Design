@@ -104,7 +104,13 @@ score += 10;
 // OCCASION MATCH
 // =====================================
 
+// =====================================
+// OCCASION MATCH
+// =====================================
+
+
 (occasionStyles || []).forEach(style=>{
+
 
 if(
 
@@ -118,8 +124,32 @@ score += 15;
 
 }
 
+
 });
 
+
+
+
+// USER OCCASION MEMORY
+
+
+(profile.favoriteOccasions || [])
+.forEach(occasion=>{
+
+
+if(
+
+top.occasion === occasion ||
+bottom.occasion === occasion
+
+){
+
+score +=10;
+
+}
+
+
+});
 
 
 // =====================================
