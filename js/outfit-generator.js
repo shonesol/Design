@@ -459,7 +459,9 @@ database
 
 
 
-
+await learnUserFashion(
+database
+);
 
 
 currentProfile =
