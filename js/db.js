@@ -388,3 +388,178 @@ score
 
 
 }
+// ==========================
+// SAVE OUTFIT PLAN
+// ==========================
+
+export function saveOutfitPlan(
+database,
+plan
+){
+
+return new Promise((resolve,reject)=>{
+
+
+const transaction =
+
+database.transaction(
+"plans",
+"readwrite"
+);
+
+
+
+const store =
+
+transaction.objectStore(
+"plans"
+);
+
+
+
+const request =
+
+store.add(plan);
+
+
+
+request.onsuccess=()=>{
+
+resolve(request.result);
+
+};
+
+
+
+request.onerror=()=>{
+
+reject(request.error);
+
+};
+
+
+
+});
+
+
+}
+
+
+
+
+
+// ==========================
+// GET ALL PLANS
+// ==========================
+
+export function getOutfitPlans(
+database
+){
+
+return new Promise((resolve,reject)=>{
+
+
+const transaction =
+
+database.transaction(
+"plans",
+"readonly"
+);
+
+
+
+const store =
+
+transaction.objectStore(
+"plans"
+);
+
+
+
+const request =
+
+store.getAll();
+
+
+
+request.onsuccess=()=>{
+
+resolve(
+request.result || []
+);
+
+};
+
+
+
+request.onerror=()=>{
+
+reject(request.error);
+
+};
+
+
+});
+
+
+}
+
+
+
+
+
+// ==========================
+// DELETE PLAN
+// ==========================
+
+export function deleteOutfitPlan(
+database,
+id
+){
+
+return new Promise((resolve,reject)=>{
+
+
+const transaction =
+
+database.transaction(
+"plans",
+"readwrite"
+);
+
+
+
+const store =
+
+transaction.objectStore(
+"plans"
+);
+
+
+
+const request =
+
+store.delete(id);
+
+
+
+request.onsuccess=()=>{
+
+resolve();
+
+};
+
+
+
+request.onerror=()=>{
+
+reject(request.error);
+
+};
+
+
+
+});
+
+
+}
