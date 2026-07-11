@@ -31,7 +31,10 @@ getDatabase
 }
 from "./database-manager.js";
 
-
+import {
+exportFashionAI
+}
+from "./backup-manager.js";
 
 
 
@@ -442,7 +445,9 @@ clothing
 
 
 
-
+await exportFashionAI(
+database
+);
 
 
 
