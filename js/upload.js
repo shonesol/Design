@@ -16,6 +16,12 @@ FASHION_VISION_PROMPT
 } from "./fashion-vision-prompt.js";
 
 import {
+optimizeImage
+}
+from "./image-preprocessor.js";
+
+
+import {
 openDatabase,
 addClothing
 } from "./db.js";
