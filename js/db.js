@@ -684,3 +684,89 @@ request.error
 
 
 }
+// ==========================
+// UPDATE LAUNDRY STATUS
+// ==========================
+
+export function updateLaundryStatus(
+database,
+id,
+status
+){
+
+return new Promise((resolve,reject)=>{
+
+
+const transaction =
+
+database.transaction(
+"wardrobe",
+"readwrite"
+);
+
+
+
+const store =
+
+transaction.objectStore(
+"wardrobe"
+);
+
+
+
+const request =
+
+store.get(id);
+
+
+
+request.onsuccess = ()=>{
+
+
+const item = request.result;
+
+
+
+if(item){
+
+
+item.laundryStatus = status;
+
+
+
+store.put(item);
+
+
+}
+
+
+};
+
+
+
+transaction.oncomplete = ()=>{
+
+
+resolve();
+
+
+};
+
+
+
+transaction.onerror = ()=>{
+
+
+reject(
+transaction.error
+);
+
+
+};
+
+
+
+});
+
+
+}
