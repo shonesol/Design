@@ -1,13 +1,6 @@
 // ai-learning.js
-// FashionAI Personal Learning Brain
+// FashionAI Long Term Learning Engine
 
-
-import {
-getWearHistory,
-getFeedback,
-savePreference
-}
-from "./db.js";
 
 import {
 getClothes
@@ -15,57 +8,255 @@ getClothes
 from "./db.js";
 
 
+import {
+getLearningData
+}
+from "./feedback-ai.js";
 
 
 
-// =================================
-// LEARN FROM WEAR HISTORY
-// =================================
+
+// ==========================
+// MAIN LEARNING FUNCTION
+// ==========================
 
 
 export async function learnUserFashion(
-db
+
+database
+
 ){
 
 
 
-const history =
-await getWearHistory(db);
-
-
-
 const clothes =
-await getClothes(db);
+
+await getClothes(
+
+database
+
+);
 
 
 
-let colors={};
+const feedback =
 
-let styles={};
+await getLearningData(
 
-let items={};
+database
 
-
-
-
-
-// Analyze worn outfits
-
-
-history.forEach(record=>{
-
-
-const outfit =
-record.outfit;
+);
 
 
 
 
 
-if(!outfit)
-return;
+const memory = {
 
 
+totalClothes:
+
+clothes.length,
+
+
+
+likedOutfits:
+
+0,
+
+
+dislikedOutfits:
+
+0,
+
+
+
+preferredStyles:{},
+
+
+preferredColors:{},
+
+
+preferredOccasions:{},
+
+
+};
+
+
+ 
+
+
+
+// ==========================
+// LEARN FROM WARDROBE
+// ==========================
+
+
+clothes.forEach(item=>{
+
+
+
+if(item.style){
+
+
+memory.preferredStyles[item.style] =
+
+
+(memory.preferredStyles[item.style] || 0)+1;
+
+
+
+}
+
+
+
+if(item.color){
+
+
+memory.preferredColors[item.color] =
+
+
+(memory.preferredColors[item.color] || 0)+1;
+
+
+
+}
+
+
+
+if(item.occasion){
+
+
+memory.preferredOccasions[item.occasion] =
+
+
+(memory.preferredOccasions[item.occasion] || 0)+1;
+
+
+
+}
+
+
+
+});
+
+
+
+
+
+
+
+
+
+// ==========================
+// LEARN FROM FEEDBACK
+// ==========================
+
+
+feedback.forEach(item=>{
+
+
+
+if(
+item.type==="like"
+){
+
+
+memory.likedOutfits++;
+
+
+
+learnOutfit(
+
+memory,
+
+item.outfit,
+
+3
+
+);
+
+
+
+}
+
+
+
+
+
+if(
+item.type==="dislike"
+){
+
+
+memory.dislikedOutfits++;
+
+
+
+learnOutfit(
+
+memory,
+
+item.outfit,
+
+-2
+
+);
+
+
+
+}
+
+
+
+});
+
+
+
+
+
+
+
+// SAVE MEMORY
+
+
+await saveMemory(
+
+database,
+
+memory
+
+);
+
+
+
+return memory;
+
+
+}
+
+
+
+
+
+
+
+
+
+// ==========================
+// LEARN OUTFIT PATTERN
+// ==========================
+
+
+function learnOutfit(
+
+memory,
+
+outfit,
+
+points
+
+){
 
 
 
@@ -88,61 +279,37 @@ outfit.shoe
 pieces.forEach(item=>{
 
 
-if(!item)
-return;
+
+if(item.style){
+
+
+memory.preferredStyles[item.style] =
+
+
+(memory.preferredStyles[item.style] || 0)
+
++
+
+points;
 
 
 
+}
 
-
-// COLORS
 
 
 if(item.color){
 
 
-let color =
-item.color.toLowerCase();
+memory.preferredColors[item.color] =
 
 
-colors[color] =
-(colors[color]||0)+1;
+(memory.preferredColors[item.color] || 0)
 
++
 
-}
+points;
 
-
-
-
-
-
-
-// STYLES
-
-
-if(item.style){
-
-
-styles[item.style] =
-(styles[item.style]||0)+1;
-
-
-}
-
-
-
-
-
-
-
-// MOST WORN ITEMS
-
-
-if(item.name){
-
-
-items[item.name] =
-(items[item.name]||0)+1;
 
 
 }
@@ -153,46 +320,7 @@ items[item.name] =
 
 
 
-});
-
-
-
-
-
-
-
-const favoriteColors =
-Object.keys(colors)
-.sort(
-(a,b)=>colors[b]-colors[a]
-)
-.slice(0,5);
-
-
-
-
-
-
-const favoriteStyles =
-Object.keys(styles)
-.sort(
-(a,b)=>styles[b]-styles[a]
-)
-.slice(0,5);
-
-
-
-
-
-
-
-
-const mostWorn =
-Object.keys(items)
-.sort(
-(a,b)=>items[b]-items[a]
-)
-.slice(0,5);
+}
 
 
 
@@ -202,102 +330,92 @@ Object.keys(items)
 
 
 
-const memory={
+// ==========================
+// SAVE AI MEMORY
+// ==========================
 
 
-favoriteColors,
+function saveMemory(
 
-favoriteStyles,
+database,
 
-mostWorn,
+memory
+
+){
+
+
+
+return new Promise((resolve,reject)=>{
+
+
+
+const transaction =
+
+database.transaction(
+
+"preferences",
+
+"readwrite"
+
+);
+
+
+
+const store =
+
+transaction.objectStore(
+
+"preferences"
+
+);
+
+
+
+store.put({
+
+id:1,
+
+
+type:"fashionMemory",
+
+
+data:memory,
 
 
 updated:
+
 Date.now()
 
 
+});
+
+
+
+
+
+transaction.oncomplete=()=>{
+
+
+resolve(true);
+
+
 };
 
 
 
+transaction.onerror=()=>{
 
 
-
-
-await savePreference(
-db,
-memory
+reject(
+transaction.error
 );
 
-
-
-
-
-
-return memory;
-
-
-}
-
-
-
-
-
-
-
-
-
-// =================================
-// GET PERSONAL STYLE MEMORY
-// =================================
-
-
-export async function getFashionMemory(
-db
-){
-
-
-
-const preferences =
-await import("./db.js")
-.then(module=>
-
-module.getPreferences(db)
-
-);
-
-
-
-
-
-if(
-preferences.length===0
-){
-
-
-return {
-
-
-favoriteColors:[],
-
-
-favoriteStyles:[],
-
-
-mostWorn:[]
 
 };
 
 
-}
 
-
-
-
-
-return preferences[
-preferences.length-1
-];
+});
 
 
 }
