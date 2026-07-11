@@ -1,5 +1,5 @@
 // database-manager.js
-// FashionAI Automatic Phone Database Manager
+// FashionAI IndexedDB Manager
 
 
 import { auth } from "./firebase.js";
@@ -16,52 +16,35 @@ let database = null;
 
 
 
-
-// ==========================
-// DATABASE VERSION
-// ==========================
-
-const DATABASE_VERSION = 5;
+const DATABASE_VERSION = 6;
 
 
 
 
-
-// ==========================
-// GET USER DATABASE
-// ==========================
 
 
 export async function getDatabase(){
 
 
-
 return new Promise((resolve,reject)=>{
-
 
 
 onAuthStateChanged(
 
 auth,
 
-async(user)=>{
-
+(user)=>{
 
 
 if(!user){
-
 
 reject(
 "No logged in user"
 );
 
-
 return;
 
-
 }
-
-
 
 
 
@@ -70,7 +53,7 @@ const request =
 
 indexedDB.open(
 
-"FashionAI_" + user.uid,
+"FashionAI_"+user.uid,
 
 DATABASE_VERSION
 
@@ -82,9 +65,7 @@ DATABASE_VERSION
 
 
 
-
-request.onupgradeneeded = (event)=>{
-
+request.onupgradeneeded=(event)=>{
 
 
 const db =
@@ -100,15 +81,11 @@ event.target.result;
 
 
 if(
-!db.objectStoreNames.contains(
-"wardrobe"
-)
-
+!db.objectStoreNames.contains("wardrobe")
 ){
 
 
 const store =
-
 db.createObjectStore(
 
 "wardrobe",
@@ -126,46 +103,34 @@ autoIncrement:true
 
 
 store.createIndex(
-
 "category",
-
 "category"
-
 );
 
 
 
 store.createIndex(
-
 "color",
-
 "color"
-
 );
 
 
 
 store.createIndex(
-
 "style",
-
 "style"
-
 );
 
 
 
 store.createIndex(
-
 "laundryStatus",
-
 "laundryStatus"
-
 );
-
 
 
 }
+
 
 
 
@@ -179,10 +144,7 @@ store.createIndex(
 
 
 if(
-!db.objectStoreNames.contains(
-"history"
-)
-
+!db.objectStoreNames.contains("history")
 ){
 
 
@@ -209,48 +171,15 @@ autoIncrement:true
 
 
 
-
 // ======================
-// OUTFITS
+// OUTFIT PLANS
 // ======================
 
 
 if(
-!db.objectStoreNames.contains(
-"outfits"
-)
-
+!db.objectStoreNames.contains("plans")
 ){
 
-
-db.createObjectStore(
-
-"outfits",
-
-{
-
-keyPath:"id",
-
-autoIncrement:true
-
-}
-
-);
-
-
-}
-
-
-// ======================
-// PLANNER
-// ======================
-
-if(
-!db.objectStoreNames.contains(
-"plans"
-)
-
-){
 
 const store =
 
@@ -269,6 +198,7 @@ autoIncrement:true
 );
 
 
+
 store.createIndex(
 
 "date",
@@ -276,9 +206,7 @@ store.createIndex(
 "date",
 
 {
-
 unique:false
-
 }
 
 );
@@ -291,16 +219,15 @@ unique:false
 
 
 
+
+
 // ======================
 // FEEDBACK
 // ======================
 
 
 if(
-!db.objectStoreNames.contains(
-"feedback"
-)
-
+!db.objectStoreNames.contains("feedback")
 ){
 
 
@@ -327,18 +254,13 @@ autoIncrement:true
 
 
 
-
-
 // ======================
 // AI MEMORY
 // ======================
 
 
 if(
-!db.objectStoreNames.contains(
-"preferences"
-)
-
+!db.objectStoreNames.contains("preferences")
 ){
 
 
@@ -361,7 +283,9 @@ keyPath:"id"
 
 
 
+
 };
+
 
 
 
@@ -380,9 +304,7 @@ event.target.result;
 
 console.log(
 
-"✅ FashionAI Local Database Created",
-
-user.uid
+"✅ FashionAI Database Ready"
 
 );
 
@@ -400,11 +322,11 @@ resolve(database);
 
 
 
-request.onerror=(event)=>{
+request.onerror=()=>{
 
 
 reject(
-event.target.error
+request.error
 );
 
 
@@ -413,12 +335,11 @@ event.target.error
 
 
 
+
 }
 
 
-
 );
-
 
 
 });
@@ -434,11 +355,6 @@ event.target.error
 
 
 
-// ==========================
-// CLOSE DATABASE
-// ==========================
-
-
 export function closeDatabase(){
 
 
@@ -447,12 +363,10 @@ if(database){
 
 database.close();
 
-
 database=null;
 
 
 }
-
 
 
 }
