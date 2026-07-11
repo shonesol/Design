@@ -2,19 +2,6 @@
 // FashionAI User Style Intelligence
 
 
-import {
-getClothes
-}
-from "./db.js";
-
-
-import {
-getLearningData
-}
-from "./feedback-ai.js";
-
-
-
 
 // ==========================
 // ANALYZE USER STYLE
@@ -29,19 +16,9 @@ database
 
 
 
-const clothes =
+const profile =
 
-await getClothes(
-
-database
-
-);
-
-
-
-const feedback =
-
-await getLearningData(
+await getPreference(
 
 database
 
@@ -52,127 +29,30 @@ database
 
 
 
-let styles = {};
+if(!profile){
 
-let colors = {};
 
-let occasions = {};
 
-let materials = {};
+return {
 
 
+fashionPersonality:"Explorer",
 
 
+favoriteColors:[],
 
-// ==========================
-// LEARN FROM WARDROBE
-// ==========================
 
+favoriteStyles:[],
 
-clothes.forEach(item=>{
 
+favoriteOccasions:[],
 
 
-if(item.style){
+confidence:0
 
 
-styles[item.style] =
 
-(styles[item.style] || 0) + 1;
-
-
-}
-
-
-
-if(item.color){
-
-
-colors[item.color] =
-
-(colors[item.color] || 0) + 1;
-
-
-}
-
-
-
-
-if(item.occasion){
-
-
-occasions[item.occasion] =
-
-(occasions[item.occasion] || 0) + 1;
-
-
-}
-
-
-
-
-
-if(item.material){
-
-
-materials[item.material] =
-
-(materials[item.material] || 0) + 1;
-
-
-}
-
-
-
-});
-
-
-
-
-
-
-
-// ==========================
-// LEARN FROM FEEDBACK
-// ==========================
-
-
-feedback.forEach(item=>{
-
-
-
-if(
-item.type==="like"
-){
-
-
-
-const outfit =
-item.outfit;
-
-
-
-if(outfit.top.style){
-
-
-styles[outfit.top.style] =
-
-(styles[outfit.top.style] || 0)+3;
-
-
-}
-
-
-
-if(outfit.top.color){
-
-
-colors[outfit.top.color] =
-
-(colors[outfit.top.color] || 0)+3;
-
-
-}
+};
 
 
 
@@ -184,107 +64,12 @@ colors[outfit.top.color] =
 
 
 
-if(
-item.type==="dislike"
-){
 
+const personality =
 
-const outfit =
-item.outfit;
+detectFashionPersonality(
 
-
-
-if(outfit.top.style){
-
-
-styles[outfit.top.style] =
-
-(styles[outfit.top.style] || 0)-2;
-
-
-}
-
-
-
-}
-
-
-
-});
-
-
-
-
-
-
-
-
-
-// ==========================
-// SORT RESULTS
-// ==========================
-
-
-const favoriteStyles =
-
-Object.keys(styles)
-
-.sort(
-(a,b)=>
-
-styles[b]-styles[a]
-
-)
-
-.slice(0,5);
-
-
-
-
-
-
-const favoriteColors =
-
-Object.keys(colors)
-
-.sort(
-(a,b)=>
-
-colors[b]-colors[a]
-
-)
-
-.slice(0,5);
-
-
-
-
-
-
-const favoriteOccasions =
-
-Object.keys(occasions)
-
-.sort(
-(a,b)=>
-
-occasions[b]-occasions[a]
-
-)
-
-.slice(0,5);
-
-
-
-
-
-
-
-const fashionPersonality =
-
-detectPersonality(
-
-favoriteStyles
+profile
 
 );
 
@@ -297,25 +82,135 @@ favoriteStyles
 return {
 
 
-favoriteStyles,
+fashionPersonality:personality,
 
 
-favoriteColors,
+favoriteColors:
+
+profile.favoriteColors || [],
 
 
-favoriteOccasions,
+
+favoriteStyles:
+
+profile.favoriteStyles || [],
 
 
-favoriteMaterials:
 
-Object.keys(materials),
+favoriteOccasions:
+
+profile.favoriteOccasions || [],
 
 
-fashionPersonality
+
+confidence:
+
+calculateConfidence(
+
+profile
+
+)
 
 
 
 };
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// ==========================
+// GET AI PROFILE
+// ==========================
+
+
+function getPreference(
+
+database
+
+){
+
+
+
+return new Promise((resolve,reject)=>{
+
+
+
+const transaction =
+
+database.transaction(
+
+"preferences",
+
+"readonly"
+
+);
+
+
+
+const store =
+
+transaction.objectStore(
+
+"preferences"
+
+);
+
+
+
+
+const request =
+
+store.get(
+
+"userProfile"
+
+);
+
+
+
+
+
+request.onsuccess=()=>{
+
+
+resolve(
+
+request.result
+
+);
+
+
+};
+
+
+
+
+
+request.onerror=()=>{
+
+
+reject(
+
+request.error
+
+);
+
+
+};
+
+
+
+});
+
 
 
 }
@@ -333,14 +228,17 @@ fashionPersonality
 // ==========================
 
 
-function detectPersonality(styles){
+function detectFashionPersonality(
+
+profile
+
+){
 
 
 
-const value =
+const styles =
 
-styles.join(" ")
-.toLowerCase();
+profile.favoriteStyles || [];
 
 
 
@@ -348,12 +246,82 @@ styles.join(" ")
 
 
 if(
-value.includes("luxury")
-||
-value.includes("formal")
+styles.includes("Luxury")
+
 ){
 
-return "Elegant & Luxury";
+
+return "Luxury Fashion Lover";
+
+
+}
+
+
+
+
+
+if(
+styles.includes("Streetwear")
+
+){
+
+
+return "Urban Trendsetter";
+
+
+}
+
+
+
+
+
+if(
+styles.includes("Traditional")
+
+){
+
+
+return "Cultural Fashion Explorer";
+
+
+}
+
+
+
+
+
+if(
+styles.includes("Formal")
+
+){
+
+
+return "Professional Elegant";
+
+
+}
+
+
+
+
+
+if(
+styles.includes("Casual")
+
+){
+
+
+return "Comfort Fashion Lover";
+
+
+}
+
+
+
+
+
+return "Balanced Fashion Explorer";
+
 
 
 }
@@ -363,51 +331,59 @@ return "Elegant & Luxury";
 
 
 
-if(
-value.includes("streetwear")
-||
-value.includes("urban")
+
+
+
+// ==========================
+// CONFIDENCE SCORE
+// ==========================
+
+
+function calculateConfidence(
+
+profile
+
 ){
 
-return "Modern Street Style";
 
 
-}
-
-
-
-
-
-
-if(
-value.includes("traditional")
-){
-
-return "Cultural & Traditional";
-
-
-}
-
-
-
+let score=0;
 
 
 
 if(
-value.includes("sporty")
-){
+profile.favoriteColors?.length
+)
 
-return "Active & Sporty";
-
-
-}
+score+=30;
 
 
 
+if(
+profile.favoriteStyles?.length
+)
+
+score+=40;
 
 
 
-return "Smart Casual Explorer";
+if(
+profile.favoriteOccasions?.length
+)
+
+score+=30;
+
+
+
+
+
+return Math.min(
+
+100,
+
+score
+
+);
 
 
 
