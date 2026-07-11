@@ -11,10 +11,10 @@ from "./database-manager.js";
 import {
 getClothes,
 deleteClothing,
-updateLaundryStatus
+updateLaundryStatus,
+updateClothing
 }
 from "./db.js";
-
 
 
 
@@ -26,11 +26,50 @@ let database = null;
 
 
 
+
+async function startWardrobe(){
+
+
+try{
+
+
 database = await getDatabase();
+
+
 
 console.log(
 "✅ FashionAI Wardrobe Connected"
 );
+
+
+
+loadWardrobe();
+
+
+
+}
+
+catch(error){
+
+
+console.error(
+"Wardrobe Database Error:",
+error
+);
+
+
+
+}
+
+
+}
+
+
+
+startWardrobe();
+
+
+
 
 
 
@@ -63,6 +102,8 @@ document.getElementById(
 
 
 
+
+
 // ==========================
 // EVENTS
 // ==========================
@@ -77,6 +118,7 @@ loadWardrobe();
 };
 
 }
+
 
 
 
@@ -95,12 +137,23 @@ loadWardrobe();
 
 
 
+
+
+
 // ==========================
 // LOAD WARDROBE
 // ==========================
 
 
 async function loadWardrobe(){
+
+
+if(!database){
+
+return;
+
+}
+
 
 
 try{
@@ -114,13 +167,13 @@ database
 
 
 
-let items = [...clothes];
-
+let items=[...clothes];
 
 
 
 
 // SEARCH
+
 
 if(search){
 
@@ -136,7 +189,8 @@ search.value
 if(keyword){
 
 
-items = items.filter(item=>
+items =
+items.filter(item=>
 
 
 (item.name || "")
@@ -146,6 +200,7 @@ items = items.filter(item=>
 
 ||
 
+
 (item.color || "")
 .toLowerCase()
 .includes(keyword)
@@ -153,20 +208,20 @@ items = items.filter(item=>
 
 ||
 
+
 (item.style || "")
 .toLowerCase()
 .includes(keyword)
 
 
-
 );
 
 
-
 }
 
 
 }
+
 
 
 
@@ -176,10 +231,17 @@ items = items.filter(item=>
 // FILTER
 
 
-if(filter && filter.value !== "All"){
+if(
+
+filter &&
+
+filter.value !== "All"
+
+){
 
 
-items = items.filter(item=>
+items =
+items.filter(item=>
 
 item.category === filter.value
 
@@ -187,6 +249,8 @@ item.category === filter.value
 
 
 }
+
+
 
 
 
@@ -203,28 +267,13 @@ updateStatistics();
 }
 
 
-
 catch(error){
 
 
 console.error(
-
-"Wardrobe Error:",
-
+"Wardrobe Error",
 error
-
 );
-
-
-
-wardrobe.innerHTML =
-
-`
-<h3>
-❌ Unable to load wardrobe
-</h3>
-`;
-
 
 
 }
@@ -242,11 +291,12 @@ wardrobe.innerHTML =
 
 
 // ==========================
-// DISPLAY CLOTHES
+// DISPLAY
 // ==========================
 
 
 function displayWardrobe(items){
+
 
 
 if(!wardrobe){
@@ -266,22 +316,20 @@ wardrobe.innerHTML="";
 if(items.length===0){
 
 
-wardrobe.innerHTML =
+wardrobe.innerHTML=
+
 
 `
 
 <div class="empty-wardrobe">
 
-
 <h2>
 👕 No clothes found
 </h2>
 
-
 <p>
-Upload clothes to start FashionAI
+Upload clothing to start FashionAI
 </p>
-
 
 </div>
 
@@ -289,7 +337,10 @@ Upload clothes to start FashionAI
 
 return;
 
+
 }
+
+
 
 
 
@@ -299,8 +350,8 @@ return;
 items.forEach(item=>{
 
 
-const card =
 
+const card =
 document.createElement(
 "div"
 );
@@ -313,82 +364,55 @@ card.className =
 
 
 
-
-card.innerHTML =
+card.innerHTML=
 
 
 `
 
-<img
-
+<img 
 src="${item.image}"
-
 class="wardrobe-image"
-
 >
 
 
-
-
 <h3>
-
-${item.name || item.type || "Clothing"}
-
+${item.name || item.type}
 </h3>
 
 
 
-
 <p>
-
 <b>Category:</b>
-
 ${item.category}
-
 </p>
 
 
 
-
 <p>
-
 <b>Color:</b>
-
-${item.color || "Unknown"}
-
+${item.color}
 </p>
 
 
 
 <p>
-
 <b>Style:</b>
-
-${item.style || "Unknown"}
-
+${item.style}
 </p>
 
 
 
 <p>
-
 <b>Laundry:</b>
-
 ${item.laundryStatus || "Clean"}
-
 </p>
-
 
 
 
 <p>
-
 <b>Times worn:</b>
-
 ${item.timesWorn || 0}
-
 </p>
-
 
 
 
@@ -396,39 +420,26 @@ ${item.timesWorn || 0}
 
 
 <button class="favorite-btn">
-
 ⭐ Favorite
-
 </button>
-
 
 
 <button class="clean-btn">
-
 🧺 Clean
-
 </button>
-
 
 
 <button class="dirty-btn">
-
 👕 Dirty
-
 </button>
-
 
 
 <button class="delete-btn">
-
 🗑 Delete
-
 </button>
 
 
-
 </div>
-
 
 `;
 
@@ -442,16 +453,32 @@ wardrobe.appendChild(card);
 
 
 
-// BUTTONS
+
+// FAVORITE
 
 
 card.querySelector(
 ".favorite-btn"
 )
-.onclick = ()=>{
+.onclick=async()=>{
 
 
-toggleFavorite(item.id);
+item.favorite =
+!item.favorite;
+
+
+
+await updateClothing(
+
+database,
+
+item
+
+);
+
+
+
+loadWardrobe();
 
 
 };
@@ -460,10 +487,17 @@ toggleFavorite(item.id);
 
 
 
+
+
+
+
+// CLEAN
+
+
 card.querySelector(
 ".clean-btn"
 )
-.onclick = async()=>{
+.onclick=async()=>{
 
 
 await updateLaundryStatus(
@@ -488,10 +522,16 @@ loadWardrobe();
 
 
 
+
+
+
+// DIRTY
+
+
 card.querySelector(
 ".dirty-btn"
 )
-.onclick = async()=>{
+.onclick=async()=>{
 
 
 await updateLaundryStatus(
@@ -516,21 +556,21 @@ loadWardrobe();
 
 
 
+
+
+
+// DELETE
+
+
 card.querySelector(
 ".delete-btn"
 )
-.onclick = async()=>{
+.onclick=async()=>{
 
 
-const confirmDelete =
-
-confirm(
+if(confirm(
 "Delete this clothing?"
-);
-
-
-
-if(confirmDelete){
+)){
 
 
 await deleteClothing(
@@ -554,92 +594,8 @@ loadWardrobe();
 
 
 
+
 });
-
-
-
-}
-
-
-
-
-
-
-
-
-
-// ==========================
-// FAVORITE
-// ==========================
-
-
-async function toggleFavorite(id){
-
-
-const clothes =
-
-await getClothes(
-database
-);
-
-
-
-const item =
-
-clothes.find(
-c=>c.id===id
-);
-
-
-
-if(!item){
-
-return;
-
-}
-
-
-
-item.favorite =
-
-!item.favorite;
-
-
-
-
-
-const transaction =
-
-database.transaction(
-
-"wardrobe",
-
-"readwrite"
-
-);
-
-
-
-const store =
-
-transaction.objectStore(
-"wardrobe"
-);
-
-
-
-store.put(item);
-
-
-
-
-transaction.oncomplete = ()=>{
-
-
-loadWardrobe();
-
-
-};
 
 
 
@@ -665,9 +621,7 @@ async function updateStatistics(){
 const stats =
 
 document.getElementById(
-
 "wardrobeStats"
-
 );
 
 
@@ -677,7 +631,6 @@ if(!stats){
 return;
 
 }
-
 
 
 
@@ -692,7 +645,7 @@ database
 
 
 
-stats.innerHTML =
+stats.innerHTML=
 
 
 `
@@ -703,13 +656,14 @@ stats.innerHTML =
 
 
 <p>
-Total Clothes:
+👗 Total Clothes:
 ${clothes.length}
 </p>
 
 
+
 <p>
-Clean:
+🧺 Clean:
 ${
 clothes.filter(
 x=>x.laundryStatus==="Clean"
@@ -718,8 +672,9 @@ x=>x.laundryStatus==="Clean"
 </p>
 
 
+
 <p>
-Dirty:
+👕 Dirty:
 ${
 clothes.filter(
 x=>x.laundryStatus==="Dirty"
@@ -728,8 +683,9 @@ x=>x.laundryStatus==="Dirty"
 </p>
 
 
+
 <p>
-Favorites:
+⭐ Favorites:
 ${
 clothes.filter(
 x=>x.favorite
@@ -752,8 +708,17 @@ x=>x.favorite
 
 
 // ==========================
-// START
+// AUTO REFRESH AFTER UPLOAD
 // ==========================
 
 
+window.addEventListener(
+"clothingAdded",
+()=>{
+
+
 loadWardrobe();
+
+
+}
+);
