@@ -70,7 +70,10 @@ scoreOutfit
 from "./outfit-score.js";
 
 
-
+import {
+saveOutfitPlan
+}
+from "./db.js";
 
 
 let database=null;
@@ -691,6 +694,11 @@ ${explanation}
 
 </div>
 
+<button onclick='planOutfit(${JSON.stringify(outfit)})'>
+
+📅 Plan This Outfit
+
+</button>
 `;
 
 
