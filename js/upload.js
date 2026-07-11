@@ -8,7 +8,7 @@ import { auth } from "./firebase.js";
 import {
 onAuthStateChanged
 }
-from 
+from
 "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 
@@ -31,6 +31,7 @@ from "./image-preprocessor.js";
 
 
 // AI clothing recognition
+
 import {
 analyzeClothing
 }
@@ -52,10 +53,8 @@ let database = null;
 
 
 
-
-
 // ==========================
-// LOGIN
+// LOGIN + DATABASE
 // ==========================
 
 
@@ -85,17 +84,31 @@ user = currentUser;
 
 
 
-database = await getDatabase(
+try{
 
-user.uid
 
-);
+database = await getDatabase();
 
 
 
 console.log(
-"✅ Upload Database Ready"
+"✅ FashionAI Upload Database Ready"
 );
+
+
+
+}
+
+catch(error){
+
+
+console.error(
+"Database Error:",
+error
+);
+
+
+}
 
 
 
@@ -126,6 +139,7 @@ document.getElementById(
 
 
 
+
 if(uploadButton){
 
 
@@ -135,6 +149,22 @@ uploadButton.onclick = async()=>{
 
 
 try{
+
+
+
+if(!user){
+
+
+alert(
+"Please login first"
+);
+
+
+return;
+
+
+}
+
 
 
 
@@ -154,13 +184,19 @@ return;
 
 
 
+
+
 const file =
 
 document
+
 .getElementById(
 "clothingImage"
 )
+
 .files[0];
+
+
 
 
 
@@ -170,7 +206,7 @@ if(!file){
 
 
 alert(
-"Choose clothing image"
+"Choose a clothing image"
 );
 
 
@@ -183,7 +219,11 @@ return;
 
 
 
-// Optimize image
+
+
+// ==========================
+// OPTIMIZE IMAGE
+// ==========================
 
 
 const image =
@@ -195,57 +235,106 @@ await optimizeImage(file);
 
 
 
-document
-.getElementById(
+
+const preview =
+
+document.getElementById(
 "preview"
-)
-.innerHTML =
+);
+
+
+
+if(preview){
+
+
+preview.innerHTML =
 
 `
 
-<img src="${image}" width="220">
+<img 
+
+src="${image}"
+
+width="220"
+
+>
 
 `;
 
 
 
+}
 
 
 
 
-document
-.getElementById(
+
+
+
+
+const result =
+
+document.getElementById(
 "result"
-)
-.innerHTML =
+);
+
+
+
+if(result){
+
+
+result.innerHTML =
 
 `
 
 <h3>
-🤖 FashionAI analysing...
+🤖 FashionAI analysing clothing...
 </h3>
 
 `;
 
+}
 
 
 
 
 
-
-
+// ==========================
 // AI ANALYSIS
+// ==========================
 
 
-const ai =
+let ai;
 
-await analyzeClothing(
+
+
+try{
+
+
+ai = await analyzeClothing(
 
 image
 
 );
 
 
+}
+
+catch(error){
+
+
+console.error(
+"AI Error:",
+error
+);
+
+
+throw new Error(
+"AI could not analyse image"
+);
+
+
+}
 
 
 
@@ -253,7 +342,11 @@ image
 
 
 
+
+
+// ==========================
 // CREATE CLOTHING OBJECT
+// ==========================
 
 
 const clothing = {
@@ -274,7 +367,7 @@ type:
 
 ai.type ||
 
-"",
+"Unknown",
 
 
 
@@ -292,9 +385,18 @@ ai.category
 
 color:
 
-ai.color ||
+ai.primaryColor ||
 
 "Unknown",
+
+
+
+
+secondaryColor:
+
+ai.secondaryColor ||
+
+"",
 
 
 
@@ -303,7 +405,18 @@ material:
 
 ai.material ||
 
+ai.fabric ||
+
 "Unknown",
+
+
+
+
+texture:
+
+ai.texture ||
+
+"",
 
 
 
@@ -326,9 +439,24 @@ ai.style ||
 
 
 
+formality:
+
+ai.formality ||
+
+"",
+
+
+
+
 occasion:
 
-ai.occasion ||
+Array.isArray(ai.occasions)
+
+?
+
+ai.occasions.join(", ")
+
+:
 
 "Daily Wear",
 
@@ -337,9 +465,54 @@ ai.occasion ||
 
 season:
 
-ai.season ||
+Array.isArray(ai.season)
+
+?
+
+ai.season.join(", ")
+
+:
 
 "All Season",
+
+
+
+
+weatherSuitability:
+
+Array.isArray(ai.weatherSuitability)
+
+?
+
+ai.weatherSuitability.join(", ")
+
+:
+
+"",
+
+
+
+
+matchingColors:
+
+Array.isArray(ai.matchingColors)
+
+?
+
+ai.matchingColors.join(", ")
+
+:
+
+"",
+
+
+
+
+fashionTips:
+
+ai.fashionTips ||
+
+"",
 
 
 
@@ -355,14 +528,9 @@ ai.brand ||
 
 confidence:
 
-Number(
-
-ai.confidence
-
-)
+Number(ai.confidence)
 
 || 0,
-
 
 
 
@@ -379,7 +547,9 @@ laundryStatus:"Clean",
 
 
 
-createdAt:Date.now()
+createdAt:
+
+Date.now()
 
 
 
@@ -390,6 +560,12 @@ createdAt:Date.now()
 
 
 
+
+
+
+// ==========================
+// SAVE TO DATABASE
+// ==========================
 
 
 await addClothing(
@@ -407,46 +583,77 @@ clothing
 
 
 
-document
-.getElementById(
-"result"
-)
-.innerHTML =
 
+// ==========================
+// SUCCESS MESSAGE
+// ==========================
+
+
+if(result){
+
+
+result.innerHTML =
 
 `
 
 <h2>
-✅ Clothing Saved
+✅ Clothing Saved Successfully
 </h2>
 
 
 <p>
-Name: ${clothing.name}
+<b>Name:</b>
+${clothing.name}
 </p>
 
 
 <p>
-Category: ${clothing.category}
+<b>Category:</b>
+${clothing.category}
 </p>
 
 
 <p>
-Color: ${clothing.color}
+<b>Color:</b>
+${clothing.color}
 </p>
 
 
 <p>
-Style: ${clothing.style}
+<b>Style:</b>
+${clothing.style}
 </p>
 
 
 <p>
-Laundry: ${clothing.laundryStatus}
+<b>Material:</b>
+${clothing.material}
+</p>
+
+
+<p>
+<b>Occasion:</b>
+${clothing.occasion}
+</p>
+
+
+<p>
+<b>Laundry:</b>
+${clothing.laundryStatus}
+</p>
+
+
+<p>
+<b>AI Confidence:</b>
+${clothing.confidence}%
 </p>
 
 
 `;
+
+
+
+}
 
 
 
@@ -457,18 +664,24 @@ catch(error){
 
 
 console.error(
-"Upload Error:",
+"Upload Failed:",
 error
 );
 
 
 
-document
-.getElementById(
-"result"
-)
-.innerHTML =
+const result =
 
+document.getElementById(
+"result"
+);
+
+
+
+if(result){
+
+
+result.innerHTML =
 
 `
 
@@ -478,10 +691,17 @@ document
 
 
 <p>
+
 ${error.message}
+
 </p>
 
 `;
+
+
+
+}
+
 
 
 }
@@ -511,15 +731,19 @@ function normalizeCategory(category){
 
 
 
-if(!category)
+if(!category){
 
 return "Other";
+
+}
 
 
 
 category =
 
 category.toLowerCase();
+
+
 
 
 
@@ -538,11 +762,18 @@ category.includes("blouse")
 
 ||
 
+category.includes("t-shirt")
+
+||
+
 category.includes("tshirt")
 
-)
+){
 
 return "Top";
+
+}
+
 
 
 
@@ -564,9 +795,12 @@ category.includes("trouser")
 
 category.includes("skirt")
 
-)
+){
 
 return "Bottom";
+
+}
+
 
 
 
@@ -585,10 +819,11 @@ category.includes("sneaker")
 
 category.includes("boot")
 
-)
+){
 
 return "Shoes";
 
+}
 
 
 
@@ -599,14 +834,35 @@ if(
 
 category.includes("dress")
 
-)
+){
 
 return "Dress";
+
+}
+
+
+
+
+
+if(
+
+category.includes("jacket")
+
+||
+
+category.includes("coat")
+
+){
+
+return "Outerwear";
+
+}
 
 
 
 
 
 return "Other";
+
 
 }
