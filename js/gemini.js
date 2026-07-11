@@ -1,13 +1,5 @@
 // gemini.js
-// FashionAI Gemini Connection
-
-
-const GEMINI_API_KEY = "YOUR_API_KEY_HERE";
-
-
-const MODEL =
-"gemini-1.5-flash";
-
+// FashionAI AI Connection
 
 
 export async function askGemini(
@@ -19,15 +11,16 @@ imageBase64
 ){
 
 
+try{
+
+
 const response = await fetch(
 
-`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${GEMINI_API_KEY}`,
+"/api/gemini",
 
 {
 
-
 method:"POST",
-
 
 headers:{
 
@@ -38,92 +31,61 @@ headers:{
 
 body:JSON.stringify({
 
+prompt,
 
-contents:[
-
-
-{
-
-
-parts:[
-
-
-{
-
-text:prompt
-
-},
-
-
-
-{
-
-
-inline_data:{
-
-
-mime_type:"image/jpeg",
-
-
-data:
-
-imageBase64.split(",")[1]
-
-
-}
-
-
-}
-
-
-]
-
-
-}
-
-
-]
-
+image:imageBase64
 
 })
 
 
-
 }
 
 );
 
 
 
-const data = await response.json();
+
+
+const data =
+await response.json();
 
 
 
-if(
 
-data.error
 
-){
+if(data.error){
+
 
 throw new Error(
-
-data.error.message
-
+data.error
 );
+
 
 }
 
 
 
-return data
 
-.candidates[0]
 
-.content
+return data.result;
 
-.parts[0]
 
-.text;
+
+}
+
+catch(error){
+
+
+console.error(
+"FashionAI AI Error:",
+error
+);
+
+
+throw error;
+
+
+}
 
 
 
