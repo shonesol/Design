@@ -1,64 +1,120 @@
-// db.js
-// FashionAI Database Operations Engine
-// Uses database from database-manager.js
+// style-learning.js
+// FashionAI User Style Intelligence
+
 
 
 // ==========================
-// ADD CLOTHING
+// ANALYZE USER STYLE
 // ==========================
 
-export function addClothing(
-db,
-clothing
+
+export async function analyzeUserStyle(
+
+database
+
 ){
 
-return new Promise((resolve,reject)=>{
 
 
-const transaction =
+const profile =
 
-db.transaction(
-"wardrobe",
-"readwrite"
+await getPreference(
+
+database
+
 );
 
 
 
-const store =
-
-transaction.objectStore(
-"wardrobe"
-);
 
 
 
-const request =
-
-store.add(clothing);
+if(!profile){
 
 
 
-request.onsuccess = ()=>{
+return {
 
-resolve(
-request.result
-);
+
+fashionPersonality:"Explorer",
+
+
+favoriteColors:[],
+
+
+favoriteStyles:[],
+
+
+favoriteOccasions:[],
+
+
+confidence:0
+
+
 
 };
 
 
 
-request.onerror = ()=>{
+}
 
-reject(
-request.error
+
+
+
+
+
+
+
+const personality =
+
+detectFashionPersonality(
+
+profile
+
 );
+
+
+
+
+
+
+
+return {
+
+
+fashionPersonality:personality,
+
+
+favoriteColors:
+
+profile.favoriteColors || [],
+
+
+
+favoriteStyles:
+
+profile.favoriteStyles || [],
+
+
+
+favoriteOccasions:
+
+profile.favoriteOccasions || [],
+
+
+
+confidence:
+
+calculateConfidence(
+
+profile
+
+)
+
+
 
 };
 
-
-
-});
 
 
 }
@@ -72,23 +128,30 @@ request.error
 
 
 // ==========================
-// GET ALL CLOTHES
+// GET AI PROFILE
 // ==========================
 
 
-export function getClothes(
-db
+function getPreference(
+
+database
+
 ){
+
 
 
 return new Promise((resolve,reject)=>{
 
 
+
 const transaction =
 
-db.transaction(
-"wardrobe",
+database.transaction(
+
+"preferences",
+
 "readonly"
+
 );
 
 
@@ -96,260 +159,58 @@ db.transaction(
 const store =
 
 transaction.objectStore(
-"wardrobe"
+
+"preferences"
+
 );
+
 
 
 
 const request =
 
-store.getAll();
+store.get(
+
+"userProfile"
+
+);
 
 
 
-request.onsuccess = ()=>{
+
+
+request.onsuccess=()=>{
 
 
 resolve(
-request.result || []
-);
 
-
-};
-
-
-
-request.onerror = ()=>{
-
-
-reject(
-request.error
-);
-
-
-};
-
-
-
-});
-
-
-}
-
-
-
-
-
-
-
-
-
-// ==========================
-// DELETE CLOTHING
-// ==========================
-
-
-export function deleteClothing(
-db,
-id
-){
-
-
-return new Promise((resolve,reject)=>{
-
-
-const transaction =
-
-db.transaction(
-"wardrobe",
-"readwrite"
-);
-
-
-
-const store =
-
-transaction.objectStore(
-"wardrobe"
-);
-
-
-
-const request =
-
-store.delete(id);
-
-
-
-request.onsuccess = ()=>{
-
-resolve(true);
-
-};
-
-
-
-request.onerror = ()=>{
-
-reject(
-request.error
-);
-
-};
-
-
-
-});
-
-
-}
-
-
-
-
-
-
-
-
-
-// ==========================
-// UPDATE CLOTHING
-// ==========================
-
-
-export function updateClothing(
-db,
-clothing
-){
-
-
-return new Promise((resolve,reject)=>{
-
-
-const transaction =
-
-db.transaction(
-"wardrobe",
-"readwrite"
-);
-
-
-
-const store =
-
-transaction.objectStore(
-"wardrobe"
-);
-
-
-
-const request =
-
-store.put(clothing);
-
-
-
-request.onsuccess = ()=>{
-
-resolve(true);
-
-};
-
-
-
-request.onerror = ()=>{
-
-reject(
-request.error
-);
-
-};
-
-
-
-});
-
-
-}
-
-
-
-
-
-
-
-
-
-// ==========================
-// SAVE WEAR HISTORY
-// ==========================
-
-
-export function saveWearHistory(
-db,
-outfit
-){
-
-
-return new Promise((resolve,reject)=>{
-
-
-const transaction =
-
-db.transaction(
-"history",
-"readwrite"
-);
-
-
-
-const store =
-
-transaction.objectStore(
-"history"
-);
-
-
-
-
-const request =
-
-store.add({
-
-outfit:outfit,
-
-
-date:
-Date.now()
-
-
-});
-
-
-
-
-
-request.onsuccess = ()=>{
-
-resolve(
 request.result
+
 );
+
 
 };
 
 
 
-request.onerror = ()=>{
+
+
+request.onerror=()=>{
+
 
 reject(
+
 request.error
+
 );
+
 
 };
 
 
 
 });
+
 
 
 }
@@ -363,66 +224,104 @@ request.error
 
 
 // ==========================
-// GET WEAR HISTORY
+// DETECT PERSONALITY
 // ==========================
 
 
-export function getWearHistory(
-db
+function detectFashionPersonality(
+
+profile
+
 ){
 
 
-return new Promise((resolve,reject)=>{
 
+const styles =
 
-const transaction =
-
-db.transaction(
-"history",
-"readonly"
-);
+profile.favoriteStyles || [];
 
 
 
-const store =
-
-transaction.objectStore(
-"history"
-);
 
 
 
-const request =
+if(
+styles.includes("Luxury")
 
-store.getAll();
-
-
-
-request.onsuccess = ()=>{
+){
 
 
-resolve(
-request.result || []
-);
+return "Luxury Fashion Lover";
 
 
-};
+}
 
 
 
-request.onerror = ()=>{
 
 
-reject(
-request.error
-);
+if(
+styles.includes("Streetwear")
+
+){
 
 
-};
+return "Urban Trendsetter";
+
+
+}
 
 
 
-});
+
+
+if(
+styles.includes("Traditional")
+
+){
+
+
+return "Cultural Fashion Explorer";
+
+
+}
+
+
+
+
+
+if(
+styles.includes("Formal")
+
+){
+
+
+return "Professional Elegant";
+
+
+}
+
+
+
+
+
+if(
+styles.includes("Casual")
+
+){
+
+
+return "Comfort Fashion Lover";
+
+
+}
+
+
+
+
+
+return "Balanced Fashion Explorer";
+
 
 
 }
@@ -436,147 +335,56 @@ request.error
 
 
 // ==========================
-// SAVE OUTFIT
+// CONFIDENCE SCORE
 // ==========================
 
 
-export function saveOutfit(
-db,
-outfit
+function calculateConfidence(
+
+profile
+
 ){
 
 
-return new Promise((resolve,reject)=>{
+
+let score=0;
 
 
-const transaction =
 
-db.transaction(
-"outfits",
-"readwrite"
+if(
+profile.favoriteColors?.length
+)
+
+score+=30;
+
+
+
+if(
+profile.favoriteStyles?.length
+)
+
+score+=40;
+
+
+
+if(
+profile.favoriteOccasions?.length
+)
+
+score+=30;
+
+
+
+
+
+return Math.min(
+
+100,
+
+score
+
 );
 
-
-
-const store =
-
-transaction.objectStore(
-"outfits"
-);
-
-
-
-const request =
-
-store.add({
-
-outfit,
-
-createdAt:
-Date.now()
-
-});
-
-
-
-request.onsuccess = ()=>{
-
-
-resolve(
-request.result
-);
-
-
-};
-
-
-
-request.onerror = ()=>{
-
-
-reject(
-request.error
-);
-
-
-};
-
-
-
-});
-
-
-}
-
-
-
-
-
-
-
-
-
-// ==========================
-// GET SAVED OUTFITS
-// ==========================
-
-
-export function getSavedOutfits(
-db
-){
-
-
-return new Promise((resolve,reject)=>{
-
-
-const transaction =
-
-db.transaction(
-"outfits",
-"readonly"
-);
-
-
-
-const store =
-
-transaction.objectStore(
-"outfits"
-);
-
-
-
-const request =
-
-store.getAll();
-
-
-
-request.onsuccess = ()=>{
-
-
-resolve(
-request.result || []
-);
-
-
-};
-
-
-
-request.onerror = ()=>{
-
-
-reject(
-request.error
-);
-
-
-};
-
-
-
-});
 
 
 }
