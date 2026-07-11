@@ -48,17 +48,42 @@ const stats = document.getElementById("stats");
 
 const search = document.getElementById("search");
 
-const category = document.getElementById("category");
+const categoryFilter = document.getElementById("category");
+
+
+let wardrobe = [];
+
+
+// Guess category
+
+function detectCategory(name){
+
+name = name.toLowerCase();
+
+
+if(name.includes("shirt") || name.includes("top"))
+return "Shirt";
+
+
+if(name.includes("dress"))
+return "Dress";
+
+
+if(name.includes("shoe"))
+return "Shoes";
+
+
+if(name.includes("trouser") || name.includes("pant"))
+return "Trouser";
+
+
+return "Unknown";
+
+}
 
 
 
-// Store clothes temporarily
-
-let clothes = [];
-
-
-
-// Upload
+// Upload clothing
 
 uploadBtn.onclick = async()=>{
 
@@ -76,7 +101,8 @@ return;
 
 
 
-message.innerHTML="🤖 AI analysing...";
+message.innerHTML =
+"🤖 AI analysing clothing...";
 
 
 
@@ -84,9 +110,9 @@ const clothing = {
 
 name:file.name,
 
-category:"Unknown",
+category:detectCategory(file.name),
 
-date:new Date()
+createdAt:new Date()
 
 };
 
@@ -101,8 +127,9 @@ clothing
 );
 
 
-message.innerHTML=
-"✅ Clothing added successfully";
+
+message.innerHTML =
+"✅ Clothing saved successfully";
 
 
 loadWardrobe();
@@ -114,7 +141,7 @@ catch(error){
 
 console.log(error);
 
-message.innerHTML=
+message.innerHTML =
 "❌ Error saving data";
 
 }
@@ -125,13 +152,9 @@ message.innerHTML=
 
 
 
-
-// Load clothes
+// Load wardrobe
 
 async function loadWardrobe(){
-
-
-try{
 
 
 const snapshot =
@@ -141,33 +164,18 @@ collection(db,"clothes")
 
 
 
-clothes=[];
+wardrobe=[];
 
 
-snapshot.forEach((doc)=>{
+snapshot.forEach(doc=>{
 
-
-clothes.push(doc.data());
-
+wardrobe.push(doc.data());
 
 });
 
 
 
-displayClothes(clothes);
-
-
-
-}
-
-catch(error){
-
-console.log(error);
-
-clothesList.innerHTML=
-"Database error";
-
-}
+displayClothes(wardrobe);
 
 
 }
@@ -175,7 +183,7 @@ clothesList.innerHTML=
 
 
 
-// Display clothes
+// Display
 
 function displayClothes(items){
 
@@ -183,14 +191,7 @@ function displayClothes(items){
 clothesList.innerHTML="";
 
 
-let count=0;
-
-
-
-items.forEach((item)=>{
-
-
-count++;
+items.forEach(item=>{
 
 
 clothesList.innerHTML += `
@@ -198,7 +199,7 @@ clothesList.innerHTML += `
 <div class="cloth">
 
 <h3>
-${item.name}
+👕 ${item.name}
 </h3>
 
 <p>
@@ -210,33 +211,30 @@ Category: ${item.category}
 `;
 
 
+
 });
 
 
 
 stats.innerHTML =
-"Total Clothes: " + count;
-
+"Total Clothes: " + items.length;
 
 
 }
 
 
 
-
-
 // Search
 
-search.addEventListener("input",()=>{
+search.oninput = ()=>{
 
 
 let value =
 search.value.toLowerCase();
 
 
-
-let filtered =
-clothes.filter(item=>
+let result =
+wardrobe.filter(item=>
 
 item.name.toLowerCase()
 .includes(value)
@@ -245,28 +243,26 @@ item.name.toLowerCase()
 
 
 
-displayClothes(filtered);
+displayClothes(result);
 
 
-});
-
+};
 
 
 
 
 // Category filter
 
-category.addEventListener("change",()=>{
+categoryFilter.onchange = ()=>{
 
 
-let selected =
-category.value;
+let value =
+categoryFilter.value;
 
 
+if(value==="all"){
 
-if(selected==="all"){
-
-displayClothes(clothes);
+displayClothes(wardrobe);
 
 return;
 
@@ -274,21 +270,19 @@ return;
 
 
 
-let filtered =
-clothes.filter(item=>
+let result =
+wardrobe.filter(item=>
 
-item.category === selected
+item.category===value
 
 );
 
 
 
-displayClothes(filtered);
+displayClothes(result);
 
 
-
-});
-
+};
 
 
 
