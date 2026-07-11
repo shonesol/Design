@@ -10,15 +10,178 @@
 
 </head>
 
+
 <body>
+
+
+<header class="hero">
+
+<h1>✨ FashionAI Wardrobe</h1>
+
+<p>
+Your intelligent fashion assistant. 
+Manage clothes, create outfits, and discover your personal style with AI.
+</p>
+
+
+</header>
+
+
 
 <div class="container">
 
 
-<!-- Upload Section -->
-<div class="card">
+
+<!-- AI FEATURES MENU -->
+
+<h2 class="section-title">
+🚀 FashionAI Tools
+</h2>
+
+
+<div class="features">
+
+
+<a href="dashboard.html" class="feature-card">
+
+<h2>📊</h2>
+<h3>Dashboard</h3>
+<p>View wardrobe statistics</p>
+
+</a>
+
+
+
+<a href="fashionai.html" class="feature-card">
+
+<h2>🤖</h2>
+<h3>Fashion AI</h3>
+<p>Smart clothing analysis</p>
+
+</a>
+
+
+
+
+<a href="wardrobe.html" class="feature-card">
+
+<h2>👗</h2>
+<h3>My Wardrobe</h3>
+<p>Manage your clothes</p>
+
+</a>
+
+
+
+
+<a href="outfit-generator.html" class="feature-card">
+
+<h2>✨</h2>
+<h3>Outfit Generator</h3>
+<p>Create AI outfits</p>
+
+</a>
+
+
+
+
+<a href="planner.html" class="feature-card">
+
+<h2>📅</h2>
+<h3>Outfit Planner</h3>
+<p>Plan your daily looks</p>
+
+</a>
+
+
+
+
+<a href="tryon.html" class="feature-card">
+
+<h2>🪞</h2>
+<h3>Virtual Try-On</h3>
+<p>Try clothes digitally</p>
+
+</a>
+
+
+
+
+<a href="shopping.html" class="feature-card">
+
+<h2>🛍️</h2>
+<h3>Smart Shopping</h3>
+<p>Find fashion ideas</p>
+
+</a>
+
+
+
+
+<a href="fashion-chat.html" class="feature-card">
+
+<h2>💬</h2>
+<h3>AI Stylist Chat</h3>
+<p>Talk with your stylist</p>
+
+</a>
+
+
+
+
+<a href="weather-ai.html" class="feature-card">
+
+<h2>🌦</h2>
+<h3>Weather AI</h3>
+<p>Dress according to weather</p>
+
+</a>
+
+
+
+<a href="profile.html" class="feature-card">
+
+<h2>👤</h2>
+<h3>Profile</h3>
+<p>Your style identity</p>
+
+</a>
+
+
+
+<a href="packing.html" class="feature-card">
+
+<h2>🧳</h2>
+<h3>Travel Packing</h3>
+<p>Smart packing assistant</p>
+
+</a>
+
+
+
+<a href="trend.html" class="feature-card">
+
+<h2>🔥</h2>
+<h3>Fashion Trends</h3>
+<p>Latest styles</p>
+
+</a>
+
+
+</div>
+
+
+
+
+
+
+<!-- UPLOAD -->
+
+<div class="card upload-card">
+
 
 <h1>🤖 Add Clothing With AI</h1>
+
 
 <input 
 type="file"
@@ -26,88 +189,141 @@ id="clothingImage"
 accept="image/*"
 >
 
+
 <button id="uploadBtn">
+
 ✨ Upload & Analyze
+
 </button>
+
 
 <p id="message"></p>
 
+
 </div>
 
 
 
-<!-- Dashboard -->
+
+
+
+
+<!-- DASHBOARD -->
+
+
 <div class="card">
+
 
 <h1>📊 Wardrobe Dashboard</h1>
 
-<div id="stats">
-Loading statistics...
-</div>
 
 <div class="dashboard">
 
+
 <div class="stat-card">
+
 <h3>Total Clothes</h3>
-<p id="totalClothes">0</p>
+
+<p id="totalClothes">
+0
+</p>
+
 </div>
 
 
+
 <div class="stat-card">
+
 <h3>Favourite Style</h3>
-<p id="favoriteStyle">Learning</p>
+
+<p id="favoriteStyle">
+Learning
+</p>
+
 </div>
+
 
 
 <div class="stat-card">
+
 <h3>AI Confidence</h3>
-<p id="confidence">0%</p>
-</div>
+
+<p id="confidence">
+0%
+</p>
 
 </div>
 
+
+</div>
+
+
 </div>
 
 
 
-<!-- Search -->
+
+
+
+
+
+<!-- SEARCH -->
+
+
 <input 
+
 class="search"
+
 id="search"
+
 placeholder="🔍 Search clothes"
+
 >
 
 
 
-<!-- Category Filter -->
+
 <select id="category">
+
 
 <option value="all">
 All Categories
 </option>
 
+
 <option value="Shirt">
 Shirt
 </option>
+
 
 <option value="Dress">
 Dress
 </option>
 
+
 <option value="Trouser">
 Trouser
 </option>
+
 
 <option value="Shoes">
 Shoes
 </option>
 
+
 </select>
 
 
 
-<!-- Collection -->
+
+
+
+
+<!-- COLLECTION -->
+
+
 <div class="card">
+
 
 <h1>
 👕 My Clothes Collection
@@ -124,11 +340,15 @@ Loading clothes...
 </div>
 
 
+
 </div>
+
+
 
 
 <script type="module" src="app.js"></script>
 
 
 </body>
+
 </html>
