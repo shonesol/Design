@@ -1,52 +1,295 @@
+/* ==========================================
+   FashionAI Premium Voice Assistant
+========================================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
 body{
 
-font-family:Arial;
+    font-family:'Segoe UI',Arial,sans-serif;
 
-background:#f5f0e6;
+    background:linear-gradient(135deg,#fff5ec,#ffe6f2,#eef4ff);
+
+    min-height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    padding:30px;
+
+    color:#333;
 
 }
 
+/* Voice Assistant Card */
 
 .voice-box{
 
-width:90%;
+    width:95%;
 
-max-width:600px;
+    max-width:800px;
 
-margin:auto;
+    background:white;
 
-text-align:center;
+    padding:50px;
 
-background:white;
+    border-radius:35px;
 
-padding:30px;
+    text-align:center;
 
-border-radius:20px;
+    box-shadow:0 20px 50px rgba(0,0,0,.15);
+
+    transition:.35s;
 
 }
 
+.voice-box:hover{
 
+    transform:translateY(-8px);
+
+    box-shadow:0 30px 60px rgba(0,0,0,.20);
+
+}
+
+/* Headings */
+
+.voice-box h1{
+
+    font-size:42px;
+
+    color:#7b61ff;
+
+    margin-bottom:15px;
+
+}
+
+.voice-box h2{
+
+    font-size:28px;
+
+    color:#ff5fa2;
+
+    margin-bottom:20px;
+
+}
+
+.voice-box p{
+
+    font-size:20px;
+
+    line-height:1.8;
+
+    color:#666;
+
+    margin-bottom:30px;
+
+}
+
+/* Microphone Icon */
+
+.mic{
+
+    font-size:90px;
+
+    margin:25px 0;
+
+    animation:pulse 2s infinite;
+
+}
+
+@keyframes pulse{
+
+    0%{
+
+        transform:scale(1);
+
+    }
+
+    50%{
+
+        transform:scale(1.08);
+
+    }
+
+    100%{
+
+        transform:scale(1);
+
+    }
+
+}
+
+/* Buttons */
 
 button{
 
-padding:15px;
+    padding:18px 40px;
 
-border-radius:15px;
+    margin:10px;
 
-font-size:18px;
+    border:none;
+
+    border-radius:35px;
+
+    background:linear-gradient(135deg,#ff5fa2,#7b61ff);
+
+    color:white;
+
+    font-size:20px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+    box-shadow:0 10px 25px rgba(123,97,255,.35);
 
 }
 
+button:hover{
 
+    transform:translateY(-5px) scale(1.05);
+
+    box-shadow:0 15px 35px rgba(123,97,255,.45);
+
+}
+
+/* AI Response Box */
 
 #answer{
 
-margin-top:20px;
+    margin-top:35px;
 
-padding:20px;
+    padding:30px;
 
-background:#eee;
+    background:linear-gradient(135deg,#f8f9ff,#ffffff);
 
-border-radius:15px;
+    border-radius:25px;
+
+    font-size:20px;
+
+    line-height:1.8;
+
+    color:#444;
+
+    text-align:left;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.10);
+
+    min-height:140px;
+
+    transition:.3s;
+
+}
+
+#answer:hover{
+
+    transform:translateY(-5px);
+
+}
+
+/* Listening Status */
+
+.listening{
+
+    display:inline-block;
+
+    margin-top:20px;
+
+    padding:12px 25px;
+
+    border-radius:30px;
+
+    background:#ffe6f2;
+
+    color:#ff5fa2;
+
+    font-weight:bold;
+
+    font-size:18px;
+
+}
+
+.success{
+
+    color:#22c55e;
+
+    font-weight:bold;
+
+}
+
+.error{
+
+    color:#ef4444;
+
+    font-weight:bold;
+
+}
+
+/* Mobile */
+
+@media(max-width:768px){
+
+    body{
+
+        padding:20px;
+
+    }
+
+    .voice-box{
+
+        padding:30px;
+
+    }
+
+    .voice-box h1{
+
+        font-size:32px;
+
+    }
+
+    .voice-box h2{
+
+        font-size:24px;
+
+    }
+
+    .voice-box p{
+
+        font-size:17px;
+
+    }
+
+    .mic{
+
+        font-size:70px;
+
+    }
+
+    button{
+
+        width:100%;
+
+        font-size:18px;
+
+        margin:10px 0;
+
+    }
+
+    #answer{
+
+        font-size:17px;
+
+        padding:20px;
+
+    }
 
 }
