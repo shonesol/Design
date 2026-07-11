@@ -1,4 +1,5 @@
-// FashionAI Real Weather Service
+// weather-service.js
+// FashionAI Weather Intelligence
 
 
 const WEATHER_API_KEY =
@@ -6,26 +7,76 @@ const WEATHER_API_KEY =
 
 
 
+
+
 export async function getCurrentWeather(
+
 latitude,
+
 longitude
+
 ){
+
 
 
 try{
 
 
+
 const response =
+
 await fetch(
 
-`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${WEATHER_API_KEY}`
+`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${WEATHER_API_KEY}&units=metric`
 
 );
 
 
 
+
+
 const data =
+
 await response.json();
+
+
+
+
+
+
+const condition =
+
+data.weather[0].main;
+
+
+
+
+
+
+let season="Normal";
+
+
+
+if(
+data.main.temp >= 30
+){
+
+season="Hot";
+
+
+}
+
+
+
+if(
+data.main.temp <= 18
+){
+
+season="Cold";
+
+
+}
+
 
 
 
@@ -35,22 +86,34 @@ return {
 
 
 temperature:
+
 data.main.temp,
 
 
-condition:
-data.weather[0].main,
+
+condition,
+
 
 
 description:
+
 data.weather[0].description,
 
 
-city:
-data.name
+
+humidity:
+
+data.main.humidity,
+
+
+
+season
+
 
 
 };
+
+
 
 
 
@@ -59,17 +122,39 @@ data.name
 catch(error){
 
 
+
 console.error(
-"Weather error:",
+"Weather Error:",
 error
 );
 
 
 
-return null;
+return {
+
+
+temperature:25,
+
+
+condition:"Clear",
+
+
+description:"Normal weather",
+
+
+humidity:50,
+
+
+season:"Normal"
+
+
+
+};
+
 
 
 }
+
 
 
 }
