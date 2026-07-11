@@ -10,6 +10,19 @@ occasion
 const rules={
 
 
+
+daily:[
+
+"Casual",
+
+"Smart Casual",
+
+"Minimalist"
+
+],
+
+
+
 office:[
 
 "Business",
@@ -63,17 +76,16 @@ party:[
 
 
 
+
 return (
 
 rules[
-occasion.toLowerCase()
+occasion?.toLowerCase()
 ]
 
 ||
 
-[
-"Casual"
-]
+rules.daily
 
 );
 
