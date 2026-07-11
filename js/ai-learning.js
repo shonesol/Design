@@ -1,11 +1,5 @@
 // ai-learning.js
-// FashionAI Long Term Learning Engine
-
-
-import {
-getClothes
-}
-from "./db.js";
+// FashionAI User Preference Learning Engine
 
 
 import {
@@ -15,9 +9,17 @@ from "./feedback-ai.js";
 
 
 
+import {
+getClothes
+}
+from "./db.js";
+
+
+
+
 
 // ==========================
-// MAIN LEARNING FUNCTION
+// LEARN USER FASHION
 // ==========================
 
 
@@ -26,16 +28,6 @@ export async function learnUserFashion(
 database
 
 ){
-
-
-
-const clothes =
-
-await getClothes(
-
-database
-
-);
 
 
 
@@ -51,96 +43,24 @@ database
 
 
 
-const memory = {
+const clothes =
 
+await getClothes(
 
-totalClothes:
+database
 
-clothes.length,
-
-
-
-likedOutfits:
-
-0,
-
-
-dislikedOutfits:
-
-0,
+);
 
 
 
-preferredStyles:{},
-
-
-preferredColors:{},
-
-
-preferredOccasions:{},
-
-
-};
-
-
- 
 
 
 
-// ==========================
-// LEARN FROM WARDROBE
-// ==========================
+let favoriteColors = [];
 
+let favoriteStyles = [];
 
-clothes.forEach(item=>{
-
-
-
-if(item.style){
-
-
-memory.preferredStyles[item.style] =
-
-
-(memory.preferredStyles[item.style] || 0)+1;
-
-
-
-}
-
-
-
-if(item.color){
-
-
-memory.preferredColors[item.color] =
-
-
-(memory.preferredColors[item.color] || 0)+1;
-
-
-
-}
-
-
-
-if(item.occasion){
-
-
-memory.preferredOccasions[item.occasion] =
-
-
-(memory.preferredOccasions[item.occasion] || 0)+1;
-
-
-
-}
-
-
-
-});
-
-
+let favoriteOccasions = [];
 
 
 
@@ -149,7 +69,7 @@ memory.preferredOccasions[item.occasion] =
 
 
 // ==========================
-// LEARN FROM FEEDBACK
+// ANALYZE FEEDBACK
 // ==========================
 
 
@@ -162,17 +82,85 @@ item.type==="like"
 ){
 
 
-memory.likedOutfits++;
+
+const outfit =
+item.outfit;
 
 
 
-learnOutfit(
 
-memory,
 
-item.outfit,
+collectData(
 
-3
+outfit.top.color,
+
+favoriteColors
+
+);
+
+
+
+collectData(
+
+outfit.bottom.color,
+
+favoriteColors
+
+);
+
+
+
+collectData(
+
+outfit.shoe.color,
+
+favoriteColors
+
+);
+
+
+
+
+
+
+collectData(
+
+outfit.top.style,
+
+favoriteStyles
+
+);
+
+
+
+collectData(
+
+outfit.bottom.style,
+
+favoriteStyles
+
+);
+
+
+
+collectData(
+
+outfit.shoe.style,
+
+favoriteStyles
+
+);
+
+
+
+
+
+
+collectData(
+
+outfit.top.occasion,
+
+favoriteOccasions
 
 );
 
@@ -189,23 +177,30 @@ item.type==="dislike"
 ){
 
 
-memory.dislikedOutfits++;
+
+removeData(
+
+item.outfit.top?.color,
+
+favoriteColors
+
+);
 
 
 
-learnOutfit(
+removeData(
 
-memory,
+item.outfit.top?.style,
 
-item.outfit,
-
--2
+favoriteStyles
 
 );
 
 
 
 }
+
+
 
 
 
@@ -217,20 +212,87 @@ item.outfit,
 
 
 
-// SAVE MEMORY
 
 
-await saveMemory(
+// ==========================
+// CREATE AI PROFILE
+// ==========================
+
+
+const profile = {
+
+
+favoriteColors:
+
+
+getTopResults(
+
+favoriteColors
+
+),
+
+
+
+
+favoriteStyles:
+
+
+getTopResults(
+
+favoriteStyles
+
+),
+
+
+
+
+favoriteOccasions:
+
+
+getTopResults(
+
+favoriteOccasions
+
+),
+
+
+
+
+totalClothes:
+
+clothes.length,
+
+
+
+
+lastLearning:
+
+Date.now()
+
+
+
+};
+
+
+
+
+
+
+await savePreference(
 
 database,
 
-memory
+profile
 
 );
 
 
 
-return memory;
+
+
+
+return profile;
+
 
 
 }
@@ -244,81 +306,139 @@ return memory;
 
 
 // ==========================
-// LEARN OUTFIT PATTERN
+// HELPERS
 // ==========================
 
 
-function learnOutfit(
+function collectData(
 
-memory,
+value,
 
-outfit,
-
-points
+array
 
 ){
 
 
 
-const pieces=[
-
-
-outfit.top,
-
-outfit.bottom,
-
-outfit.shoe
-
-
-];
+if(!value) return;
 
 
 
+const existing =
+
+array.find(
+
+item=>item.name===value
+
+);
 
 
-pieces.forEach(item=>{
 
 
-
-if(item.style){
-
-
-memory.preferredStyles[item.style] =
+if(existing){
 
 
-(memory.preferredStyles[item.style] || 0)
-
-+
-
-points;
-
+existing.count++;
 
 
 }
 
+else{
 
 
-if(item.color){
+array.push({
 
+name:value,
 
-memory.preferredColors[item.color] =
-
-
-(memory.preferredColors[item.color] || 0)
-
-+
-
-points;
-
-
-
-}
-
-
+count:1
 
 });
 
 
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+
+function removeData(
+
+value,
+
+array
+
+){
+
+
+
+if(!value) return;
+
+
+
+const index =
+
+array.findIndex(
+
+item=>item.name===value
+
+);
+
+
+
+if(index>=0){
+
+
+array[index].count--;
+
+
+}
+
+
+}
+
+
+
+
+
+
+
+
+
+function getTopResults(
+
+array
+
+){
+
+
+
+return array
+
+.sort(
+
+(a,b)=>
+
+b.count-a.count
+
+)
+
+.slice(0,5)
+
+.map(
+
+item=>item.name
+
+);
+
+
 
 }
 
@@ -331,15 +451,15 @@ points;
 
 
 // ==========================
-// SAVE AI MEMORY
+// SAVE AI PROFILE
 // ==========================
 
 
-function saveMemory(
+function savePreference(
 
 database,
 
-memory
+profile
 
 ){
 
@@ -371,21 +491,13 @@ transaction.objectStore(
 
 
 
+
+
 store.put({
 
-id:1,
+id:"userProfile",
 
-
-type:"fashionMemory",
-
-
-data:memory,
-
-
-updated:
-
-Date.now()
-
+...profile
 
 });
 
@@ -396,10 +508,12 @@ Date.now()
 transaction.oncomplete=()=>{
 
 
-resolve(true);
+resolve();
 
 
 };
+
+
 
 
 
@@ -407,7 +521,9 @@ transaction.onerror=()=>{
 
 
 reject(
+
 transaction.error
+
 );
 
 
@@ -416,6 +532,7 @@ transaction.error
 
 
 });
+
 
 
 }
