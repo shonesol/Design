@@ -66,7 +66,10 @@ likeOutfit,
 dislikeOutfit
 }
 from "./feedback-ai.js";
-
+import {
+scoreOutfit
+}
+from "./outfit-score.js";
 
 
 // DATABASE
