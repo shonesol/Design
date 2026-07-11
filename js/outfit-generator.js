@@ -685,7 +685,7 @@ ${explanation}
 
 </button>
 
-<button onclick='planOutfit(${JSON.stringify(outfit)})'>
+<button onclick="planOutfit(${i})">
 
 📅 Plan This Outfit
 
