@@ -1,10 +1,9 @@
 // laundry-ai.js
-// FashionAI Laundry Intelligence System
+// FashionAI Laundry Intelligence
 
 
 import {
-getClothes,
-updateClothing
+getClothes
 }
 from "./db.js";
 
@@ -12,7 +11,135 @@ from "./db.js";
 
 
 // ==========================
-// UPDATE LAUNDRY STATUS
+// AUTO CHECK LAUNDRY STATUS
+// ==========================
+
+
+export async function autoLaundryCheck(
+
+database
+
+){
+
+
+
+const clothes =
+
+await getClothes(
+
+database
+
+);
+
+
+
+
+
+clothes.forEach(item=>{
+
+
+
+let newStatus =
+
+item.laundryStatus;
+
+
+
+
+
+// After 5 wears
+
+if(
+
+item.timesWorn >= 5
+
+){
+
+
+newStatus =
+"Needs Washing";
+
+
+}
+
+
+
+
+
+// After washing
+
+if(
+
+item.lastWashed &&
+
+Date.now() -
+
+new Date(item.lastWashed).getTime()
+
+>
+
+14 *
+
+24 *
+
+60 *
+
+60 *
+
+1000
+
+){
+
+
+newStatus =
+"Needs Washing";
+
+
+}
+
+
+
+
+
+if(
+
+newStatus !== item.laundryStatus
+
+){
+
+
+
+updateLaundryStatus(
+
+database,
+
+item.id,
+
+newStatus
+
+);
+
+
+
+}
+
+
+
+});
+
+
+
+}
+
+
+
+
+
+
+
+
+// ==========================
+// UPDATE STATUS
 // ==========================
 
 
@@ -25,6 +152,7 @@ id,
 status
 
 ){
+
 
 
 return new Promise((resolve,reject)=>{
@@ -42,6 +170,7 @@ database.transaction(
 
 
 
+
 const store =
 
 transaction.objectStore(
@@ -49,6 +178,7 @@ transaction.objectStore(
 "wardrobe"
 
 );
+
 
 
 
@@ -60,10 +190,11 @@ store.get(id);
 
 
 
-request.onsuccess = ()=>{
+request.onsuccess=()=>{
 
 
 const item =
+
 request.result;
 
 
@@ -73,54 +204,29 @@ if(item){
 
 
 item.laundryStatus =
+
 status;
 
 
 
 
 
-// when washed
+if(status==="Clean"){
 
-if(
-status==="Clean"
-){
+
 
 item.lastWashed =
-new Date()
-.toISOString();
-
-
-}
-
-
-
-
-
-
-// when worn
-
-if(
-status==="Worn"
-){
-
-
-item.timesWorn =
-
-(item.timesWorn || 0) + 1;
-
-
-
-item.lastWorn =
 
 new Date()
 .toISOString();
 
 
+
+item.timesWorn = 0;
+
+
+
 }
-
-
-
-
 
 
 
@@ -132,7 +238,7 @@ store.put(item);
 
 
 
-resolve(true);
+resolve();
 
 
 
@@ -142,7 +248,7 @@ resolve(true);
 
 
 
-request.onerror = ()=>{
+request.onerror=()=>{
 
 
 reject(
@@ -166,70 +272,8 @@ request.error
 
 
 
-
 // ==========================
-// MARK OUTFIT WORN
-// ==========================
-
-
-export async function markOutfitWorn(
-
-database,
-
-outfit
-
-){
-
-
-
-const clothes=[
-
-
-outfit.top,
-
-outfit.bottom,
-
-outfit.shoe
-
-
-];
-
-
-
-
-
-for(
-const item of clothes
-){
-
-
-await updateLaundryStatus(
-
-database,
-
-item.id,
-
-"Worn"
-
-);
-
-
-}
-
-
-
-}
-
-
-
-
-
-
-
-
-
-// ==========================
-// GET AVAILABLE CLOTHES
+// AVAILABLE CLOTHES
 // ==========================
 
 
@@ -240,7 +284,6 @@ database
 ){
 
 
-
 const clothes =
 
 await getClothes(
@@ -248,8 +291,6 @@ await getClothes(
 database
 
 );
-
-
 
 
 
@@ -266,7 +307,6 @@ item.laundryStatus==="Ready"
 );
 
 
-
 }
 
 
@@ -276,81 +316,8 @@ item.laundryStatus==="Ready"
 
 
 
-
 // ==========================
-// SEND ITEM TO LAUNDRY
-// ==========================
-
-
-export async function sendToLaundry(
-
-database,
-
-item
-
-){
-
-
-
-await updateLaundryStatus(
-
-database,
-
-item.id,
-
-"Dirty"
-
-);
-
-
-}
-
-
-
-
-
-
-
-
-
-// ==========================
-// MARK CLOTHES CLEAN
-// ==========================
-
-
-export async function markClean(
-
-database,
-
-item
-
-){
-
-
-
-await updateLaundryStatus(
-
-database,
-
-item.id,
-
-"Clean"
-
-);
-
-
-}
-
-
-
-
-
-
-
-
-
-// ==========================
-// LAUNDRY ADVICE AI
+// LAUNDRY ADVICE
 // ==========================
 
 
@@ -359,36 +326,17 @@ export function laundryAdvice(item){
 
 
 if(
-item.timesWorn >= 5
+
+item.laundryStatus==="Needs Washing"
+
 ){
 
 
 return `
 
-🧺 Wash recommended.
+🧺 Wash this item.
 
-${item.name || item.type}
-
-has been worn ${item.timesWorn} times.
-
-`;
-
-
-
-}
-
-
-
-
-
-if(
-item.laundryStatus==="Dirty"
-){
-
-
-return `
-
-⚠️ This item needs washing before FashionAI recommends it.
+Worn ${item.timesWorn || 0} times.
 
 `;
 
@@ -402,9 +350,7 @@ return `
 
 return `
 
-✅ ${item.name || item.type}
-
-is ready for your next outfit.
+✅ Ready to wear.
 
 `;
 
