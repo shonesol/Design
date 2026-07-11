@@ -2,6 +2,19 @@
 // FashionAI User Style Intelligence
 
 
+import {
+getLearningData
+}
+from "./feedback-ai.js";
+
+
+import {
+savePreference
+}
+from "./db.js";
+
+
+
 
 // ==========================
 // ANALYZE USER STYLE
@@ -23,7 +36,6 @@ await getPreference(
 database
 
 );
-
 
 
 
@@ -64,7 +76,6 @@ confidence:0
 
 
 
-
 const personality =
 
 detectFashionPersonality(
@@ -72,7 +83,6 @@ detectFashionPersonality(
 profile
 
 );
-
 
 
 
@@ -128,6 +138,221 @@ profile
 
 
 // ==========================
+// UPDATE STYLE MEMORY FROM FEEDBACK
+// ==========================
+
+
+export async function updateStyleMemory(
+
+database
+
+){
+
+
+
+const feedback =
+
+await getLearningData(
+
+database
+
+);
+
+
+
+
+
+let colors = {};
+
+let styles = {};
+
+let occasions = {};
+
+
+
+
+
+
+feedback.forEach(item=>{
+
+
+
+if(item.type==="like"){
+
+
+
+const outfit =
+
+item.outfit;
+
+
+
+
+
+[
+outfit.top,
+
+outfit.bottom,
+
+outfit.shoe
+
+]
+
+.forEach(piece=>{
+
+
+
+if(piece.color){
+
+
+
+colors[piece.color] =
+
+(colors[piece.color] || 0)+1;
+
+
+
+}
+
+
+
+
+
+
+if(piece.style){
+
+
+
+styles[piece.style] =
+
+(styles[piece.style] || 0)+1;
+
+
+
+}
+
+
+
+});
+
+
+
+}
+
+
+
+});
+
+
+
+
+
+
+
+
+const profile = {
+
+
+
+favoriteColors:
+
+Object.keys(colors)
+
+.sort(
+
+(a,b)=>
+
+colors[b]-colors[a]
+
+)
+
+.slice(0,5),
+
+
+
+
+
+favoriteStyles:
+
+Object.keys(styles)
+
+.sort(
+
+(a,b)=>
+
+styles[b]-styles[a]
+
+)
+
+.slice(0,5),
+
+
+
+
+
+favoriteOccasions:
+
+Object.keys(occasions)
+
+.sort(
+
+(a,b)=>
+
+occasions[b]-occasions[a]
+
+)
+
+.slice(0,5),
+
+
+
+
+
+updatedAt:
+
+Date.now()
+
+
+
+};
+
+
+
+
+
+
+
+
+await savePreference(
+
+database,
+
+"userProfile",
+
+profile
+
+);
+
+
+
+
+
+
+return profile;
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// ==========================
 // GET AI PROFILE
 // ==========================
 
@@ -167,6 +392,7 @@ transaction.objectStore(
 
 
 
+
 const request =
 
 store.get(
@@ -179,7 +405,9 @@ store.get(
 
 
 
+
 request.onsuccess=()=>{
+
 
 
 resolve(
@@ -189,7 +417,9 @@ request.result
 );
 
 
+
 };
+
 
 
 
@@ -198,11 +428,13 @@ request.result
 request.onerror=()=>{
 
 
+
 reject(
 
 request.error
 
 );
+
 
 
 };
@@ -260,6 +492,8 @@ return "Luxury Fashion Lover";
 
 
 
+
+
 if(
 styles.includes("Streetwear")
 
@@ -270,6 +504,8 @@ return "Urban Trendsetter";
 
 
 }
+
+
 
 
 
@@ -290,6 +526,8 @@ return "Cultural Fashion Explorer";
 
 
 
+
+
 if(
 styles.includes("Formal")
 
@@ -305,6 +543,8 @@ return "Professional Elegant";
 
 
 
+
+
 if(
 styles.includes("Casual")
 
@@ -315,6 +555,8 @@ return "Comfort Fashion Lover";
 
 
 }
+
+
 
 
 
@@ -347,31 +589,47 @@ profile
 
 
 
-let score=0;
+let score = 0;
+
+
 
 
 
 if(
+
 profile.favoriteColors?.length
+
 )
 
-score+=30;
+score += 30;
+
+
+
 
 
 
 if(
+
 profile.favoriteStyles?.length
+
 )
 
-score+=40;
+score += 40;
+
+
+
 
 
 
 if(
+
 profile.favoriteOccasions?.length
+
 )
 
-score+=30;
+score += 30;
+
+
 
 
 
