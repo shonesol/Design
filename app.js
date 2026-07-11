@@ -1,56 +1,59 @@
-import {initializeApp}
-from
+import { initializeApp } from 
 "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 
-
 import {
-
 getFirestore,
 collection,
 addDoc,
 getDocs
-
 }
-from
+from 
 "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
-
+// Firebase Configuration
 const firebaseConfig = {
-    apiKey: "YOUR_FIREBASE_API_KEY",
-    authDomain: "design-a0e45.firebaseapp.com",
-    projectId: "design-a0e45",
-    storageBucket: "design-a0e45.appspot.com",
-    messagingSenderId: "752963168855",
-    appId: "1:752963168855:web:660513e16f91108e489112"
-};
 
+apiKey: "YOUR_REAL_API_KEY",
+
+authDomain: "design-a0e45.firebaseapp.com",
+
+projectId: "design-a0e45",
+
+storageBucket: "design-a0e45.appspot.com",
+
+messagingSenderId: "752963168855",
+
+appId: "1:752963168855:web:660513e16f91108e489112"
+
+};
 
 
 const app = initializeApp(firebaseConfig);
 
-
 const db = getFirestore(app);
 
 
+// HTML Elements
 
-const uploadBtn =
-document.getElementById("uploadBtn");
+const uploadBtn = document.getElementById("uploadBtn");
 
+const imageInput = document.getElementById("clothingImage");
 
-const imageInput =
-document.getElementById("clothingImage");
+const message = document.getElementById("message");
 
+const list = document.getElementById("clothesList");
 
-const message =
-document.getElementById("message");
-
-
-
-uploadBtn.onclick = async()=>{
+const stats = document.getElementById("stats");
 
 
-let file=imageInput.files[0];
+
+// Upload Clothing
+
+uploadBtn.addEventListener("click", async()=>{
+
+
+const file = imageInput.files[0];
 
 
 if(!file){
@@ -67,16 +70,15 @@ message.innerHTML="🤖 AI analysing...";
 
 
 
-let clothing={
+const clothing = {
 
 name:file.name,
 
 category:"Unknown",
 
-date:new Date()
+createdAt:new Date()
 
 };
-
 
 
 
@@ -100,7 +102,6 @@ message.innerHTML=
 loadWardrobe();
 
 
-
 }
 
 catch(error){
@@ -113,23 +114,15 @@ message.innerHTML=
 }
 
 
-};
+});
 
 
 
 
 
+// Load Clothes
 
 async function loadWardrobe(){
-
-
-const list =
-document.getElementById("clothesList");
-
-
-const stats =
-document.getElementById("stats");
-
 
 
 list.innerHTML="";
@@ -138,12 +131,14 @@ list.innerHTML="";
 try{
 
 
-const snapshot =
-await getDocs(collection(db,"clothes"));
+const snapshot = await getDocs(
+collection(db,"clothes")
+);
 
 
 
 let count=0;
+
 
 
 snapshot.forEach((doc)=>{
@@ -152,23 +147,19 @@ snapshot.forEach((doc)=>{
 count++;
 
 
-let data=doc.data();
+const data = doc.data();
 
 
 
-list.innerHTML +=
-
-`
+list.innerHTML += `
 
 <div class="cloth">
 
 <h3>${data.name}</h3>
 
 <p>
-Category:
-${data.category}
+Category: ${data.category}
 </p>
-
 
 </div>
 
@@ -181,10 +172,7 @@ ${data.category}
 
 
 stats.innerHTML=
-
-`
-Total Clothes: ${count}
-`;
+"Total Clothes: " + count;
 
 
 
@@ -200,9 +188,10 @@ stats.innerHTML=
 }
 
 
-
 }
 
 
+
+// Start App
 
 loadWardrobe();
