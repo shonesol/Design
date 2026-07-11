@@ -27,6 +27,10 @@ analyzeUserStyle
 }
 from "./style-learning.js";
 
+import {
+learnUserFashion
+}
+from "./ai-learning.js";
 
 import {
 checkRecentlyWorn
