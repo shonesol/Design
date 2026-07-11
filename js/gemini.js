@@ -1,21 +1,29 @@
 // gemini.js
 // FashionAI Secure Gemini Connection
+// Frontend connects to Cloudflare Worker
+// Gemini API key stays on Cloudflare
 
 
-const AI_SERVER =
-
+const AI_SERVER = 
 "https://fashionai-api.shonesol28.workers.dev/";
 
 
 
 
+// ==========================
+// SEND REQUEST TO GEMINI
+// ==========================
+
 export async function askGemini(
 
 prompt,
 
-imageBase64=null
+imageBase64 = null
 
 ){
+
+
+try{
 
 
 const response = await fetch(
@@ -24,9 +32,7 @@ AI_SERVER,
 
 {
 
-
 method:"POST",
-
 
 headers:{
 
@@ -37,7 +43,7 @@ headers:{
 
 body:JSON.stringify({
 
-prompt,
+prompt:prompt,
 
 image:imageBase64
 
@@ -51,21 +57,102 @@ image:imageBase64
 
 
 
-const data = await response.json();
 
+// Check server response
 
+if(!response.ok){
 
-if(data.error){
 
 throw new Error(
-data.error
+
+"AI Server Error: " + response.status
+
 );
+
 
 }
 
 
 
+
+
+
+const data = await response.json();
+
+
+
+
+
+
+if(data.error){
+
+
+throw new Error(
+
+data.error
+
+);
+
+
+}
+
+
+
+
+
+
+if(!data.result){
+
+
+throw new Error(
+
+"No AI response received"
+
+);
+
+
+}
+
+
+
+
+
+
+console.log(
+
+"🤖 FashionAI Gemini Response:",
+
+data.result
+
+);
+
+
+
+
+
+
 return data.result;
+
+
+
+}
+
+catch(error){
+
+
+console.error(
+
+"❌ FashionAI Gemini Error:",
+
+error
+
+);
+
+
+throw error;
+
+
+}
 
 
 }
