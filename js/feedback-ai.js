@@ -1,64 +1,318 @@
 // feedback-ai.js
-
-import {
-saveFeedback,
-getFeedback
-}
-from "./db.js";
+// FashionAI Preference Learning Memory
 
 
+// ==========================
+// SAVE LIKE
+// ==========================
 
-// User likes outfit
 
 export async function likeOutfit(
+
 db,
+
 outfit
+
 ){
 
-await saveFeedback(db,{
+
+return saveFeedback(
+
+db,
+
+{
 
 type:"like",
 
-outfit,
+outfit:extractOutfitData(outfit),
 
 date:Date.now()
 
-});
+}
+
+);
+
 
 }
 
 
 
 
-// User dislikes outfit
+
+
+
+// ==========================
+// SAVE DISLIKE
+// ==========================
+
 
 export async function dislikeOutfit(
+
 db,
+
 outfit
+
 ){
 
-await saveFeedback(db,{
+
+return saveFeedback(
+
+db,
+
+{
 
 type:"dislike",
 
-outfit,
+outfit:extractOutfitData(outfit),
 
 date:Date.now()
 
-});
+}
+
+);
+
 
 }
 
 
 
 
-// Read all feedback
 
-export async function getLearningData(db){
 
-const data =
-await getFeedback(db);
 
-return data;
+
+
+// ==========================
+// SAVE FEEDBACK
+// ==========================
+
+
+function saveFeedback(
+
+db,
+
+data
+
+){
+
+
+return new Promise((resolve,reject)=>{
+
+
+const transaction =
+
+db.transaction(
+
+"feedback",
+
+"readwrite"
+
+);
+
+
+
+const store =
+
+transaction.objectStore(
+
+"feedback"
+
+);
+
+
+
+const request =
+
+store.add(data);
+
+
+
+
+
+request.onsuccess=()=>{
+
+
+resolve(
+
+request.result
+
+);
+
+
+};
+
+
+
+
+
+request.onerror=()=>{
+
+
+reject(
+
+request.error
+
+);
+
+
+};
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+
+// ==========================
+// GET LEARNING DATA
+// ==========================
+
+
+export function getLearningData(db){
+
+
+return new Promise((resolve,reject)=>{
+
+
+const transaction =
+
+db.transaction(
+
+"feedback",
+
+"readonly"
+
+);
+
+
+
+const store =
+
+transaction.objectStore(
+
+"feedback"
+
+);
+
+
+
+const request =
+
+store.getAll();
+
+
+
+
+
+request.onsuccess=()=>{
+
+
+resolve(
+
+request.result || []
+
+);
+
+
+};
+
+
+
+
+
+request.onerror=()=>{
+
+
+reject(
+
+request.error
+
+);
+
+
+};
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+
+// ==========================
+// EXTRACT IMPORTANT STYLE DATA
+// ==========================
+
+
+function extractOutfitData(outfit){
+
+
+return {
+
+
+top:{
+
+name:
+outfit.top?.name,
+
+color:
+outfit.top?.color,
+
+style:
+outfit.top?.style
+
+},
+
+
+
+bottom:{
+
+name:
+outfit.bottom?.name,
+
+color:
+outfit.bottom?.color,
+
+style:
+outfit.bottom?.style
+
+},
+
+
+
+shoe:{
+
+name:
+outfit.shoe?.name,
+
+color:
+outfit.shoe?.color,
+
+style:
+outfit.shoe?.style
+
+}
+
+
+
+};
+
 
 }
