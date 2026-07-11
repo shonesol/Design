@@ -1,7 +1,6 @@
 
 import {auth} from "./firebase.js";
 
-
 import {
 onAuthStateChanged
 }
@@ -11,14 +10,23 @@ from
 
 import {
 openDatabase,
-getClothes
+getClothes,
+saveWearHistory
 }
 from "./db.js";
+
 
 import {
 analyzeUserStyle
 }
 from "./style-learning.js";
+
+
+import {
+checkRecentlyWorn
+}
+from "./history-ai.js";
+
 
 import {
 getUserLocation
@@ -31,24 +39,15 @@ getCurrentWeather
 }
 from "./weather-service.js";
 
-import {
-getWeatherAdvice
-}
-from "./weather-ai.js";
-
 
 import {
 getOccasionStyle
 }
 from "./occasion-ai.js";
 
-import {
-checkRecentlyWorn
-}
-from "./history-ai.js";
 
-let database = null;
 
+let database=null;
 
 
 
@@ -432,62 +431,53 @@ Math.round(score/2)
 // GENERATE OUTFITS
 // ==========================
 
-
 button.onclick =
 async()=>{
 
 
-
 if(!database){
-
 
 output.innerHTML=
 "Loading wardrobe...";
 
-
 return;
 
-
 }
-
-
 
 
 
 const clothes =
-await getClothes(
-database
-);
+await getClothes(database);
+
+
 
 const profile =
-await analyzeUserStyle(
-database
-);
-
-
-
-const available =
-clothes.filter(
-item=>
-
-item.laundryStatus==="Clean"
-
-||
-item.laundryStatus==="Ready"
-
-);
+await analyzeUserStyle(database);
 
 
 
 
 
+const occasion =
+document
+.getElementById("occasion")
+.value;
 
 
-const tops =
-available.filter(
-item=>
 
-item.category==="Top"
+
+
+const location =
+await getUserLocation();
+
+
+
+const weather =
+await getCurrentWeather(
+
+location.latitude,
+
+location.longitude
 
 );
 
@@ -495,94 +485,80 @@ item.category==="Top"
 
 
 
-
-const bottoms =
-available.filter(
-item=>
-
-item.category==="Bottom"
-
+const occasionStyles =
+getOccasionStyle(
+occasion
 );
 
 
 
-
-
-
-const shoes =
-available.filter(
-item=>
-
-item.category==="Shoes"
-
+generateOutfits(
+clothes,
+profile,
+weather,
+occasionStyles
 );
 
 
-
-
-
-
-
-if(
-tops.length===0 ||
-bottoms.length===0 ||
-shoes.length===0
+};
+async function generateOutfits(
+clothes,
+profile,
+weather,
+occasionStyles
 ){
-
-
-output.innerHTML=
-`
-
-<h3>
-Need more clothes
-</h3>
-
-<p>
-Upload tops, bottoms and shoes.
-</p>
-
-`;
-
-
-return;
-
-
-}
-
-
-
-
-
 
 
 let outfits=[];
 
 
-
-
-
-
-
-tops.forEach(top=>{
-
-
-bottoms.forEach(bottom=>{
-
-
-shoes.forEach(shoe=>{
-
-
-const score =
-scoreOutfit(
-top,
-bottom,
-shoe,
-profile
+const tops =
+clothes.filter(
+c=>c.category==="Top"
 );
 
 
 
-let alreadyWorn =
+const bottoms =
+clothes.filter(
+c=>c.category==="Bottom"
+);
+
+
+
+const shoes =
+clothes.filter(
+c=>c.category==="Shoes"
+);
+
+
+
+
+
+for(const top of tops){
+
+
+for(const bottom of bottoms){
+
+
+for(const shoe of shoes){
+
+
+
+let score =
+scoreOutfit(
+top,
+bottom,
+shoe,
+profile,
+weather,
+occasionStyles
+);
+
+
+
+
+let worn =
 await checkRecentlyWorn(
 database,
 {
@@ -594,19 +570,15 @@ shoe
 
 
 
-if(!alreadyWorn){
+if(!worn){
 
 
 outfits.push({
 
 top,
-
 bottom,
-
 shoe,
-
 score
-
 
 });
 
@@ -615,6 +587,12 @@ score
 
 
 
+}
+
+
+}
+
+}
 
 
 
@@ -625,23 +603,12 @@ b.score-a.score
 
 
 
+displayOutfits(
+outfits.slice(0,5)
+);
 
 
-
-
-
-output.innerHTML="";
-
-
-
-
-
-
-outfits
-.slice(0,5)
-.forEach(outfit=>{
-
-
+}
 
 output.innerHTML += `
 
