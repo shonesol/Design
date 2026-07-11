@@ -61,6 +61,11 @@ explainOutfit
 }
 from "./fashion-stylist-ai.js";
 
+import {
+likeOutfit,
+dislikeOutfit
+}
+from "./feedback-ai.js";
 
 
 
@@ -915,9 +920,15 @@ ${explanation}
 
 
 <button onclick='wearOutfit(${JSON.stringify(outfit)})'>
-
 👕 Wear This Outfit
+</button>
 
+<button onclick='loveOutfit(${JSON.stringify(outfit)})'>
+❤️ Love It
+</button>
+
+<button onclick='hateOutfit(${JSON.stringify(outfit)})'>
+❌ Don't Like
 </button>
 
 
@@ -969,5 +980,34 @@ alert(
 );
 
 
+
+};
+window.loveOutfit =
+async function(outfit){
+
+await likeOutfit(
+database,
+outfit
+);
+
+alert(
+"❤️ FashionAI learned that you like this outfit."
+);
+
+};
+
+
+
+window.hateOutfit =
+async function(outfit){
+
+await dislikeOutfit(
+database,
+outfit
+);
+
+alert(
+"❌ FashionAI will avoid recommending similar outfits."
+);
 
 };
