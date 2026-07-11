@@ -1,11 +1,7 @@
 // database-manager.js
-// FashionAI IndexedDB Manager
+// FashionAI Local Phone Storage Manager
 
-
-let database = null;
-
-const DATABASE_VERSION = 6;
-
+const DATABASE_VERSION = 1;
 
 
 export function getDatabase(userId){
@@ -16,7 +12,7 @@ return new Promise((resolve,reject)=>{
 if(!userId){
 
 reject(
-"No user ID"
+new Error("User ID missing")
 );
 
 return;
@@ -24,84 +20,79 @@ return;
 }
 
 
+const databaseName =
+"FashionAI_" + userId;
 
-const request = indexedDB.open(
 
-"FashionAI_" + userId,
 
+const request =
+indexedDB.open(
+databaseName,
 DATABASE_VERSION
-
 );
 
 
 
+request.onupgradeneeded=(event)=>{
 
 
-request.onupgradeneeded = (event)=>{
+const db =
+event.target.result;
 
 
-const db = event.target.result;
 
-
+// CLOTHING STORAGE
 
 if(!db.objectStoreNames.contains("wardrobe")){
 
 
-const store =
+const wardrobe =
 db.createObjectStore(
-
 "wardrobe",
-
 {
 keyPath:"id",
 autoIncrement:true
 }
-
 );
 
 
-store.createIndex(
+
+wardrobe.createIndex(
 "category",
 "category"
 );
 
 
-store.createIndex(
+
+wardrobe.createIndex(
 "color",
 "color"
 );
 
 
-store.createIndex(
-"style",
-"style"
-);
 
-
-store.createIndex(
+wardrobe.createIndex(
 "laundryStatus",
 "laundryStatus"
 );
 
 
+
 }
 
 
 
-
+// HISTORY
 
 if(!db.objectStoreNames.contains("history")){
 
 
 db.createObjectStore(
-
 "history",
-
 {
 keyPath:"id",
 autoIncrement:true
 }
-
 );
 
 
@@ -109,20 +100,17 @@ autoIncrement:true
 
 
 
-
+// OUTFIT PLANS
 
 if(!db.objectStoreNames.contains("plans")){
 
 
 db.createObjectStore(
-
 "plans",
-
 {
 keyPath:"id",
 autoIncrement:true
 }
-
 );
 
 
@@ -130,81 +118,56 @@ autoIncrement:true
 
 
 
-
+// AI MEMORY
 
 if(!db.objectStoreNames.contains("preferences")){
 
 
 db.createObjectStore(
-
 "preferences",
-
 {
 keyPath:"id"
-
 }
-
 );
 
 
 }
 
 
-
 };
 
 
 
-
-
-request.onsuccess=(event)=>{
-
-
-database =
-event.target.result;
+request.onsuccess=()=>{
 
 
 console.log(
-"✅ IndexedDB Connected"
+"✅ FashionAI Storage Ready:",
+databaseName
 );
 
 
-resolve(database);
+resolve(
+request.result
+);
 
 
 };
-
-
 
 
 
 request.onerror=()=>{
 
 
-reject(request.error);
+reject(
+request.error
+);
 
 
 };
 
 
-
 });
-
-}
-
-
-
-
-export function closeDatabase(){
-
-
-if(database){
-
-database.close();
-
-database=null;
-
-}
 
 
 }
