@@ -9,6 +9,7 @@ from "./database-manager.js";
 
 
 import {
+getClothes,
 saveOutfitPlan,
 getOutfitPlans,
 deleteOutfitPlan
@@ -42,13 +43,17 @@ from "./location.js";
 
 
 
+
 // ==========================
 // DATABASE
 // ==========================
 
 
 const database =
+
 await getDatabase();
+
+
 
 
 
@@ -65,33 +70,42 @@ let currentWeather = null;
 
 
 
+
 // ==========================
 // ELEMENTS
 // ==========================
 
 
 const generateButton =
+
 document.getElementById(
 "generatePlan"
 );
 
 
+
 const saveButton =
+
 document.getElementById(
 "savePlan"
 );
 
 
+
 const output =
+
 document.getElementById(
 "generatedOutfit"
 );
 
 
+
 const plans =
+
 document.getElementById(
 "plansList"
 );
+
 
 
 
@@ -111,11 +125,13 @@ try{
 
 
 const location =
+
 await getUserLocation();
 
 
 
 currentWeather =
+
 await getCurrentWeather(
 
 location.latitude,
@@ -126,8 +142,7 @@ location.longitude
 
 
 
-document
-.getElementById(
+document.getElementById(
 "weatherBox"
 )
 .innerHTML =
@@ -144,7 +159,7 @@ ${currentWeather.temperature}°
 
 <br>
 
-Season:
+🍂 Season:
 ${currentWeather.season}
 
 `;
@@ -156,8 +171,7 @@ ${currentWeather.season}
 catch(error){
 
 
-document
-.getElementById(
+document.getElementById(
 "weatherBox"
 )
 .innerHTML =
@@ -166,7 +180,6 @@ document
 
 
 }
-
 
 
 }
@@ -181,19 +194,20 @@ loadWeather();
 
 
 
+
 // ==========================
 // GENERATE OUTFIT
 // ==========================
 
 
 generateButton.onclick =
+
 async()=>{
 
 
 const occasion =
 
-document
-.getElementById(
+document.getElementById(
 "planOccasion"
 )
 .value;
@@ -242,17 +256,18 @@ item.category==="Shoes"
 
 
 
-
 if(
 
 tops.length===0 ||
+
 bottoms.length===0 ||
+
 shoes.length===0
 
 ){
 
 
-output.innerHTML=
+output.innerHTML =
 
 `
 
@@ -261,9 +276,7 @@ Upload more clothes first
 </h3>
 
 <p>
-
-Need tops, bottoms and shoes.
-
+FashionAI needs tops, bottoms and shoes.
 </p>
 
 `;
@@ -278,12 +291,13 @@ return;
 
 
 
-
 const styles =
 
 getOccasionStyle(
 occasion
 );
+
+
 
 
 
@@ -328,6 +342,7 @@ styles
 
 
 
+
 if(score > highest){
 
 
@@ -366,9 +381,8 @@ score
 
 
 
+
 selectedOutfit = best;
-
-
 
 
 
@@ -387,14 +401,13 @@ best
 
 
 
+
 // ==========================
-// DISPLAY OUTFIT
+// DISPLAY GENERATED OUTFIT
 // ==========================
 
 
-function displayGeneratedOutfit(
-outfit
-){
+function displayGeneratedOutfit(outfit){
 
 
 if(!outfit){
@@ -405,7 +418,7 @@ return;
 
 
 
-output.innerHTML=
+output.innerHTML =
 
 `
 
@@ -436,15 +449,15 @@ ${outfit.score}%
 
 <p>
 
-👕 ${outfit.top.name}
+👕 ${outfit.top.name || outfit.top.type}
 
 <br>
 
-👖 ${outfit.bottom.name}
+👖 ${outfit.bottom.name || outfit.bottom.type}
 
 <br>
 
-👟 ${outfit.shoe.name}
+👟 ${outfit.shoe.name || outfit.shoe.type}
 
 </p>
 
@@ -457,12 +470,16 @@ ${outfit.score}%
 
 
 
+
+
+
 // ==========================
 // SAVE PLAN
 // ==========================
 
 
 saveButton.onclick =
+
 async()=>{
 
 
@@ -476,6 +493,7 @@ alert(
 
 return;
 
+
 }
 
 
@@ -485,26 +503,25 @@ const plan = {
 
 date:
 
-document
-.getElementById(
+document.getElementById(
 "planDate"
 )
 .value,
 
 
+
 occasion:
 
-document
-.getElementById(
+document.getElementById(
 "planOccasion"
 )
 .value,
 
 
+
 notes:
 
-document
-.getElementById(
+document.getElementById(
 "planNotes"
 )
 .value,
@@ -512,6 +529,7 @@ document
 
 
 outfit:selectedOutfit,
+
 
 
 createdAt:Date.now()
@@ -522,14 +540,23 @@ createdAt:Date.now()
 
 
 
-await savePlan(
+
+await saveOutfitPlan(
+
+database,
+
 plan
+
 );
 
 
 
+
+
 alert(
+
 "✅ Outfit planned successfully"
+
 );
 
 
@@ -537,65 +564,10 @@ alert(
 loadPlans();
 
 
+
 };
 
 
-
-
-
-
-
-// ==========================
-// SAVE TO DATABASE
-// ==========================
-
-
-function savePlan(plan){
-
-
-return new Promise(
-(resolve,reject)=>{
-
-
-const transaction =
-
-database.transaction(
-
-"plans",
-
-"readwrite"
-
-);
-
-
-
-const store =
-
-transaction.objectStore(
-"plans"
-);
-
-
-
-const request =
-
-store.add(plan);
-
-
-
-request.onsuccess=()=>resolve();
-
-
-
-request.onerror=()=>reject(
-request.error
-);
-
-
-
-});
-
-}
 
 
 
@@ -611,41 +583,25 @@ request.error
 async function loadPlans(){
 
 
-const transaction =
+const data =
 
-database.transaction(
-"plans",
-"readonly"
+await getOutfitPlans(
+
+database
+
 );
 
 
 
-const store =
-
-transaction.objectStore(
-"plans"
-);
-
-
-
-const request =
-store.getAll();
-
-
-
-request.onsuccess=()=>{
-
-
-displayPlans(
-request.result
-);
-
-
-};
+displayPlans(data);
 
 
 
 }
+
+
+
+
 
 
 
@@ -666,7 +622,7 @@ plans.innerHTML="";
 if(data.length===0){
 
 
-plans.innerHTML=
+plans.innerHTML =
 
 `
 
@@ -681,6 +637,7 @@ No outfit plans yet.
 return;
 
 }
+
 
 
 
@@ -701,6 +658,7 @@ plans.innerHTML +=
 </h3>
 
 
+
 <p>
 
 Occasion:
@@ -709,19 +667,28 @@ ${plan.occasion}
 </p>
 
 
+
 <p>
 
-👕 ${plan.outfit.top.name}
+👕 ${plan.outfit.top.name || plan.outfit.top.type}
 
 <br>
 
-👖 ${plan.outfit.bottom.name}
+👖 ${plan.outfit.bottom.name || plan.outfit.bottom.type}
 
 <br>
 
-👟 ${plan.outfit.shoe.name}
+👟 ${plan.outfit.shoe.name || plan.outfit.shoe.type}
 
 </p>
+
+
+
+<button onclick="removePlan(${plan.id})">
+
+🗑 Delete Plan
+
+</button>
 
 
 </div>
@@ -732,6 +699,49 @@ ${plan.occasion}
 
 
 }
+
+
+
+
+
+
+
+
+
+// ==========================
+// DELETE PLAN
+// ==========================
+
+
+window.removePlan =
+
+async function(id){
+
+
+await deleteOutfitPlan(
+
+database,
+
+id
+
+);
+
+
+
+alert(
+
+"✅ Plan deleted"
+
+);
+
+
+
+loadPlans();
+
+
+};
+
+
 
 
 
