@@ -94,7 +94,7 @@ user.uid
 
 
 
-database = await getDatabase();
+database = await getDatabase(user.uid);
 
 
 
