@@ -1,20 +1,213 @@
 body{
 
-font-family:Arial;
+font-family:'Segoe UI', Arial, sans-serif;
 
-background:#f5f0e6;
+background:
+linear-gradient(135deg,#f5f0e6,#ffe4f0);
+
+margin:0;
+
+padding:0;
+
+}
+
+
+/* Main Chat Box */
+
+.chat-container{
+
+width:95%;
+
+max-width:900px;
+
+margin:40px auto;
+
+background:white;
+
+padding:25px;
+
+border-radius:25px;
+
+box-shadow:
+0 15px 35px rgba(0,0,0,0.15);
 
 }
 
 
 
+
+/* Messages Area */
+
+#messages{
+
+background:#fafafa;
+
+padding:25px;
+
+height:550px;
+
+overflow-y:auto;
+
+border-radius:20px;
+
+font-size:18px;
+
+line-height:1.6;
+
+}
+
+
+
+
+/* Chat Messages */
+
+.ai-message,
+.user-message{
+
+
+padding:18px 22px;
+
+margin:15px 0;
+
+border-radius:20px;
+
+max-width:85%;
+
+font-size:18px;
+
+box-shadow:
+0 5px 15px rgba(0,0,0,.08);
+
+}
+
+
+
+/* AI */
+
+.ai-message{
+
+background:
+linear-gradient(
+135deg,
+#eee,
+#ffffff
+);
+
+color:#333;
+
+}
+
+
+
+/* User */
+
+.user-message{
+
+background:
+linear-gradient(
+135deg,
+#d9fdd3,
+#baf5c1
+);
+
+margin-left:auto;
+
+text-align:right;
+
+}
+
+
+
+
+/* Input Area */
+
+input{
+
+
+width:75%;
+
+padding:18px;
+
+font-size:18px;
+
+border-radius:30px;
+
+border:2px solid #ddd;
+
+outline:none;
+
+}
+
+
+
+
+input:focus{
+
+border-color:#ff5fa2;
+
+}
+
+
+
+/* Button */
+
+
+button{
+
+
+width:20%;
+
+padding:18px;
+
+font-size:18px;
+
+font-weight:bold;
+
+border:none;
+
+border-radius:30px;
+
+cursor:pointer;
+
+
+background:
+linear-gradient(
+135deg,
+#ff5fa2,
+#7b61ff
+);
+
+
+color:white;
+
+
+transition:.3s;
+
+
+}
+
+
+
+button:hover{
+
+transform:scale(1.05);
+
+}
+
+
+
+
+/* Mobile Design */
+
+
+@media(max-width:600px){
+
+
 .chat-container{
 
-width:90%;
+width:95%;
 
-max-width:600px;
-
-margin:auto;
+padding:15px;
 
 }
 
@@ -22,44 +215,9 @@ margin:auto;
 
 #messages{
 
-background:white;
+height:450px;
 
-padding:20px;
-
-height:400px;
-
-overflow:auto;
-
-border-radius:15px;
-
-}
-
-
-
-.ai-message,
-.user-message{
-
-padding:12px;
-
-margin:10px;
-
-border-radius:10px;
-
-}
-
-
-
-.ai-message{
-
-background:#eee;
-
-}
-
-
-
-.user-message{
-
-background:#d9fdd3;
+font-size:16px;
 
 }
 
@@ -67,9 +225,9 @@ background:#d9fdd3;
 
 input{
 
-width:70%;
+width:65%;
 
-padding:12px;
+font-size:16px;
 
 }
 
@@ -77,6 +235,11 @@ padding:12px;
 
 button{
 
-padding:12px;
+width:30%;
+
+font-size:16px;
+
+}
+
 
 }
