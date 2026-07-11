@@ -563,3 +563,168 @@ reject(request.error);
 
 
 }
+// ==========================
+// SAVE WEAR HISTORY + UPDATE CLOTHES
+// ==========================
+
+export async function saveWearHistory(
+
+database,
+
+outfit
+
+){
+
+
+return new Promise((resolve,reject)=>{
+
+
+const transaction =
+
+database.transaction(
+
+["history","wardrobe"],
+
+"readwrite"
+
+);
+
+
+
+const historyStore =
+
+transaction.objectStore(
+"history"
+);
+
+
+
+const wardrobeStore =
+
+transaction.objectStore(
+"wardrobe"
+);
+
+
+
+
+
+const record = {
+
+
+outfit,
+
+
+date:
+
+Date.now()
+
+
+};
+
+
+
+
+
+historyStore.add(record);
+
+
+
+
+
+
+[
+outfit.top,
+
+outfit.bottom,
+
+outfit.shoe
+
+]
+.forEach(item=>{
+
+
+if(item.id){
+
+
+const request =
+
+wardrobeStore.get(
+item.id
+);
+
+
+
+request.onsuccess=()=>{
+
+
+const clothing =
+
+request.result;
+
+
+
+if(clothing){
+
+
+clothing.timesWorn =
+
+(clothing.timesWorn || 0) + 1;
+
+
+
+clothing.lastWorn =
+
+Date.now();
+
+
+
+wardrobeStore.put(
+clothing
+);
+
+
+}
+
+
+
+};
+
+
+
+}
+
+
+});
+
+
+
+
+
+
+transaction.oncomplete=()=>{
+
+
+resolve();
+
+
+};
+
+
+
+transaction.onerror=()=>{
+
+
+reject(
+transaction.error
+);
+
+
+};
+
+
+
+});
+
+
+}
