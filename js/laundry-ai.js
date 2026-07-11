@@ -1,11 +1,12 @@
 // laundry-ai.js
-// FashionAI Laundry Intelligence
-
+// FashionAI Laundry Intelligence System
 
 
 import {
-getClothes
-} from "./db.js";
+getClothes,
+updateClothing
+}
+from "./db.js";
 
 
 
@@ -16,9 +17,13 @@ getClothes
 
 
 export function updateLaundryStatus(
+
 database,
+
 id,
+
 status
+
 ){
 
 
@@ -26,27 +31,36 @@ return new Promise((resolve,reject)=>{
 
 
 const transaction =
+
 database.transaction(
+
 "wardrobe",
+
 "readwrite"
+
 );
 
 
 
 const store =
+
 transaction.objectStore(
+
 "wardrobe"
+
 );
 
 
 
 const request =
+
 store.get(id);
 
 
 
 
-request.onsuccess=()=>{
+
+request.onsuccess = ()=>{
 
 
 const item =
@@ -57,13 +71,19 @@ request.result;
 if(item){
 
 
+
 item.laundryStatus =
 status;
 
 
 
-if(status==="Clean"){
 
+
+// when washed
+
+if(
+status==="Clean"
+){
 
 item.lastWashed =
 new Date()
@@ -71,6 +91,36 @@ new Date()
 
 
 }
+
+
+
+
+
+
+// when worn
+
+if(
+status==="Worn"
+){
+
+
+item.timesWorn =
+
+(item.timesWorn || 0) + 1;
+
+
+
+item.lastWorn =
+
+new Date()
+.toISOString();
+
+
+}
+
+
+
+
 
 
 
@@ -82,7 +132,7 @@ store.put(item);
 
 
 
-resolve();
+resolve(true);
 
 
 
@@ -90,9 +140,15 @@ resolve();
 
 
 
-request.onerror=()=>{
 
-reject(request.error);
+
+request.onerror = ()=>{
+
+
+reject(
+request.error
+);
+
 
 };
 
@@ -109,30 +165,140 @@ reject(request.error);
 
 
 
+
+
 // ==========================
-// GET READY CLOTHES
+// MARK OUTFIT WORN
+// ==========================
+
+
+export async function markOutfitWorn(
+
+database,
+
+outfit
+
+){
+
+
+
+const clothes=[
+
+
+outfit.top,
+
+outfit.bottom,
+
+outfit.shoe
+
+
+];
+
+
+
+
+
+for(
+const item of clothes
+){
+
+
+await updateLaundryStatus(
+
+database,
+
+item.id,
+
+"Worn"
+
+);
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// ==========================
+// GET AVAILABLE CLOTHES
 // ==========================
 
 
 export async function getAvailableClothes(
+
 database
+
 ){
 
 
+
 const clothes =
+
 await getClothes(
+
 database
+
 );
 
 
 
-return clothes.filter(
-item=>
+
+
+return clothes.filter(item=>
+
 
 item.laundryStatus==="Clean"
 
 ||
+
 item.laundryStatus==="Ready"
+
+
+);
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// ==========================
+// SEND ITEM TO LAUNDRY
+// ==========================
+
+
+export async function sendToLaundry(
+
+database,
+
+item
+
+){
+
+
+
+await updateLaundryStatus(
+
+database,
+
+item.id,
+
+"Dirty"
 
 );
 
@@ -145,8 +311,46 @@ item.laundryStatus==="Ready"
 
 
 
+
+
 // ==========================
-// LAUNDRY ADVICE
+// MARK CLOTHES CLEAN
+// ==========================
+
+
+export async function markClean(
+
+database,
+
+item
+
+){
+
+
+
+await updateLaundryStatus(
+
+database,
+
+item.id,
+
+"Clean"
+
+);
+
+
+}
+
+
+
+
+
+
+
+
+
+// ==========================
+// LAUNDRY ADVICE AI
 // ==========================
 
 
@@ -155,21 +359,53 @@ export function laundryAdvice(item){
 
 
 if(
-item.timesWorn>=5
+item.timesWorn >= 5
 ){
 
 
 return `
-🧺 Consider washing this item.
-It has been worn ${item.timesWorn} times.
+
+🧺 Wash recommended.
+
+${item.name || item.type}
+
+has been worn ${item.timesWorn} times.
+
 `;
+
+
 
 }
 
 
 
+
+
+if(
+item.laundryStatus==="Dirty"
+){
+
+
 return `
-✅ This item is ready to wear.
+
+⚠️ This item needs washing before FashionAI recommends it.
+
+`;
+
+
+
+}
+
+
+
+
+
+return `
+
+✅ ${item.name || item.type}
+
+is ready for your next outfit.
+
 `;
 
 
