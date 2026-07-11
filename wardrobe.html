@@ -7,72 +7,90 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-
-<title>My AI Wardrobe</title>
-
+<title>FashionAI Wardrobe</title>
 
 <link rel="stylesheet" href="wardrobe.css">
 
-
 <meta name="theme-color" content="#1b1b1b">
-
 
 <style>
 
+*{
+box-sizing:border-box;
+}
+
 body{
 
-font-family:Arial, sans-serif;
-background:#f5f0e6;
 margin:0;
 padding:20px;
 
-}
+font-family:Arial,sans-serif;
 
+background:#f5f0e6;
+
+}
 
 h1{
 
 text-align:center;
+
 color:#1b1b1b;
 
+margin-bottom:25px;
+
 }
-
-
 
 .upload-box{
 
 background:white;
+
 padding:20px;
+
 border-radius:15px;
-max-width:500px;
+
+max-width:650px;
+
 margin:auto;
-box-shadow:0 5px 15px rgba(0,0,0,0.1);
+
+box-shadow:0 5px 15px rgba(0,0,0,.1);
 
 }
 
+.upload-box h2{
 
+margin-top:0;
 
-input,select,button{
+}
+
+input,
+select,
+button{
 
 width:100%;
+
 padding:12px;
+
 margin-top:12px;
+
 border-radius:8px;
+
 font-size:16px;
 
 }
 
-
-
 button{
 
 background:#1b1b1b;
+
 color:white;
+
 border:none;
+
 cursor:pointer;
 
+transition:.3s;
+
 }
-
-
 
 button:hover{
 
@@ -80,233 +98,242 @@ background:#c9a66b;
 
 }
 
+.message{
 
+text-align:center;
+
+font-weight:bold;
+
+margin-top:15px;
+
+}
+
+#wardrobeStats{
+
+background:white;
+
+padding:15px;
+
+border-radius:12px;
+
+margin:25px auto;
+
+max-width:900px;
+
+box-shadow:0 5px 15px rgba(0,0,0,.08);
+
+}
+
+.search-box{
+
+max-width:900px;
+
+margin:auto;
+
+}
 
 #wardrobe{
 
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+
 gap:20px;
+
 margin-top:30px;
 
 }
 
-
-
-.card{
+.wardrobe-card{
 
 background:white;
-padding:15px;
+
 border-radius:15px;
-box-shadow:0 5px 15px rgba(0,0,0,0.1);
+
+padding:15px;
+
+box-shadow:0 5px 15px rgba(0,0,0,.1);
 
 }
 
-
-
-.card img{
+.wardrobe-card img{
 
 width:100%;
-height:220px;
+
+height:240px;
+
 object-fit:cover;
+
 border-radius:10px;
 
 }
 
+.wardrobe-buttons{
 
+display:flex;
 
-.message{
+flex-direction:column;
 
-text-align:center;
-font-weight:bold;
-margin-top:10px;
+gap:10px;
+
+margin-top:15px;
 
 }
 
+.favorite-btn{
+
+background:#d4af37;
+
+color:black;
+
+}
+
+.clean-btn{
+
+background:#4caf50;
+
+}
+
+.dirty-btn{
+
+background:#ff9800;
+
+}
+
+.delete-btn{
+
+background:#f44336;
+
+}
+
+.empty-wardrobe{
+
+background:white;
+
+padding:40px;
+
+border-radius:15px;
+
+text-align:center;
+
+grid-column:1/-1;
+
+}
 
 </style>
 
-
 </head>
-
-
-
 
 <body>
 
-
-
 <h1>
-👗 My AI Wardrobe
+
+👗 FashionAI Smart Wardrobe
+
 </h1>
-
-
-
 
 <div class="upload-box">
 
-
-
 <h2>
-Add Clothing
+
+📊 Wardrobe Dashboard
+
 </h2>
 
+<div id="wardrobeStats">
 
+Loading statistics...
 
-<input
+</div>
 
-type="file"
+</div>
 
-id="clothesImage"
-
-accept="image/*"
-
->
-
-
-
-
-<select id="category">
-
-
-<option value="shirt">
-👕 Shirt
-</option>
-
-
-<option value="tshirt">
-👕 T-Shirt
-</option>
-
-
-<option value="jeans">
-👖 Jeans
-</option>
-
-
-<option value="trousers">
-👖 Trousers
-</option>
-
-
-<option value="dress">
-👗 Dress
-</option>
-
-
-<option value="skirt">
-👗 Skirt
-</option>
-
-
-<option value="hoodie">
-🧥 Hoodie
-</option>
-
-
-<option value="jacket">
-🧥 Jacket
-</option>
-
-
-<option value="shoes">
-👟 Shoes
-</option>
-
-
-<option value="accessories">
-⌚ Accessories
-</option>
-
-
-</select>
-
-
-
-
+<div class="search-box">
 
 <input
 
 type="text"
 
-id="color"
+id="searchClothes"
 
-placeholder="Clothing color e.g black, blue, white"
+placeholder="🔍 Search by name, color, style or brand"
 
 >
 
+<select id="categoryFilter">
 
+<option value="All">
 
+All Categories
 
-<button id="saveBtn">
+</option>
 
-💾 Save Clothing
+<option value="Top">
 
-</button>
+👕
 
+Top
 
+</option>
 
+<option value="Bottom">
 
-<p 
-id="message"
-class="message">
+👖
 
-</p>
+Bottom
 
+</option>
 
+<option value="Shoes">
+
+👟
+
+Shoes
+
+</option>
+
+<option value="Dress">
+
+👗
+
+Dress
+
+</option>
+
+<option value="Outerwear">
+
+🧥
+
+Outerwear
+
+</option>
+
+<option value="Accessories">
+
+👜
+
+Accessories
+
+</option>
+
+</select>
 
 </div>
 
-
-
-
-
 <h2>
+
 👕 My Clothes Collection
+
 </h2>
-
-
-
 
 <div id="wardrobe">
 
-
 Loading wardrobe...
 
-
 </div>
+<!-- JavaScript -->
 
-
-
-
-
-
-
-<script type="module" src="wardrobe.js"></script>
-
-
-
-<script>
-
-
-document
-.getElementById("saveBtn")
-.addEventListener(
-"click",
-()=>{
-
-saveClothes();
-
-}
-
-);
-
-
-</script>
-
-
-
-
+<script type="module" src="js/wardrobe.js"></script>
 
 </body>
 
