@@ -1,5 +1,5 @@
 // dashboard.js
-// FashionAI AI Dashboard Controller
+// FashionAI Dashboard Controller
 
 
 import { auth } from "./firebase.js";
@@ -12,12 +12,10 @@ from
 "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 
-
 import {
 getDatabase
 }
 from "./database-manager.js";
-
 
 
 import {
@@ -27,7 +25,6 @@ getWearHistory
 from "./db.js";
 
 
-
 import {
 exportFashionAI,
 importFashionAI
@@ -35,12 +32,10 @@ importFashionAI
 from "./backup-restore.js";
 
 
-
 import {
 analyzeUserStyle
 }
 from "./style-learning.js";
-
 
 
 import {
@@ -51,6 +46,10 @@ from "./shopping-ai.js";
 
 
 
+// ==========================
+// VARIABLES
+// ==========================
+
 
 let database = null;
 
@@ -58,11 +57,9 @@ let database = null;
 
 
 
-
-
-// =====================================
-// AUTHENTICATION
-// =====================================
+// ==========================
+// FIREBASE LOGIN
+// ==========================
 
 
 onAuthStateChanged(
@@ -76,7 +73,7 @@ if(!user){
 
 
 console.log(
-"User not logged in"
+"❌ No user logged in"
 );
 
 
@@ -87,9 +84,14 @@ return;
 
 
 
-
-
 try{
+
+
+console.log(
+"User:",
+user.uid
+);
+
 
 
 database = await getDatabase();
@@ -97,7 +99,7 @@ database = await getDatabase();
 
 
 console.log(
-"✅ FashionAI Dashboard Connected"
+"✅ FashionAI Database Connected"
 );
 
 
@@ -108,38 +110,29 @@ loadDashboard();
 
 }
 
-
 catch(error){
 
 
 console.error(
-
-"Dashboard Database Error:",
-
+"Database connection failed:",
 error
-
 );
 
 
 }
 
 
-
-}
-
-);
+});
 
 
+ 
 
 
 
 
-
-
-
-// =====================================
+// ==========================
 // LOAD DASHBOARD
-// =====================================
+// ==========================
 
 
 async function loadDashboard(){
@@ -148,16 +141,11 @@ async function loadDashboard(){
 try{
 
 
-
 const clothes =
 
 await getClothes(
-
 database
-
 );
-
-
 
 
 
@@ -165,11 +153,8 @@ database
 const history =
 
 await getWearHistory(
-
 database
-
 );
-
 
 
 
@@ -178,18 +163,14 @@ database
 const style =
 
 await analyzeUserStyle(
-
 database
-
 );
 
 
 
 
 
-
-
-updateDashboard(
+updateStats(
 
 clothes,
 
@@ -203,9 +184,7 @@ style
 
 
 
-
-
-generateSuggestions(
+showMemory(
 
 style,
 
@@ -217,22 +196,18 @@ clothes
 
 
 
-
-
-loadShoppingAdvice();
+loadShoppingAI();
 
 
 
 }
-
-
 
 catch(error){
 
 
 console.error(
 
-"Dashboard Loading Error:",
+"Dashboard Error:",
 
 error
 
@@ -253,12 +228,12 @@ error
 
 
 
-// =====================================
-// UPDATE STATISTICS
-// =====================================
+// ==========================
+// UPDATE CARDS
+// ==========================
 
 
-function updateDashboard(
+function updateStats(
 
 clothes,
 
@@ -270,30 +245,20 @@ style
 
 
 
-
-
 const totalClothes =
 
 document.getElementById(
-
 "totalClothes"
-
 );
 
 
 
 if(totalClothes){
 
-
 totalClothes.innerHTML =
-
 clothes.length;
 
-
 }
-
-
-
 
 
 
@@ -302,25 +267,17 @@ clothes.length;
 const totalWorn =
 
 document.getElementById(
-
 "totalWorn"
-
 );
 
 
 
 if(totalWorn){
 
-
 totalWorn.innerHTML =
-
 history.length;
 
-
 }
-
-
-
 
 
 
@@ -329,9 +286,7 @@ history.length;
 const favoriteColors =
 
 document.getElementById(
-
 "favoriteColors"
-
 );
 
 
@@ -341,8 +296,7 @@ if(favoriteColors){
 
 favoriteColors.innerHTML =
 
-
-style.favoriteColors?.length
+style.favoriteColors.length
 
 ?
 
@@ -350,13 +304,9 @@ style.favoriteColors.join(", ")
 
 :
 
-"No style data yet";
-
+"Learning";
 
 }
-
-
-
 
 
 
@@ -365,9 +315,7 @@ style.favoriteColors.join(", ")
 const favoriteStyle =
 
 document.getElementById(
-
 "favoriteStyle"
-
 );
 
 
@@ -386,6 +334,26 @@ style.fashionPersonality;
 
 
 
+const confidence =
+
+document.getElementById(
+"confidence"
+);
+
+
+
+if(confidence){
+
+
+confidence.innerHTML =
+
+style.confidence + "%";
+
+
+}
+
+
+
 }
 
 
@@ -396,12 +364,12 @@ style.fashionPersonality;
 
 
 
-// =====================================
-// AI MEMORY DISPLAY
-// =====================================
+// ==========================
+// AI MEMORY
+// ==========================
 
 
-function generateSuggestions(
+function showMemory(
 
 style,
 
@@ -410,22 +378,17 @@ clothes
 ){
 
 
-
 const box =
 
 document.getElementById(
-
 "suggestions"
-
 );
 
 
 
-if(!box){
+if(!box)
 
 return;
-
-}
 
 
 
@@ -442,17 +405,19 @@ box.innerHTML = `
 </h3>
 
 
+
 <p>
 
-Style Personality:
+Fashion Personality:
 
-<strong>
+<b>
 
 ${style.fashionPersonality}
 
-</strong>
+</b>
 
 </p>
+
 
 
 
@@ -462,13 +427,21 @@ Favourite Styles:
 
 ${
 
-style.favoriteStyles?.join(", ")
+style.favoriteStyles.length
 
-|| "Learning..."
+?
+
+style.favoriteStyles.join(", ")
+
+:
+
+"Learning..."
 
 }
 
 </p>
+
+
 
 
 
@@ -478,9 +451,15 @@ Favourite Colors:
 
 ${
 
-style.favoriteColors?.join(", ")
+style.favoriteColors.length
 
-|| "Learning..."
+?
+
+style.favoriteColors.join(", ")
+
+:
+
+"Learning..."
 
 }
 
@@ -488,13 +467,19 @@ style.favoriteColors?.join(", ")
 
 
 
+
+
 <p>
 
 Wardrobe Size:
 
+<b>
+
 ${clothes.length}
 
 items
+
+</b>
 
 </p>
 
@@ -517,12 +502,12 @@ items
 
 
 
-// =====================================
+// ==========================
 // SHOPPING AI
-// =====================================
+// ==========================
 
 
-async function loadShoppingAdvice(){
+async function loadShoppingAI(){
 
 
 try{
@@ -538,38 +523,23 @@ database
 
 
 
-
-
 const box =
 
 document.getElementById(
-
 "suggestions"
-
 );
-
-
 
 
 
 if(
 
-!box ||
+result &&
 
-!result ||
+result.shoppingRecommendations &&
 
-!result.shoppingRecommendations
+box
 
 ){
-
-
-return;
-
-
-}
-
-
-
 
 
 
@@ -580,12 +550,8 @@ box.innerHTML += `
 🛍 AI Shopping Advice
 </h3>
 
+
 `;
-
-
-
-
-
 
 
 
@@ -594,7 +560,6 @@ result.shoppingRecommendations
 .slice(0,3)
 
 .forEach(item=>{
-
 
 
 box.innerHTML += `
@@ -610,13 +575,11 @@ ${item.item}
 </h4>
 
 
-
 <p>
 
 ${item.reason}
 
 </p>
-
 
 
 </div>
@@ -629,19 +592,18 @@ ${item.reason}
 });
 
 
-
 }
 
 
+
+}
 
 catch(error){
 
 
-console.error(
+console.log(
 
-"Shopping AI Error:",
-
-error
+"Shopping AI not available"
 
 );
 
@@ -660,39 +622,51 @@ error
 
 
 
-// =====================================
+// ==========================
 // BACKUP
-// =====================================
+// ==========================
 
 
-const backupBtn =
+const backupButton =
 
 document.getElementById(
-
 "backupBtn"
-
 );
 
 
 
-if(backupBtn){
+if(backupButton){
 
 
-backupBtn.onclick = ()=>{
+backupButton.onclick = async()=>{
 
 
-exportFashionAI(
+if(!database){
+
+alert(
+"Database not ready"
+);
+
+return;
+
+}
+
+
+
+await exportFashionAI(
 
 database
 
 );
 
 
+
 alert(
 
-"✅ FashionAI backup created"
+"✅ FashionAI backup completed"
 
 );
+
 
 
 };
@@ -708,45 +682,32 @@ alert(
 
 
 
-// =====================================
+// ==========================
 // RESTORE
-// =====================================
+// ==========================
 
 
-const restoreBtn =
+const restoreButton =
 
 document.getElementById(
-
 "restoreBtn"
-
 );
 
 
 
-if(restoreBtn){
+if(restoreButton){
 
 
-restoreBtn.onclick = async()=>{
-
-
-
-const fileInput =
-
-document.getElementById(
-
-"restoreFile"
-
-);
-
-
-
+restoreButton.onclick = async()=>{
 
 
 const file =
 
-fileInput?.files[0];
-
-
+document
+.getElementById(
+"restoreFile"
+)
+.files[0];
 
 
 
@@ -756,7 +717,7 @@ if(!file){
 
 alert(
 
-"Choose a backup file first"
+"Choose backup file first"
 
 );
 
@@ -765,8 +726,6 @@ return;
 
 
 }
-
-
 
 
 
@@ -781,15 +740,11 @@ file
 
 
 
-
-
 alert(
 
-"✅ FashionAI restored successfully"
+"✅ FashionAI restored"
 
 );
-
-
 
 
 
@@ -798,7 +753,6 @@ loadDashboard();
 
 
 };
-
 
 
 }
