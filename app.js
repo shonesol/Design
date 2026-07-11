@@ -17,20 +17,12 @@ from
 
 
 const firebaseConfig = {
-
-
-apiKey:"YOUR_API_KEY",
-
-authDomain:"YOUR_PROJECT.firebaseapp.com",
-
-projectId:"YOUR_PROJECT_ID",
-
-storageBucket:"YOUR_PROJECT.appspot.com",
-
-messagingSenderId:"YOUR_ID",
-
-appId:"YOUR_APP_ID"
-
+    apiKey: "YOUR_FIREBASE_API_KEY",
+    authDomain: "design-a0e45.firebaseapp.com",
+    projectId: "design-a0e45",
+    storageBucket: "design-a0e45.appspot.com",
+    messagingSenderId: "752963168855",
+    appId: "1:752963168855:web:660513e16f91108e489112"
 };
 
 
