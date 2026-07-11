@@ -1,31 +1,33 @@
 // db.js
-// FashionAI Main Database Controller
+// FashionAI Database Functions
 
 
 // ==========================
 // ADD CLOTHING
 // ==========================
 
-export function addClothing(database, clothing){
+export function addClothing(
+database,
+clothing
+){
 
 return new Promise((resolve,reject)=>{
 
 
-const tx =
-database.transaction(
+const transaction = database.transaction(
 "wardrobe",
 "readwrite"
 );
 
 
 const store =
-tx.objectStore(
+transaction.objectStore(
 "wardrobe"
 );
 
 
 
-const item={
+const item = {
 
 ...clothing,
 
@@ -62,9 +64,7 @@ reject(request.error);
 };
 
 
-
 });
-
 
 }
 
@@ -72,26 +72,31 @@ reject(request.error);
 
 
 
-// ==========================
-// GET CLOTHES
-// ==========================
 
 
-export function getClothes(database){
+
+// ==========================
+// GET ALL CLOTHES
+// ==========================
+
+export function getClothes(
+database
+){
 
 
 return new Promise((resolve,reject)=>{
 
 
-const tx =
+const transaction =
 database.transaction(
 "wardrobe",
 "readonly"
 );
 
 
+
 const store =
-tx.objectStore(
+transaction.objectStore(
 "wardrobe"
 );
 
@@ -104,9 +109,75 @@ store.getAll();
 
 request.onsuccess=()=>{
 
+
 resolve(
 request.result || []
 );
+
+
+};
+
+
+
+request.onerror=()=>{
+
+
+reject(request.error);
+
+
+};
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+
+// ==========================
+// UPDATE CLOTHING
+// ==========================
+
+export function updateClothing(
+database,
+item
+){
+
+
+return new Promise((resolve,reject)=>{
+
+
+const transaction =
+database.transaction(
+"wardrobe",
+"readwrite"
+);
+
+
+
+const store =
+transaction.objectStore(
+"wardrobe"
+);
+
+
+
+const request =
+store.put(item);
+
+
+
+request.onsuccess=()=>{
+
+resolve();
 
 };
 
@@ -119,10 +190,13 @@ reject(request.error);
 };
 
 
+
 });
 
 
 }
+
+
 
 
 
@@ -144,7 +218,7 @@ id
 return new Promise((resolve,reject)=>{
 
 
-const tx =
+const transaction =
 database.transaction(
 "wardrobe",
 "readwrite"
@@ -153,8 +227,533 @@ database.transaction(
 
 
 const store =
-tx.objectStore(
+transaction.objectStore(
 "wardrobe"
+);
+
+
+
+const request =
+store.delete(id);
+
+
+
+request.onsuccess=()=>{
+
+resolve();
+
+};
+
+
+
+request.onerror=()=>{
+
+reject(request.error);
+
+};
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+
+// ==========================
+// UPDATE LAUNDRY STATUS
+// ==========================
+
+
+export function updateLaundryStatus(
+
+database,
+
+id,
+
+status
+
+){
+
+
+return new Promise((resolve,reject)=>{
+
+
+const transaction =
+database.transaction(
+"wardrobe",
+"readwrite"
+);
+
+
+
+const store =
+transaction.objectStore(
+"wardrobe"
+);
+
+
+
+const request =
+store.get(id);
+
+
+
+request.onsuccess=()=>{
+
+
+const clothing =
+request.result;
+
+
+
+if(clothing){
+
+
+clothing.laundryStatus =
+status;
+
+
+
+store.put(clothing);
+
+
+}
+
+
+
+};
+
+
+
+transaction.oncomplete=()=>{
+
+
+resolve();
+
+
+};
+
+
+
+transaction.onerror=()=>{
+
+
+reject(
+transaction.error
+);
+
+
+};
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+
+// ==========================
+// SAVE WEAR HISTORY
+// ==========================
+
+
+export function saveWearHistory(
+
+database,
+
+outfit
+
+){
+
+
+return new Promise((resolve,reject)=>{
+
+
+const transaction =
+database.transaction(
+[
+"history",
+"wardrobe"
+],
+"readwrite"
+);
+
+
+
+const history =
+transaction.objectStore(
+"history"
+);
+
+
+
+history.add({
+
+outfit,
+
+date:Date.now()
+
+});
+
+
+
+
+
+
+const wardrobe =
+transaction.objectStore(
+"wardrobe"
+);
+
+
+
+[
+outfit.top,
+outfit.bottom,
+outfit.shoe
+
+]
+.forEach(item=>{
+
+
+if(item?.id){
+
+
+const request =
+wardrobe.get(item.id);
+
+
+
+request.onsuccess=()=>{
+
+
+const clothing =
+request.result;
+
+
+
+if(clothing){
+
+
+clothing.timesWorn =
+(clothing.timesWorn || 0)+1;
+
+
+
+clothing.lastWorn =
+Date.now();
+
+
+
+wardrobe.put(clothing);
+
+
+}
+
+
+
+};
+
+
+
+}
+
+
+});
+
+
+
+
+
+
+
+transaction.oncomplete=()=>{
+
+
+resolve();
+
+
+};
+
+
+
+transaction.onerror=()=>{
+
+
+reject(
+transaction.error
+);
+
+
+};
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+
+// ==========================
+// GET WEAR HISTORY
+// ==========================
+
+
+export function getWearHistory(
+database
+){
+
+
+return new Promise((resolve,reject)=>{
+
+
+const transaction =
+database.transaction(
+"history",
+"readonly"
+);
+
+
+
+const store =
+transaction.objectStore(
+"history"
+);
+
+
+
+const request =
+store.getAll();
+
+
+
+request.onsuccess=()=>{
+
+
+resolve(
+request.result || []
+);
+
+
+};
+
+
+
+request.onerror=()=>{
+
+
+reject(request.error);
+
+
+};
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+
+// ==========================
+// SAVE OUTFIT PLAN
+// ==========================
+
+
+export function saveOutfitPlan(
+database,
+plan
+){
+
+
+return new Promise((resolve,reject)=>{
+
+
+const transaction =
+database.transaction(
+"plans",
+"readwrite"
+);
+
+
+
+const store =
+transaction.objectStore(
+"plans"
+);
+
+
+
+const request =
+store.add({
+
+...plan,
+
+createdAt:Date.now()
+
+});
+
+
+
+request.onsuccess=()=>{
+
+
+resolve(
+request.result
+);
+
+
+};
+
+
+
+request.onerror=()=>{
+
+
+reject(request.error);
+
+
+};
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+
+// ==========================
+// GET PLANS
+// ==========================
+
+
+export function getOutfitPlans(
+database
+){
+
+
+return new Promise((resolve,reject)=>{
+
+
+const transaction =
+database.transaction(
+"plans",
+"readonly"
+);
+
+
+
+const store =
+transaction.objectStore(
+"plans"
+);
+
+
+
+const request =
+store.getAll();
+
+
+
+request.onsuccess=()=>{
+
+
+resolve(
+request.result || []
+);
+
+
+};
+
+
+
+request.onerror=()=>{
+
+
+reject(request.error);
+
+
+};
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+
+// ==========================
+// DELETE PLAN
+// ==========================
+
+
+export function deleteOutfitPlan(
+database,
+id
+){
+
+
+return new Promise((resolve,reject)=>{
+
+
+const transaction =
+database.transaction(
+"plans",
+"readwrite"
+);
+
+
+
+const store =
+transaction.objectStore(
+"plans"
 );
 
 
@@ -185,418 +784,28 @@ request.error
 
 
 
-// ==========================
-// UPDATE CLOTHING
-// ==========================
-
-
-export function updateClothing(
-database,
-item
-){
-
-
-return new Promise((resolve,reject)=>{
-
-
-const tx =
-database.transaction(
-"wardrobe",
-"readwrite"
-);
-
-
-
-const store =
-tx.objectStore(
-"wardrobe"
-);
-
-
-
-const request =
-store.put(item);
-
-
-
-request.onsuccess=()=>resolve();
-
-
-
-request.onerror=()=>reject(
-request.error
-);
-
-
-
-});
-
-
-}
-
-
-
-
-
-
 
 
 // ==========================
-// WEAR HISTORY
-// ==========================
-
-
-export function saveWearHistory(
-database,
-outfit
-){
-
-
-return new Promise((resolve,reject)=>{
-
-
-const tx =
-database.transaction(
-[
-"history",
-"wardrobe"
-],
-"readwrite"
-);
-
-
-
-tx.objectStore(
-"history"
-)
-.add({
-
-outfit,
-
-date:Date.now()
-
-});
-
-
-
-
-
-[
-outfit.top,
-outfit.bottom,
-outfit.shoe
-
-].forEach(item=>{
-
-
-if(item?.id){
-
-
-const store =
-tx.objectStore(
-"wardrobe"
-);
-
-
-
-const request =
-store.get(item.id);
-
-
-
-request.onsuccess=()=>{
-
-
-const clothing =
-request.result;
-
-
-
-if(clothing){
-
-
-clothing.timesWorn =
-(clothing.timesWorn||0)+1;
-
-
-
-clothing.lastWorn =
-Date.now();
-
-
-
-store.put(clothing);
-
-
-}
-
-
-
-};
-
-
-}
-
-
-
-});
-
-
-
-
-
-tx.oncomplete=()=>resolve();
-
-
-tx.onerror=()=>reject(
-tx.error
-);
-
-
-
-});
-
-
-}
-
-
-
-
-
-
-
-
-
-// ==========================
-// GET HISTORY
-// ==========================
-
-
-export function getWearHistory(database){
-
-
-return new Promise((resolve,reject)=>{
-
-
-const tx =
-database.transaction(
-"history",
-"readonly"
-);
-
-
-
-const request =
-tx.objectStore(
-"history"
-)
-.getAll();
-
-
-
-request.onsuccess=()=>{
-
-resolve(
-request.result || []
-);
-
-};
-
-
-
-request.onerror=()=>reject(
-request.error
-);
-
-
-
-});
-
-
-}
-
-
-
-
-
-
-
-
-
-// ==========================
-// OUTFIT PLANS
-// USING outfits STORE
-// ==========================
-
-
-export function saveOutfitPlan(
-database,
-plan
-){
-
-
-return new Promise((resolve,reject)=>{
-
-
-const tx =
-database.transaction(
-"outfits",
-"readwrite"
-);
-
-
-
-const request =
-tx.objectStore(
-"outfits"
-)
-.add({
-
-...plan,
-
-createdAt:Date.now()
-
-});
-
-
-
-request.onsuccess=()=>{
-
-resolve(request.result);
-
-};
-
-
-
-request.onerror=()=>{
-
-reject(request.error);
-
-};
-
-
-});
-
-
-}
-
-
-
-
-
-
-export function getOutfitPlans(database){
-
-
-return new Promise((resolve,reject)=>{
-
-
-const tx =
-database.transaction(
-"outfits",
-"readonly"
-);
-
-
-
-const request =
-tx.objectStore(
-"outfits"
-)
-.getAll();
-
-
-
-request.onsuccess=()=>{
-
-
-resolve(
-request.result || []
-);
-
-
-};
-
-
-
-request.onerror=()=>reject(
-request.error
-);
-
-
-
-});
-
-
-}
-
-
-
-
-
-
-export function deleteOutfitPlan(
-database,
-id
-){
-
-
-return new Promise((resolve,reject)=>{
-
-
-const tx =
-database.transaction(
-"outfits",
-"readwrite"
-);
-
-
-
-const request =
-tx.objectStore(
-"outfits"
-)
-.delete(id);
-
-
-
-request.onsuccess=()=>resolve();
-
-
-request.onerror=()=>reject(
-request.error
-);
-
-
-
-});
-
-
-}
-
-
-
-
-
-
-
-
-// ==========================
-// PREFERENCES
+// SAVE AI MEMORY
 // ==========================
 
 
 export function savePreference(
+
 database,
+
 key,
+
 data
+
 ){
 
 
 return new Promise((resolve,reject)=>{
 
 
-const tx =
+const transaction =
 database.transaction(
 "preferences",
 "readwrite"
@@ -604,11 +813,15 @@ database.transaction(
 
 
 
-const request =
-tx.objectStore(
+const store =
+transaction.objectStore(
 "preferences"
-)
-.put({
+);
+
+
+
+const request =
+store.put({
 
 id:key,
 
@@ -618,12 +831,25 @@ id:key,
 
 
 
-request.onsuccess=()=>resolve();
+request.onsuccess=()=>{
 
 
-request.onerror=()=>reject(
+resolve();
+
+
+};
+
+
+
+request.onerror=()=>{
+
+
+reject(
 request.error
 );
+
+
+};
 
 
 
@@ -637,16 +863,27 @@ request.error
 
 
 
+
+
+
+// ==========================
+// GET AI MEMORY
+// ==========================
+
+
 export function getPreference(
+
 database,
+
 key="userProfile"
+
 ){
 
 
 return new Promise((resolve,reject)=>{
 
 
-const tx =
+const transaction =
 database.transaction(
 "preferences",
 "readonly"
@@ -654,11 +891,15 @@ database.transaction(
 
 
 
-const request =
-tx.objectStore(
+const store =
+transaction.objectStore(
 "preferences"
-)
-.get(key);
+);
+
+
+
+const request =
+store.get(key);
 
 
 
@@ -674,91 +915,11 @@ request.result
 
 
 
-request.onerror=()=>reject(
-request.error
-);
-
-
-
-});
-
-
-}
-// ==========================
-// UPDATE LAUNDRY STATUS
-// ==========================
-
-export function updateLaundryStatus(
-database,
-id,
-status
-){
-
-return new Promise((resolve,reject)=>{
-
-
-const transaction =
-
-database.transaction(
-"wardrobe",
-"readwrite"
-);
-
-
-
-const store =
-
-transaction.objectStore(
-"wardrobe"
-);
-
-
-
-const request =
-
-store.get(id);
-
-
-
-request.onsuccess = ()=>{
-
-
-const item = request.result;
-
-
-
-if(item){
-
-
-item.laundryStatus = status;
-
-
-
-store.put(item);
-
-
-}
-
-
-};
-
-
-
-transaction.oncomplete = ()=>{
-
-
-resolve();
-
-
-};
-
-
-
-transaction.onerror = ()=>{
+request.onerror=()=>{
 
 
 reject(
-transaction.error
+request.error
 );
 
 
