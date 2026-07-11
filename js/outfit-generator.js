@@ -1,9 +1,8 @@
-
 // outfit-generator.js
 // FashionAI Outfit Generator 2.0
 
 
-import {auth}
+import { auth }
 from "./firebase.js";
 
 
@@ -15,11 +14,16 @@ from
 
 
 import {
+
 openDatabase,
+
 getClothes,
+
 saveWearHistory
+
 }
 from "./db.js";
+
 
 
 import {
@@ -27,10 +31,12 @@ analyzeUserStyle
 }
 from "./style-learning.js";
 
+
 import {
 learnUserFashion
 }
 from "./ai-learning.js";
+
 
 import {
 checkRecentlyWorn
@@ -61,23 +67,25 @@ explainOutfit
 }
 from "./fashion-stylist-ai.js";
 
+
 import {
 likeOutfit,
 dislikeOutfit
 }
 from "./feedback-ai.js";
+
+
 import {
 scoreOutfit
 }
 from "./outfit-score.js";
 
 
-// DATABASE
+
+
 
 let database = null;
 
-
-// MEMORY
 
 let currentProfile = null;
 
@@ -89,11 +97,16 @@ let currentOccasion = null;
 
 
 
+
+// ==========================
 // LOGIN
+// ==========================
 
 
 onAuthStateChanged(
+
 auth,
+
 async(user)=>{
 
 
@@ -114,10 +127,7 @@ console.log(
 }
 
 
-
 });
-
-
 
 
 
@@ -142,311 +152,20 @@ document.getElementById(
 
 
 
-
-
-// ==========================
-// COLOR MATCH AI
-// ==========================
-
-
-function colorScore(a,b){
-
-
-if(!a || !b)
-
-return 40;
-
-
-
-a=a.toLowerCase();
-
-b=b.toLowerCase();
-
-
-
-
-
-if(a===b)
-
-return 100;
-
-
-
-
-
-const matches=[
-
-
-["black","white"],
-
-["black","grey"],
-
-["navy","white"],
-
-["blue","brown"],
-
-["beige","white"],
-
-["green","brown"],
-
-["red","black"],
-
-["white","blue"]
-
-];
-
-
-
-
-
-for(
-let pair of matches
-){
-
-
-if(
-pair.includes(a)
-&&
-pair.includes(b)
-)
-
-return 90;
-
-
-
-}
-
-
-
-return 60;
-
-
-}
-
-
-
-
-
-
-
-
-
-// ==========================
-// SMART OUTFIT SCORE
-// ==========================
-
-
-function scoreOutfit(
-
-top,
-
-bottom,
-
-shoe,
-
-profile,
-
-weather,
-
-occasionStyles
-
-){
-
-
-
-let score=0;
-
-
-
-
-
-// COLORS
-
-score += colorScore(
-top.color,
-bottom.color
-);
-
-
-
-score += colorScore(
-bottom.color,
-shoe.color
-);
-
-
-
-
-
-
-// USER STYLE
-
-
-let styles=[
-
-
-top.style?.toLowerCase(),
-
-bottom.style?.toLowerCase(),
-
-shoe.style?.toLowerCase()
-
-
-];
-
-
-
-
-
-profile.favoriteStyles
-.forEach(style=>{
-
-
-if(
-styles.includes(
-style.toLowerCase()
-)
-
-){
-
-
-score+=15;
-
-
-}
-
-
-});
-
-
-
-
-
-
-
-// FAVORITE COLORS
-
-
-profile.favoriteColors
-.forEach(color=>{
-
-
-if(
-
-top.color
-?.toLowerCase()
-.includes(color)
-
-){
-
-
-score+=10;
-
-
-}
-
-
-
-});
-
-
-
-
-
-
-
-// OCCASION
-
-
-occasionStyles
-.forEach(style=>{
-
-
-if(
-styles.includes(
-style.toLowerCase()
-)
-
-){
-
-
-score+=15;
-
-
-}
-
-
-});
-
-
-
-
-
-
-
-
-// WEATHER
-
-
-if(
-weather.condition==="Rainy"
-){
-
-
-if(
-shoe.name
-?.toLowerCase()
-.includes("boot")
-
-){
-
-
-score+=10;
-
-
-}
-
-
-}
-
-
-
-
-
-
-
-return Math.min(
-
-100,
-
-Math.round(score)
-
-);
-
-
-}
-
-
-
-
-
-
-
-
-
 // ==========================
 // GENERATE BUTTON
 // ==========================
 
 
-button.onclick = async()=>{
+button.onclick =
+async()=>{
 
 
 
 if(!database){
 
 
-output.innerHTML=
+output.innerHTML =
 "Loading FashionAI...";
 
 
@@ -459,11 +178,12 @@ return;
 
 
 
-
 const clothes =
 await getClothes(
 database
 );
+
+
 
 
 
@@ -472,12 +192,13 @@ database
 );
 
 
+
+
+
 currentProfile =
 await analyzeUserStyle(
 database
 );
-
-
 
 
 
@@ -497,7 +218,6 @@ document
 
 const location =
 await getUserLocation();
-
 
 
 
@@ -527,7 +247,7 @@ currentOccasion
 
 
 
-generateOutfits(
+await generateOutfits(
 
 clothes,
 
@@ -577,10 +297,13 @@ let outfits=[];
 
 
 const cleanClothes =
+
 clothes.filter(item=>
 
 item.laundryStatus==="Clean"
+
 ||
+
 item.laundryStatus==="Ready"
 
 );
@@ -592,6 +315,7 @@ item.laundryStatus==="Ready"
 
 
 const tops =
+
 cleanClothes.filter(item=>
 
 item.category==="Top"
@@ -602,7 +326,9 @@ item.category==="Top"
 
 
 
+
 const bottoms =
+
 cleanClothes.filter(item=>
 
 item.category==="Bottom"
@@ -613,7 +339,9 @@ item.category==="Bottom"
 
 
 
+
 const shoes =
+
 cleanClothes.filter(item=>
 
 item.category==="Shoes"
@@ -627,14 +355,17 @@ item.category==="Shoes"
 
 
 if(
+
 tops.length===0 ||
+
 bottoms.length===0 ||
+
 shoes.length===0
 
 ){
 
 
-output.innerHTML=
+output.innerHTML =
 
 `
 
@@ -643,7 +374,7 @@ Upload more clothes
 </h3>
 
 <p>
-Need tops, bottoms and shoes.
+FashionAI needs tops, bottoms and shoes.
 </p>
 
 `;
@@ -678,8 +409,11 @@ const shoe of shoes
 
 
 
-let score =
-scoreOutfit(
+const score =
+
+await scoreOutfit(
+
+database,
 
 top,
 
@@ -701,7 +435,8 @@ occasionStyles
 
 
 
-let worn =
+const worn =
+
 await checkRecentlyWorn(
 
 database,
@@ -723,7 +458,6 @@ shoe
 
 
 
-
 if(!worn){
 
 
@@ -736,7 +470,6 @@ bottom,
 shoe,
 
 score
-
 
 });
 
@@ -775,7 +508,6 @@ b.score-a.score
 
 
 
-
 displayOutfits(
 
 outfits.slice(0,5)
@@ -795,7 +527,7 @@ outfits.slice(0,5)
 
 
 // ==========================
-// DISPLAY RESULTS
+// DISPLAY OUTFITS
 // ==========================
 
 
@@ -811,9 +543,7 @@ output.innerHTML="";
 
 
 
-if(
-outfits.length===0
-){
+if(outfits.length===0){
 
 
 output.innerHTML=
@@ -871,9 +601,7 @@ output.innerHTML +=
 
 <h2>
 
-🤖 AI Match
-
-${outfit.score}%
+🤖 AI Match ${outfit.score}%
 
 </h2>
 
@@ -886,7 +614,6 @@ ${outfit.score}%
 
 
 <img src="${outfit.shoe.image}" width="120">
-
 
 
 
@@ -922,16 +649,28 @@ ${explanation}
 
 
 
+
 <button onclick='wearOutfit(${JSON.stringify(outfit)})'>
+
 👕 Wear This Outfit
+
 </button>
+
+
 
 <button onclick='loveOutfit(${JSON.stringify(outfit)})'>
+
 ❤️ Love It
+
 </button>
 
+
+
+
 <button onclick='hateOutfit(${JSON.stringify(outfit)})'>
+
 ❌ Don't Like
+
 </button>
 
 
@@ -957,13 +696,13 @@ ${explanation}
 
 
 // ==========================
-// SAVE HISTORY
+// WEAR MEMORY
 // ==========================
 
 
 window.wearOutfit =
-async function(outfit){
 
+async function(outfit){
 
 
 await saveWearHistory(
@@ -975,42 +714,72 @@ outfit
 );
 
 
-
 alert(
-
-"✅ FashionAI remembered your outfit"
-
+"✅ FashionAI remembered this outfit"
 );
 
 
-
 };
+
+
+
+
+
+
+
+
+// ==========================
+// FEEDBACK LEARNING
+// ==========================
+
+
 window.loveOutfit =
+
 async function(outfit){
 
+
 await likeOutfit(
+
 database,
+
 outfit
+
 );
+
 
 alert(
-"❤️ FashionAI learned that you like this outfit."
+
+"❤️ FashionAI learned your preference"
+
 );
 
+
 };
+
+
+
 
 
 
 window.hateOutfit =
+
 async function(outfit){
 
+
 await dislikeOutfit(
+
 database,
+
 outfit
+
 );
 
+
 alert(
-"❌ FashionAI will avoid recommending similar outfits."
+
+"❌ FashionAI will improve future suggestions"
+
 );
+
 
 };
