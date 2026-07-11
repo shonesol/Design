@@ -11,7 +11,7 @@ from
 "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 
-// Firebase Configuration
+// Firebase Config
 const firebaseConfig = {
 
 apiKey: "YOUR_REAL_API_KEY",
@@ -34,7 +34,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 
-// HTML Elements
+// Elements
 
 const uploadBtn = document.getElementById("uploadBtn");
 
@@ -42,15 +42,25 @@ const imageInput = document.getElementById("clothingImage");
 
 const message = document.getElementById("message");
 
-const list = document.getElementById("clothesList");
+const clothesList = document.getElementById("clothesList");
 
 const stats = document.getElementById("stats");
 
+const search = document.getElementById("search");
+
+const category = document.getElementById("category");
 
 
-// Upload Clothing
 
-uploadBtn.addEventListener("click", async()=>{
+// Store clothes temporarily
+
+let clothes = [];
+
+
+
+// Upload
+
+uploadBtn.onclick = async()=>{
 
 
 const file = imageInput.files[0];
@@ -76,7 +86,7 @@ name:file.name,
 
 category:"Unknown",
 
-createdAt:new Date()
+date:new Date()
 
 };
 
@@ -86,13 +96,9 @@ try{
 
 
 await addDoc(
-
 collection(db,"clothes"),
-
 clothing
-
 );
-
 
 
 message.innerHTML=
@@ -114,65 +120,41 @@ message.innerHTML=
 }
 
 
-});
+};
 
 
 
 
 
-// Load Clothes
+// Load clothes
 
 async function loadWardrobe(){
-
-
-list.innerHTML="";
 
 
 try{
 
 
-const snapshot = await getDocs(
+const snapshot =
+await getDocs(
 collection(db,"clothes")
 );
 
 
 
-let count=0;
-
+clothes=[];
 
 
 snapshot.forEach((doc)=>{
 
 
-count++;
-
-
-const data = doc.data();
-
-
-
-list.innerHTML += `
-
-<div class="cloth">
-
-<h3>${data.name}</h3>
-
-<p>
-Category: ${data.category}
-</p>
-
-</div>
-
-`;
-
+clothes.push(doc.data());
 
 
 });
 
 
 
-stats.innerHTML=
-"Total Clothes: " + count;
+displayClothes(clothes);
 
 
 
@@ -182,7 +164,7 @@ catch(error){
 
 console.log(error);
 
-stats.innerHTML=
+clothesList.innerHTML=
 "Database error";
 
 }
@@ -192,6 +174,125 @@ stats.innerHTML=
 
 
 
-// Start App
+
+// Display clothes
+
+function displayClothes(items){
+
+
+clothesList.innerHTML="";
+
+
+let count=0;
+
+
+
+items.forEach((item)=>{
+
+
+count++;
+
+
+clothesList.innerHTML += `
+
+<div class="cloth">
+
+<h3>
+${item.name}
+</h3>
+
+<p>
+Category: ${item.category}
+</p>
+
+</div>
+
+`;
+
+
+});
+
+
+
+stats.innerHTML =
+"Total Clothes: " + count;
+
+
+
+}
+
+
+
+
+
+// Search
+
+search.addEventListener("input",()=>{
+
+
+let value =
+search.value.toLowerCase();
+
+
+
+let filtered =
+clothes.filter(item=>
+
+item.name.toLowerCase()
+.includes(value)
+
+);
+
+
+
+displayClothes(filtered);
+
+
+});
+
+
+
+
+
+// Category filter
+
+category.addEventListener("change",()=>{
+
+
+let selected =
+category.value;
+
+
+
+if(selected==="all"){
+
+displayClothes(clothes);
+
+return;
+
+}
+
+
+
+let filtered =
+clothes.filter(item=>
+
+item.category === selected
+
+);
+
+
+
+displayClothes(filtered);
+
+
+
+});
+
+
+
+
+
+// Start
 
 loadWardrobe();
