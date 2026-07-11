@@ -1,104 +1,104 @@
 body{
 
-font-family:Arial, sans-serif;
+font-family:'Segoe UI', Arial, sans-serif;
 
-background:#f5f0e6;
+background:
+linear-gradient(
+135deg,
+#f5f0e6,
+#ffe6f2
+);
 
 margin:0;
+
+padding:0;
+
+color:#333;
 
 }
 
 
 
+/* Main Container */
+
 .container{
 
-width:90%;
 
-max-width:1200px;
+width:95%;
+
+max-width:1300px;
 
 margin:auto;
 
 text-align:center;
 
-padding:30px;
+padding:50px 20px;
+
 
 }
 
 
+
+
+
+.container h1{
+
+font-size:40px;
+
+color:#7b61ff;
+
+}
+
+
+
+.container p{
+
+font-size:20px;
+
+color:#555;
+
+}
+
+
+
+
+
+
+/* Generate Button */
 
 
 button{
 
-background:#111;
+
+background:
+linear-gradient(
+135deg,
+#ff5fa2,
+#7b61ff
+);
+
+
 
 color:white;
 
-padding:15px 25px;
 
-border-radius:15px;
+padding:18px 40px;
+
+
+border-radius:35px;
+
 
 border:none;
 
-font-size:18px;
+
+font-size:20px;
+
+
+font-weight:bold;
+
 
 cursor:pointer;
 
-}
 
-
-
-
-
-#outfitResult{
-
-display:grid;
-
-grid-template-columns:
-repeat(auto-fit,minmax(280px,1fr));
-
-gap:20px;
-
-margin-top:30px;
-
-}
-
-
-
-
-
-.outfit-card{
-
-background:white;
-
-padding:20px;
-
-border-radius:20px;
-
-box-shadow:0 5px 20px rgba(0,0,0,0.15);
-
-}
-
-
-
-
-.outfit-card img{
-
-width:120px;
-
-height:120px;
-
-object-fit:cover;
-
-border-radius:15px;
-
-margin:5px;
-
-}
-
-
-
-.outfit-card h2{
-
-color:#333;
-
-}
+box-shadow:
+0 10px 25px rgba(123,97,255,.
