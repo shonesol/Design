@@ -4,39 +4,24 @@
 
 let database = null;
 
-
 const DATABASE_VERSION = 6;
 
 
 
-
-
-// ==========================
-// OPEN USER DATABASE
-// ==========================
-
-
-export async function getDatabase(userId){
-
+export function getDatabase(userId){
 
 return new Promise((resolve,reject)=>{
 
 
-
 if(!userId){
 
-
 reject(
-"No User ID provided"
+"No user ID"
 );
-
 
 return;
 
-
 }
-
-
 
 
 
@@ -52,13 +37,6 @@ DATABASE_VERSION
 
 
 
-
-
-// ==========================
-// CREATE DATABASE
-// ==========================
-
-
 request.onupgradeneeded = (event)=>{
 
 
@@ -66,29 +44,20 @@ const db = event.target.result;
 
 
 
+if(!db.objectStoreNames.contains("wardrobe")){
 
 
-// WARDROBE
-
-if(
-!db.objectStoreNames.contains("wardrobe")
-){
-
-
-const store = db.createObjectStore(
+const store =
+db.createObjectStore(
 
 "wardrobe",
 
 {
-
 keyPath:"id",
-
 autoIncrement:true
-
 }
 
 );
-
 
 
 store.createIndex(
@@ -97,12 +66,10 @@ store.createIndex(
 );
 
 
-
 store.createIndex(
 "color",
 "color"
 );
-
 
 
 store.createIndex(
@@ -111,12 +78,10 @@ store.createIndex(
 );
 
 
-
 store.createIndex(
 "laundryStatus",
 "laundryStatus"
 );
-
 
 
 }
@@ -125,13 +90,7 @@ store.createIndex(
 
 
 
-
-
-// HISTORY
-
-if(
-!db.objectStoreNames.contains("history")
-){
+if(!db.objectStoreNames.contains("history")){
 
 
 db.createObjectStore(
@@ -139,11 +98,8 @@ db.createObjectStore(
 "history",
 
 {
-
 keyPath:"id",
-
 autoIncrement:true
-
 }
 
 );
@@ -155,75 +111,16 @@ autoIncrement:true
 
 
 
+if(!db.objectStoreNames.contains("plans")){
 
-
-// PLANS
-
-if(
-!db.objectStoreNames.contains("plans")
-){
-
-
-const store =
 
 db.createObjectStore(
 
 "plans",
 
 {
-
 keyPath:"id",
-
 autoIncrement:true
-
-}
-
-);
-
-
-
-store.createIndex(
-
-"date",
-
-"date",
-
-{
-
-unique:false
-
-}
-
-);
-
-
-
-}
-
-
-
-
-
-
-
-
-// FEEDBACK
-
-if(
-!db.objectStoreNames.contains("feedback")
-){
-
-
-db.createObjectStore(
-
-"feedback",
-
-{
-
-keyPath:"id",
-
-autoIncrement:true
-
 }
 
 );
@@ -235,14 +132,7 @@ autoIncrement:true
 
 
 
-
-
-
-// AI MEMORY
-
-if(
-!db.objectStoreNames.contains("preferences")
-){
+if(!db.objectStoreNames.contains("preferences")){
 
 
 db.createObjectStore(
@@ -250,7 +140,6 @@ db.createObjectStore(
 "preferences",
 
 {
-
 keyPath:"id"
 
 }
@@ -262,55 +151,37 @@ keyPath:"id"
 
 
 
-
 };
 
 
 
 
 
+request.onsuccess=(event)=>{
 
 
-
-
-request.onsuccess = (event)=>{
-
-
-database = event.target.result;
-
+database =
+event.target.result;
 
 
 console.log(
-"✅ FashionAI IndexedDB Connected"
+"✅ IndexedDB Connected"
 );
-
 
 
 resolve(database);
 
 
-
 };
 
 
 
 
 
+request.onerror=()=>{
 
 
-request.onerror = ()=>{
-
-
-console.error(
-"❌ IndexedDB Error",
-request.error
-);
-
-
-
-reject(
-request.error
-);
+reject(request.error);
 
 
 };
@@ -319,18 +190,9 @@ request.error
 
 });
 
-
 }
 
 
-
-
-
-
-
-// ==========================
-// CLOSE DATABASE
-// ==========================
 
 
 export function closeDatabase(){
@@ -338,15 +200,11 @@ export function closeDatabase(){
 
 if(database){
 
-
 database.close();
-
 
 database=null;
 
-
 }
-
 
 
 }
