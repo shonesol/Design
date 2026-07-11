@@ -1,30 +1,33 @@
 // upload.js
-// FashionAI Upload & AI Clothing Recognition
+// FashionAI Upload & AI Recognition Engine
 
 import { auth } from "./firebase.js";
 
 import {
 onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+}
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 import {
 askGemini
-} from "./gemini.js";
+}
+from "./gemini.js";
 
 import {
 FASHION_VISION_PROMPT
-} from "./fashion-vision-prompt.js";
+}
+from "./fashion-vision-prompt.js";
 
 import {
 optimizeImage
 }
 from "./image-preprocessor.js";
 
-
 import {
 openDatabase,
 addClothing
-} from "./db.js";
+}
+from "./db.js";
 
 
 
@@ -37,15 +40,22 @@ let database = null;
 // LOGIN
 // ==========================
 
-onAuthStateChanged(auth, async(current)=>{
+onAuthStateChanged(
+auth,
+async(current)=>{
 
 if(current){
 
 user = current;
 
-database = await openDatabase(user.uid);
+database =
+await openDatabase(
+user.uid
+);
 
-console.log("FashionAI Database Ready");
+console.log(
+"✅ FashionAI Database Ready"
+);
 
 }
 
@@ -58,15 +68,20 @@ console.log("FashionAI Database Ready");
 // ==========================
 
 const button =
-document.getElementById("uploadBtn");
+document.getElementById(
+"uploadBtn"
+);
 
 
 
-button.onclick = async()=>{
+button.onclick =
+async()=>{
 
 if(!user){
 
-alert("Please login first");
+alert(
+"Please login first."
+);
 
 return;
 
@@ -76,14 +91,18 @@ return;
 
 const file =
 document
-.getElementById("clothingImage")
+.getElementById(
+"clothingImage"
+)
 .files[0];
 
 
 
 if(!file){
 
-alert("Choose a clothing image.");
+alert(
+"Choose a clothing image."
+);
 
 return;
 
@@ -91,29 +110,52 @@ return;
 
 
 
-const reader =
-new FileReader();
+// ==========================
+// OPTIMIZE IMAGE
+// ==========================
+
+const image =
+await optimizeImage(
+file
+);
 
 
 
-reader.onload = async()=>{
-
-const image = reader.result;
-
-
-
-document
-.getElementById("preview")
-.innerHTML =
-
-`<img src="${image}" width="220">`;
-
-
+// PREVIEW
 
 document
-.getElementById("result")
+.getElementById(
+"preview"
+)
 .innerHTML =
-"🤖 FashionAI Vision Pro is analyzing...";
+
+`
+
+<img src="${image}" width="220">
+
+`;
+
+
+
+// STATUS
+
+document
+.getElementById(
+"result"
+)
+.innerHTML =
+
+`
+
+<h3>
+🤖 FashionAI Vision Pro
+</h3>
+
+<p>
+Analyzing clothing...
+</p>
+
+`;
 
 
 
@@ -121,8 +163,11 @@ try{
 
 const answer =
 await askGemini(
+
 FASHION_VISION_PROMPT,
+
 image
+
 );
 
 
@@ -130,13 +175,11 @@ image
 let ai =
 JSON.parse(answer);
 
+  // ==========================
+// NORMALIZE AI DATA
+// ==========================
 
-
-// ======================
-// NORMALIZE DATA
-// ======================
-
-const clothing={
+const clothing = {
 
 image,
 
@@ -220,7 +263,7 @@ ageGroup:
 ai.ageGroup || "Adult",
 
 confidence:
-ai.confidence || 0,
+Number(ai.confidence) || 0,
 
 favorite:false,
 
@@ -234,9 +277,9 @@ createdAt:Date.now()
 
 
 
-// ======================
-// SAVE
-// ======================
+// ==========================
+// SAVE TO DATABASE
+// ==========================
 
 await addClothing(
 database,
@@ -245,17 +288,15 @@ clothing
 
 
 
-// ======================
-// SUCCESS
-// ======================
+// ==========================
+// SHOW RESULT
+// ==========================
 
 document
 .getElementById("result")
-.innerHTML =
+.innerHTML = `
 
-`
-
-<h2>✅ Clothing Saved</h2>
+<h2>✅ Clothing Saved Successfully</h2>
 
 <p><b>Name:</b> ${clothing.name}</p>
 
@@ -263,13 +304,15 @@ document
 
 <p><b>Type:</b> ${clothing.type}</p>
 
-<p><b>Color:</b> ${clothing.color}</p>
+<p><b>Primary Color:</b> ${clothing.color}</p>
 
-<p><b>Style:</b> ${clothing.style}</p>
+<p><b>Secondary Color:</b> ${clothing.secondaryColor}</p>
 
 <p><b>Material:</b> ${clothing.material}</p>
 
-<p><b>Fit:</b> ${clothing.fit}</p>
+<p><b>Pattern:</b> ${clothing.pattern}</p>
+
+<p><b>Style:</b> ${clothing.style}</p>
 
 <p><b>Occasion:</b> ${clothing.occasion}</p>
 
@@ -280,31 +323,37 @@ document
 <p><b>Confidence:</b> ${clothing.confidence}%</p>
 
 `;
+  }catch(error){
 
-}
-
-catch(error){
-
-console.error(error);
+console.error(
+"FashionAI Error:",
+error
+);
 
 document
-.getElementById("result")
-.innerHTML =
+.getElementById(
+"result"
+)
+.innerHTML = `
 
-`
-<h2>❌ AI Error</h2>
+<h2>
+❌ AI Error
+</h2>
 
 <p>
-FashionAI could not analyze this image.
+
+FashionAI could not analyze this clothing image.
+
 </p>
+
+<p>
+
+Please try another photo with good lighting and a clear view of one clothing item.
+
+</p>
+
 `;
 
 }
 
-};
-
-
-
-reader.readAsDataURL(file);
-
-};
+}; // End upload button
