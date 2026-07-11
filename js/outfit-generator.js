@@ -2,28 +2,17 @@
 // FashionAI Outfit Generator 2.0
 
 
-import { auth }
-from "./firebase.js";
-
-
 import {
-onAuthStateChanged
-}
-from 
-"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-
-import {
-
-openDatabase,
-
 getClothes,
-
 saveWearHistory
-
 }
 from "./db.js";
 
+
+import {
+getDatabase
+}
+from "./database-manager.js";
 
 
 import {
@@ -84,6 +73,11 @@ from "./outfit-score.js";
 
 
 
+// ==========================
+// DATABASE
+// ==========================
+
+
 let database = null;
 
 
@@ -98,36 +92,20 @@ let currentOccasion = null;
 
 
 
+
 // ==========================
-// LOGIN
+// CONNECT DATABASE
 // ==========================
 
 
-onAuthStateChanged(
+database = await getDatabase();
 
-auth,
-
-async(user)=>{
-
-
-if(user){
-
-
-database =
-await openDatabase(
-user.uid
-);
 
 
 console.log(
-"FashionAI Outfit Engine Ready"
+"✅ FashionAI Outfit Engine Ready"
 );
 
-
-}
-
-
-});
 
 
 
@@ -135,16 +113,21 @@ console.log(
 
 
 const button =
+
 document.getElementById(
 "generateBtn"
 );
 
 
 
+
 const output =
+
 document.getElementById(
 "outfitResult"
 );
+
+
 
 
 
@@ -157,9 +140,7 @@ document.getElementById(
 // ==========================
 
 
-button.onclick =
-async()=>{
-
+button.onclick = async()=>{
 
 
 if(!database){
@@ -179,6 +160,7 @@ return;
 
 
 const clothes =
+
 await getClothes(
 database
 );
@@ -196,6 +178,7 @@ database
 
 
 currentProfile =
+
 await analyzeUserStyle(
 database
 );
@@ -204,7 +187,9 @@ database
 
 
 
+
 currentOccasion =
+
 document
 .getElementById(
 "occasion"
@@ -217,13 +202,16 @@ document
 
 
 const location =
+
 await getUserLocation();
 
 
 
 
 
+
 currentWeather =
+
 await getCurrentWeather(
 
 location.latitude,
@@ -238,6 +226,7 @@ location.longitude
 
 
 const occasionStyles =
+
 getOccasionStyle(
 currentOccasion
 );
@@ -258,7 +247,6 @@ currentWeather,
 occasionStyles
 
 );
-
 
 
 };
@@ -289,7 +277,6 @@ occasionStyles
 ){
 
 
-
 let outfits=[];
 
 
@@ -313,7 +300,6 @@ item.laundryStatus==="Ready"
 
 
 
-
 const tops =
 
 cleanClothes.filter(item=>
@@ -326,7 +312,6 @@ item.category==="Top"
 
 
 
-
 const bottoms =
 
 cleanClothes.filter(item=>
@@ -334,7 +319,6 @@ cleanClothes.filter(item=>
 item.category==="Bottom"
 
 );
-
 
 
 
@@ -373,6 +357,7 @@ output.innerHTML =
 Upload more clothes
 </h3>
 
+
 <p>
 FashionAI needs tops, bottoms and shoes.
 </p>
@@ -391,21 +376,14 @@ return;
 
 
 
-for(
-const top of tops
-){
+
+for(const top of tops){
 
 
-for(
-const bottom of bottoms
-){
+for(const bottom of bottoms){
 
 
-for(
-const shoe of shoes
-){
-
-
+for(const shoe of shoes){
 
 
 
@@ -434,7 +412,6 @@ occasionStyles
 
 
 
-
 const worn =
 
 await checkRecentlyWorn(
@@ -442,13 +419,9 @@ await checkRecentlyWorn(
 database,
 
 {
-
 top,
-
 bottom,
-
 shoe
-
 }
 
 );
@@ -495,7 +468,6 @@ score
 
 
 
-
 outfits.sort(
 
 (a,b)=>
@@ -508,12 +480,12 @@ b.score-a.score
 
 
 
+
 displayOutfits(
 
 outfits.slice(0,5)
 
 );
-
 
 
 }
@@ -531,10 +503,7 @@ outfits.slice(0,5)
 // ==========================
 
 
-async function displayOutfits(
-outfits
-){
-
+async function displayOutfits(outfits){
 
 
 output.innerHTML="";
@@ -566,10 +535,9 @@ return;
 
 
 
+for(const outfit of outfits){
 
-for(
-const outfit of outfits
-){
+
 
 
 
@@ -600,9 +568,7 @@ output.innerHTML +=
 
 
 <h2>
-
 🤖 AI Match ${outfit.score}%
-
 </h2>
 
 
@@ -614,7 +580,6 @@ output.innerHTML +=
 
 
 <img src="${outfit.shoe.image}" width="120">
-
 
 
 
@@ -634,16 +599,13 @@ output.innerHTML +=
 
 
 
-
 <h3>
 ✨ FashionAI Advice
 </h3>
 
 
 <p>
-
 ${explanation}
-
 </p>
 
 
@@ -655,6 +617,7 @@ ${explanation}
 👕 Wear This Outfit
 
 </button>
+
 
 
 
@@ -684,7 +647,6 @@ ${explanation}
 }
 
 
-
 }
 
 
@@ -696,7 +658,7 @@ ${explanation}
 
 
 // ==========================
-// WEAR MEMORY
+// SAVE WEAR HISTORY
 // ==========================
 
 
@@ -714,8 +676,11 @@ outfit
 );
 
 
+
 alert(
+
 "✅ FashionAI remembered this outfit"
+
 );
 
 
@@ -728,8 +693,9 @@ alert(
 
 
 
+
 // ==========================
-// FEEDBACK LEARNING
+// AI FEEDBACK
 // ==========================
 
 
@@ -747,6 +713,7 @@ outfit
 );
 
 
+
 alert(
 
 "❤️ FashionAI learned your preference"
@@ -755,6 +722,7 @@ alert(
 
 
 };
+
 
 
 
@@ -773,6 +741,7 @@ database,
 outfit
 
 );
+
 
 
 alert(
