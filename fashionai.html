@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>
+FashionAI Personal Stylist
+</title>
+
+
+<link rel="stylesheet" href="style.css">
+
+
+</head>
+
+
+<body>
+
+
+
+<h1>
+👗 FashionAI
+</h1>
+
+
+<p>
+Your Personal AI Fashion Assistant
+</p>
+
+
+
+
+
+<!-- ======================
+UPLOAD CLOTHING
+====================== -->
+
+
+<section class="card">
+
+
+<h2>
+📸 Upload Clothing
+</h2>
+
+
+<input 
+type="file"
+id="clothingImage"
+accept="image/*"
+/>
+
+
+<br><br>
+
+
+<button id="uploadBtn">
+
+🤖 Analyze Clothing
+
+</button>
+
+
+
+<div id="preview"></div>
+
+
+<div id="result"></div>
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<!-- ======================
+OUTFIT GENERATOR
+====================== -->
+
+
+<section class="card">
+
+
+<h2>
+✨ Generate Outfit
+</h2>
+
+
+
+<select id="occasion">
+
+
+<option value="office">
+Office
+</option>
+
+
+<option value="travel">
+Travel
+</option>
+
+
+<option value="party">
+Party
+</option>
+
+
+<option value="wedding">
+Wedding
+</option>
+
+
+<option value="daily">
+Daily Wear
+</option>
+
+
+</select>
+
+
+
+<br><br>
+
+
+<button id="generateBtn">
+
+🤖 Create AI Outfit
+
+</button>
+
+
+
+<div id="outfitResult"></div>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<!-- ======================
+BACKUP SYSTEM
+====================== -->
+
+
+<section class="card">
+
+
+<h2>
+💾 Backup FashionAI
+</h2>
+
+
+
+<button id="backupBtn">
+
+💾 Backup My Wardrobe
+
+</button>
+
+
+
+
+<br><br>
+
+
+<input
+
+type="file"
+
+id="restoreFile"
+
+accept=".json"
+
+/>
+
+
+
+<button id="restoreBtn">
+
+♻️ Restore Wardrobe
+
+</button>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- ======================
+LAUNDRY
+====================== -->
+
+
+<section class="card">
+
+
+<h2>
+🧺 Laundry Manager
+</h2>
+
+
+
+<a href="laundry.html">
+
+Open Laundry
+
+</a>
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<script type="module" src="upload.js"></script>
+
+
+<script type="module" src="outfit-generator.js"></script>
+
+
+<script type="module" src="backup.js"></script>
+
+
+
+</body>
+
+
+</html>
