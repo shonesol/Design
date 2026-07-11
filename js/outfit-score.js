@@ -249,8 +249,112 @@ score += 5;
 }
 
 
+// =====================================
+// PERSONALITY MATCH
+// =====================================
 
 
+if(
+
+profile.fashionPersonality==="Elegant Classic"
+
+&&
+
+styles.includes("business")
+
+){
+
+score +=10;
+
+}
+
+
+
+if(
+
+profile.fashionPersonality==="Urban Trendsetter"
+
+&&
+
+styles.includes("streetwear")
+
+){
+
+score +=10;
+
+}
+
+
+
+if(
+
+profile.fashionPersonality==="Modern Minimalist"
+
+&&
+
+styles.includes("minimalist")
+
+){
+
+score +=10;
+
+}
+
+
+
+
+// =====================================
+// PERSONALITY MATCH
+// =====================================
+
+
+if(
+
+profile.fashionPersonality==="Elegant Classic"
+
+&&
+
+styles.includes("business")
+
+){
+
+score +=10;
+
+}
+
+
+
+
+if(
+
+profile.fashionPersonality==="Urban Trendsetter"
+
+&&
+
+styles.includes("streetwear")
+
+){
+
+score +=10;
+
+}
+
+
+
+
+if(
+
+profile.fashionPersonality==="Modern Minimalist"
+
+&&
+
+styles.includes("minimalist")
+
+){
+
+score +=10;
+
+}
 // =====================================
 // LIMIT SCORE
 // =====================================
