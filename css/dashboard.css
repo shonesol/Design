@@ -1,31 +1,297 @@
 body{
 
-font-family:Arial;
+font-family:'Segoe UI', Arial, sans-serif;
 
-background:#f5f0e6;
+background:
+linear-gradient(
+135deg,
+#f5f0e6,
+#ffeaf4
+);
+
+margin:0;
+
+padding:0;
+
+color:#333;
 
 }
 
 
+
+/* Dashboard Container */
 
 .dashboard{
 
-width:90%;
+width:95%;
 
-margin:auto;
+max-width:1200px;
+
+margin:40px auto;
 
 }
 
 
+
+
+
+/* Dashboard Cards Grid */
 
 .cards{
 
 display:grid;
 
 grid-template-columns:
-repeat(auto-fit,minmax(200px,1fr));
+repeat(auto-fit,minmax(280px,1fr));
 
-gap:20px;
+gap:30px;
+
+}
+
+
+
+
+
+
+/* Main Cards */
+
+
+.card{
+
+
+background:white;
+
+padding:35px;
+
+border-radius:25px;
+
+text-align:center;
+
+
+box-shadow:
+0 15px 35px rgba(0,0,0,0.12);
+
+
+transition:.3s;
+
+
+}
+
+
+
+.card:hover{
+
+
+transform:translateY(-8px);
+
+
+box-shadow:
+0 20px 45px rgba(0,0,0,0.18);
+
+
+}
+
+
+
+
+
+.card h1,
+.card h2,
+.card h3{
+
+font-size:28px;
+
+color:#7b61ff;
+
+}
+
+
+
+
+.card p{
+
+
+font-size:20px;
+
+line-height:1.6;
+
+
+}
+
+
+
+
+
+
+/* Statistics Numbers */
+
+
+.card .number{
+
+
+font-size:45px;
+
+font-weight:bold;
+
+color:#ff5fa2;
+
+}
+
+
+
+
+
+
+/* Suggestions and Recent Section */
+
+
+#suggestions,
+#recent{
+
+
+background:white;
+
+padding:35px;
+
+border-radius:25px;
+
+
+margin-top:30px;
+
+
+box-shadow:
+0 10px 30px rgba(0,0,0,.12);
+
+
+font-size:18px;
+
+line-height:1.8;
+
+
+}
+
+
+
+
+
+/* Dashboard Buttons */
+
+
+.dashboard-buttons{
+
+
+display:flex;
+
+gap:25px;
+
+justify-content:center;
+
+margin-top:40px;
+
+flex-wrap:wrap;
+
+
+}
+
+
+
+
+.dashboard-buttons button{
+
+
+padding:18px 35px;
+
+
+border:none;
+
+
+border-radius:35px;
+
+
+font-size:18px;
+
+
+font-weight:bold;
+
+
+cursor:pointer;
+
+
+color:white;
+
+
+background:
+linear-gradient(
+135deg,
+#ff5fa2,
+#7b61ff
+);
+
+
+
+box-shadow:
+0 8px 20px rgba(123,97,255,.3);
+
+
+
+transition:.3s;
+
+
+}
+
+
+
+
+.dashboard-buttons button:hover{
+
+
+transform:translateY(-5px) scale(1.05);
+
+
+background:
+linear-gradient(
+135deg,
+#7b61ff,
+#ff5fa2
+);
+
+
+}
+
+
+
+
+
+
+/* Add icons inside cards */
+
+
+.card span{
+
+
+font-size:50px;
+
+display:block;
+
+margin-bottom:15px;
+
+
+}
+
+
+
+
+
+
+/* Mobile */
+
+
+@media(max-width:600px){
+
+
+.dashboard{
+
+width:92%;
 
 }
 
@@ -33,41 +299,18 @@ gap:20px;
 
 .card{
 
-background:white;
 
-padding:20px;
-
-border-radius:15px;
-
-text-align:center;
-
-box-shadow:0 5px 15px #ccc;
+padding:25px;
 
 }
 
 
 
-#suggestions,
-#recent{
+.card h1,
+.card h2,
+.card h3{
 
-background:white;
-
-padding:20px;
-
-border-radius:15px;
-
-}
-.dashboard-buttons{
-
-display:flex;
-
-gap:20px;
-
-justify-content:center;
-
-margin-top:30px;
-
-flex-wrap:wrap;
+font-size:22px;
 
 }
 
@@ -75,28 +318,15 @@ flex-wrap:wrap;
 
 .dashboard-buttons button{
 
-padding:15px 25px;
 
-border:none;
+width:100%;
 
-border-radius:20px;
 
 font-size:16px;
 
-cursor:pointer;
-
-background:#222;
-
-color:white;
-
-transition:0.3s;
 
 }
 
 
-
-.dashboard-buttons button:hover{
-
-transform:scale(1.05);
 
 }
