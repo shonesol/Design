@@ -16,6 +16,14 @@ getWearHistory
 }
 from "./db.js";
 
+import {
+
+exportFashionAI,
+importFashionAI
+
+}
+
+from "./backup-ai.js";
 
 import {
 analyzeUserStyle
@@ -329,3 +337,60 @@ ${clothes.length} items
 
 
 }
+document
+.getElementById(
+"backupBtn"
+)
+.onclick = ()=>{
+
+
+exportFashionAI(
+database
+);
+
+
+};
+
+
+
+
+
+document
+.getElementById(
+"restoreBtn"
+)
+.onclick = async()=>{
+
+
+const file =
+
+document
+.getElementById(
+"restoreFile"
+)
+.files[0];
+
+
+
+if(file){
+
+
+await importFashionAI(
+
+database,
+
+file
+
+);
+
+
+
+alert(
+"✅ FashionAI wardrobe restored"
+);
+
+
+}
+
+
+};
