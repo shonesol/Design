@@ -24,7 +24,6 @@
 <body>
 
 
-
 <header class="header">
 
 
@@ -44,8 +43,6 @@ Your Personal AI Wardrobe Assistant
 
 
 
-
-
 <section class="welcome-card">
 
 
@@ -55,7 +52,10 @@ Welcome Back 👋
 
 
 <p>
-FashionAI learns your style, weather, occasions and wardrobe history to create your perfect outfit.
+
+FashionAI learns your clothes, style preferences, weather,
+occasions and wearing history to create smart outfit recommendations.
+
 </p>
 
 
@@ -68,6 +68,7 @@ FashionAI learns your style, weather, occasions and wardrobe history to create y
 
 
 <section class="dashboard">
+
 
 
 <div class="card">
@@ -84,11 +85,11 @@ My Wardrobe
 
 
 <p>
-Upload and manage your clothes collection.
+Upload, view and manage your clothes.
 </p>
 
 
-<a href="wardrobe.html">
+<a href="./wardrobe.html">
 
 Open Wardrobe
 
@@ -103,11 +104,12 @@ Open Wardrobe
 
 
 
+
 <div class="card">
 
 
 <div class="icon">
-✨
+🤖
 </div>
 
 
@@ -117,11 +119,11 @@ AI Outfit Generator
 
 
 <p>
-Generate personalized outfits using AI scoring.
+Generate outfits using AI scoring and style learning.
 </p>
 
 
-<a href="outfit.html">
+<a href="./outfit.html">
 
 Generate Outfit
 
@@ -129,6 +131,7 @@ Generate Outfit
 
 
 </div>
+
 
 
 
@@ -150,11 +153,11 @@ Outfit Planner
 
 
 <p>
-Plan your future outfits and occasions.
+Save future outfits and special occasions.
 </p>
 
 
-<a href="planner.html">
+<a href="./planner.html">
 
 Open Planner
 
@@ -162,6 +165,7 @@ Open Planner
 
 
 </div>
+
 
 
 
@@ -183,11 +187,11 @@ Laundry Intelligence
 
 
 <p>
-Track clean clothes and washing history.
+Track clean clothes and laundry status.
 </p>
 
 
-<a href="laundry.html">
+<a href="./laundry.html">
 
 Laundry
 
@@ -202,7 +206,41 @@ Laundry
 
 
 
+
+<div class="card">
+
+
+<div class="icon">
+💬
+</div>
+
+
+<h3>
+Ask FashionAI
+</h3>
+
+
+<p>
+Chat with your AI fashion assistant.
+</p>
+
+
+<a href="./fashion-chat.html">
+
+Chat Now
+
+</a>
+
+
+</div>
+
+
+
+
+
 </section>
+
+
 
 
 
@@ -218,18 +256,20 @@ Laundry
 </h2>
 
 
+
+
 <div class="stats">
 
 
-<div>
 
-<h3>
+<div class="stat-box">
+
+<h3 id="totalClothes">
 0
 </h3>
 
 <p>
 Clothes
-
 </p>
 
 </div>
@@ -238,15 +278,46 @@ Clothes
 
 
 
-<div>
+<div class="stat-box">
 
-<h3>
+<h3 id="totalWorn">
+0
+</h3>
+
+<p>
+Outfits Worn
+</p>
+
+</div>
+
+
+
+
+
+<div class="stat-box">
+
+<h3 id="favoriteColors">
+Loading...
+</h3>
+
+<p>
+Favourite Colors
+</p>
+
+</div>
+
+
+
+
+
+<div class="stat-box">
+
+<h3 id="favoriteStyle">
 Explorer
 </h3>
 
 <p>
 Style Personality
-
 </p>
 
 </div>
@@ -255,18 +326,18 @@ Style Personality
 
 
 
-<div>
+<div class="stat-box">
 
-<h3>
+<h3 id="confidence">
 0%
 </h3>
 
 <p>
 AI Confidence
-
 </p>
 
 </div>
+
 
 
 </div>
@@ -280,20 +351,138 @@ AI Confidence
 
 
 
+
+
+<section class="ai-card">
+
+
+<h2>
+✨ AI Suggestions
+</h2>
+
+
+<div id="suggestions">
+
+Loading FashionAI memory...
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<section class="ai-card">
+
+
+<h2>
+🔥 Recent Outfits
+</h2>
+
+
+<div id="recent">
+
+No outfits yet.
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<section class="backup-section">
+
+
+<h2>
+💾 Backup & Restore
+</h2>
+
+
+
+<button id="backupBtn">
+
+Backup FashionAI
+
+</button>
+
+
+
+<br><br>
+
+
+
+<input
+
+type="file"
+
+id="restoreFile"
+
+accept=".json"
+
+>
+
+
+
+<button id="restoreBtn">
+
+Restore Wardrobe
+
+</button>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
 <footer>
 
 
 <p>
+
 © 2026 FashionAI | Smart Wardrobe Technology
+
 </p>
 
 
 </footer>
 
 
-<script type="module" src="./js/dashboard.js"></script>
+
+
+
+
+
+<script
+
+type="module"
+
+src="./js/dashboard.js">
+
+</script>
+
 
 
 </body>
+
 
 </html>
