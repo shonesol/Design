@@ -74,9 +74,7 @@ try{
 
 
 database = await getDatabase(
-
-user.uid
-
+currentUser.uid
 );
 
 
