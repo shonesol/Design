@@ -1,5 +1,5 @@
-// upload.js
-// FashionAI AI Clothing Upload System
+// upload-test.js
+// FashionAI Upload Debug Test
 
 
 import { auth } from "./firebase.js";
@@ -18,22 +18,15 @@ from "./database-manager.js";
 
 
 import {
-addClothing
-}
-from "./db.js";
-
-
-import {
-optimizeImage
-}
-from "./image-preprocessor.js";
-
-
-import {
 analyzeClothing
 }
 from "./clothing-ai.js";
 
+
+import {
+addClothing
+}
+from "./db.js";
 
 
 let database = null;
@@ -41,10 +34,22 @@ let user = null;
 
 
 
+const resultBox =
+document.getElementById("result");
 
-// ==========================
-// LOGIN + DATABASE
-// ==========================
+
+
+function show(message){
+
+resultBox.innerHTML +=
+
+`
+<p>${message}</p>
+`;
+
+}
+
+
 
 
 onAuthStateChanged(
@@ -56,17 +61,16 @@ async(currentUser)=>{
 
 if(!currentUser){
 
-console.log(
-"Waiting for login..."
-);
+show("❌ No Firebase user logged in");
 
 return;
 
 }
 
 
+user=currentUser;
 
-user = currentUser;
+show("✅ Firebase login OK");
 
 
 
@@ -74,14 +78,11 @@ try{
 
 
 database = await getDatabase(
-currentUser.uid
+user.uid
 );
 
 
-console.log(
-"✅ Upload Database Ready"
-);
-
+show("✅ IndexedDB connected");
 
 
 }
@@ -89,9 +90,8 @@ console.log(
 catch(error){
 
 
-console.error(
-"Database Error:",
-error
+show(
+"❌ Database error: " + error.message
 );
 
 
@@ -99,9 +99,7 @@ error
 
 
 
-}
-
-);
+});
 
 
 
@@ -110,123 +108,37 @@ error
 
 
 
-// ==========================
-// UPLOAD BUTTON
-// ==========================
-
-
-const uploadBtn = document.getElementById(
-"uploadBtn"
-);
-
-
-
-if(uploadBtn){
-
-
-
-uploadBtn.onclick = async()=>{
+document
+.getElementById("uploadBtn")
+.onclick = async()=>{
 
 
 try{
 
 
-
-if(!database){
-
-
-alert(
-"Database not ready. Login first."
-);
-
-
-return;
-
-
-}
+show("⏳ Upload started");
 
 
 
-
-const file = document
-.getElementById(
-"clothingImage"
-)
+const file =
+document
+.getElementById("clothingImage")
 .files[0];
-
 
 
 
 if(!file){
 
-
-alert(
-"Select clothing image"
-);
-
+show("❌ No image selected");
 
 return;
-
 
 }
 
 
 
-
-
-// IMAGE PROCESSING
-
-const image = await optimizeImage(file);
-
-
-
-
-
-document.getElementById(
-"preview"
-).innerHTML =
-
-`
-
-<img src="${image}" width="220">
-
-`;
-
-
-
-
-
-document.getElementById(
-"result"
-).innerHTML =
-
-`
-
-<h3>
-🤖 FashionAI analysing...
-</h3>
-
-`;
-
-
-
-
-
-
-// ==========================
-// GEMINI ANALYSIS
-// ==========================
-
-
-const ai = await analyzeClothing(
-image
-);
-
-
-
-console.log(
-"AI RESPONSE:",
-ai
+show(
+"✅ Image selected: " + file.name
 );
 
 
@@ -234,117 +146,57 @@ ai
 
 
 
-// ==========================
-// SAVE OBJECT
-// ==========================
+const reader = new FileReader();
 
 
-const clothing = {
 
+reader.onload = async()=>{
+
+
+const image =
+reader.result;
+
+
+show("✅ Image converted");
+
+
+
+try{
+
+
+const ai =
+await analyzeClothing(image);
+
+
+
+show(
+"✅ Gemini returned response"
+);
+
+
+
+show(
+JSON.stringify(ai)
+);
+
+
+
+const clothing={
 
 image:image,
 
+name:ai.type || "Unknown",
 
-name:
-ai.type || "Unknown Clothing",
+category:ai.category || "Other",
 
+color:ai.primaryColor || "Unknown",
 
-
-type:
-ai.type || "Unknown",
-
-
-
-category:
-normalizeCategory(
-ai.category
-),
-
-
-
-color:
-ai.primaryColor || "Unknown",
-
-
-
-secondaryColor:
-ai.secondaryColor || "",
-
-
-
-material:
-ai.material || "Unknown",
-
-
-
-pattern:
-ai.pattern || "Plain",
-
-
-
-style:
-ai.style || "Casual",
-
-
-
-occasion:
-
-Array.isArray(ai.occasions)
-
-?
-
-ai.occasions.join(",")
-
-:
-
-"Daily Wear",
-
-
-
-
-season:
-
-Array.isArray(ai.season)
-
-?
-
-ai.season.join(",")
-
-:
-
-"All Season",
-
-
-
-
-confidence:
-
-Number(ai.confidence)||0,
-
-
-
-favorite:false,
-
-
-
-timesWorn:0,
-
-
-
-laundryStatus:"Clean",
-
-
+style:ai.style || "Unknown",
 
 createdAt:Date.now()
 
 };
 
-
-
-
-
-
-// SAVE TO PHONE DATABASE
 
 
 await addClothing(
@@ -357,58 +209,8 @@ clothing
 
 
 
-
-
-
-
-document.getElementById(
-"result"
-).innerHTML =
-
-
-`
-
-<h2>
-✅ Saved Successfully
-</h2>
-
-
-<p>
-<b>Name:</b>
-${clothing.name}
-</p>
-
-
-<p>
-<b>Category:</b>
-${clothing.category}
-</p>
-
-
-<p>
-<b>Color:</b>
-${clothing.color}
-</p>
-
-
-<p>
-<b>Style:</b>
-${clothing.style}
-</p>
-
-
-<p>
-<b>AI Confidence:</b>
-${clothing.confidence}%
-</p>
-
-
-`;
-
-
-
-window.dispatchEvent(
-new Event("clothingAdded")
+show(
+"✅ Saved to phone database"
 );
 
 
@@ -418,30 +220,11 @@ new Event("clothingAdded")
 catch(error){
 
 
-console.error(
-"UPLOAD ERROR:",
-error
+show(
+"❌ AI/SAVE ERROR: "
++
+error.message
 );
-
-
-
-document.getElementById(
-"result"
-).innerHTML =
-
-
-`
-
-<h3>
-❌ Upload Failed
-</h3>
-
-<p>
-${error.message}
-</p>
-
-`;
-
 
 
 }
@@ -452,97 +235,23 @@ ${error.message}
 
 
 
+reader.readAsDataURL(file);
+
+
+
 }
 
+catch(error){
 
 
+show(
+"❌ ERROR: "
++
+error.message
+);
 
-
-
-
-
-// ==========================
-// CATEGORY NORMALIZER
-// ==========================
-
-
-function normalizeCategory(category){
-
-
-if(!category){
-
-return "Other";
 
 }
 
 
-category =
-category.toLowerCase();
-
-
-
-if(
-category.includes("shirt") ||
-category.includes("top") ||
-category.includes("blouse")
-){
-
-return "Top";
-
-}
-
-
-
-
-if(
-category.includes("pant") ||
-category.includes("jean") ||
-category.includes("trouser") ||
-category.includes("skirt")
-){
-
-return "Bottom";
-
-}
-
-
-
-
-if(
-category.includes("shoe") ||
-category.includes("sneaker")
-){
-
-return "Shoes";
-
-}
-
-
-
-
-if(
-category.includes("dress")
-){
-
-return "Dress";
-
-}
-
-
-
-
-if(
-category.includes("jacket") ||
-category.includes("coat")
-){
-
-return "Outerwear";
-
-}
-
-
-
-return "Other";
-
-
-}
+};
