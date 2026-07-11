@@ -1,157 +1,24 @@
-// style-learning.js
-// FashionAI User Style Intelligence
-
+// db.js
+// FashionAI Main Database Functions
 
 
 // ==========================
-// ANALYZE USER STYLE
+// ADD CLOTHING
 // ==========================
 
-
-export async function analyzeUserStyle(
-
-database
-
+export function addClothing(
+database,
+clothing
 ){
-
-
-
-const profile =
-
-await getPreference(
-
-database
-
-);
-
-
-
-
-
-
-if(!profile){
-
-
-
-return {
-
-
-fashionPersonality:"Explorer",
-
-
-favoriteColors:[],
-
-
-favoriteStyles:[],
-
-
-favoriteOccasions:[],
-
-
-confidence:0
-
-
-
-};
-
-
-
-}
-
-
-
-
-
-
-
-
-const personality =
-
-detectFashionPersonality(
-
-profile
-
-);
-
-
-
-
-
-
-
-return {
-
-
-fashionPersonality:personality,
-
-
-favoriteColors:
-
-profile.favoriteColors || [],
-
-
-
-favoriteStyles:
-
-profile.favoriteStyles || [],
-
-
-
-favoriteOccasions:
-
-profile.favoriteOccasions || [],
-
-
-
-confidence:
-
-calculateConfidence(
-
-profile
-
-)
-
-
-
-};
-
-
-
-}
-
-
-
-
-
-
-
-
-
-// ==========================
-// GET AI PROFILE
-// ==========================
-
-
-function getPreference(
-
-database
-
-){
-
-
 
 return new Promise((resolve,reject)=>{
-
 
 
 const transaction =
 
 database.transaction(
-
-"preferences",
-
-"readonly"
-
+"wardrobe",
+"readwrite"
 );
 
 
@@ -159,34 +26,27 @@ database.transaction(
 const store =
 
 transaction.objectStore(
-
-"preferences"
-
+"wardrobe"
 );
 
 
 
-
-const request =
-
-store.get(
-
-"userProfile"
-
-);
+const item = {
 
 
+...clothing,
 
 
+laundryStatus:
+clothing.laundryStatus || "Clean",
 
-request.onsuccess=()=>{
+
+timesWorn:
+0,
 
 
-resolve(
-
-request.result
-
-);
+createdAt:
+Date.now()
 
 
 };
@@ -195,14 +55,30 @@ request.result
 
 
 
-request.onerror=()=>{
+const request =
+
+store.add(item);
 
 
-reject(
 
-request.error
 
-);
+
+request.onsuccess = ()=>{
+
+
+resolve(request.result);
+
+
+};
+
+
+
+
+
+request.onerror = ()=>{
+
+
+reject(request.error);
 
 
 };
@@ -212,7 +88,6 @@ request.error
 });
 
 
-
 }
 
 
@@ -224,104 +99,70 @@ request.error
 
 
 // ==========================
-// DETECT PERSONALITY
+// GET ALL CLOTHES
 // ==========================
 
 
-function detectFashionPersonality(
-
-profile
-
+export function getClothes(
+database
 ){
 
 
-
-const styles =
-
-profile.favoriteStyles || [];
+return new Promise((resolve,reject)=>{
 
 
+const transaction =
 
-
-
-
-if(
-styles.includes("Luxury")
-
-){
-
-
-return "Luxury Fashion Lover";
-
-
-}
+database.transaction(
+"wardrobe",
+"readonly"
+);
 
 
 
+const store =
+
+transaction.objectStore(
+"wardrobe"
+);
 
 
-if(
-styles.includes("Streetwear")
 
-){
+const request =
 
-
-return "Urban Trendsetter";
-
-
-}
+store.getAll();
 
 
 
 
 
-if(
-styles.includes("Traditional")
-
-){
+request.onsuccess = ()=>{
 
 
-return "Cultural Fashion Explorer";
+resolve(
+
+request.result || []
+
+);
 
 
-}
-
-
-
-
-
-if(
-styles.includes("Formal")
-
-){
-
-
-return "Professional Elegant";
-
-
-}
+};
 
 
 
 
 
-if(
-styles.includes("Casual")
-
-){
+request.onerror = ()=>{
 
 
-return "Comfort Fashion Lover";
+reject(request.error);
 
 
-}
+};
 
 
 
-
-
-return "Balanced Fashion Explorer";
-
+});
 
 
 }
@@ -335,67 +176,399 @@ return "Balanced Fashion Explorer";
 
 
 // ==========================
-// CONFIDENCE SCORE
+// DELETE CLOTHING
 // ==========================
 
 
-function calculateConfidence(
+export function deleteClothing(
 
-profile
+database,
+
+id
 
 ){
 
 
-
-let score=0;
-
+return new Promise((resolve,reject)=>{
 
 
-if(
-profile.favoriteColors?.length
-)
+const transaction =
 
-score+=30;
-
-
-
-if(
-profile.favoriteStyles?.length
-)
-
-score+=40;
+database.transaction(
+"wardrobe",
+"readwrite"
+);
 
 
 
-if(
-profile.favoriteOccasions?.length
-)
+const store =
 
-score+=30;
+transaction.objectStore(
+"wardrobe"
+);
+
+
+
+const request =
+
+store.delete(id);
 
 
 
 
+request.onsuccess=()=>resolve();
 
-return Math.min(
 
-100,
 
-score
+request.onerror=()=>reject(
+request.error
+);
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+
+// ==========================
+// UPDATE CLOTHING
+// ==========================
+
+
+export function updateClothing(
+
+database,
+
+item
+
+){
+
+
+return new Promise((resolve,reject)=>{
+
+
+const transaction =
+
+database.transaction(
+"wardrobe",
+"readwrite"
+);
+
+
+
+const store =
+
+transaction.objectStore(
+"wardrobe"
+);
+
+
+
+const request =
+
+store.put(item);
+
+
+
+request.onsuccess=()=>{
+
+
+resolve();
+
+
+};
+
+
+
+request.onerror=()=>{
+
+
+reject(request.error);
+
+
+};
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+
+// ==========================
+// WEAR HISTORY
+// ==========================
+
+
+export function saveWearHistory(
+
+database,
+
+outfit
+
+){
+
+
+return new Promise((resolve,reject)=>{
+
+
+const transaction =
+
+database.transaction(
+
+[
+"history",
+"wardrobe"
+],
+
+"readwrite"
 
 );
 
 
 
+const historyStore =
+
+transaction.objectStore(
+"history"
+);
+
+
+
+historyStore.add({
+
+outfit,
+
+date:Date.now()
+
+});
+
+
+
+
+
+
+const clothes = [
+
+outfit.top,
+
+outfit.bottom,
+
+outfit.shoe
+
+];
+
+
+
+
+
+const wardrobeStore =
+
+transaction.objectStore(
+"wardrobe"
+);
+
+
+
+
+
+clothes.forEach(item=>{
+
+
+if(item?.id){
+
+
+const request =
+
+wardrobeStore.get(
+item.id
+);
+
+
+
+request.onsuccess=()=>{
+
+
+const clothing =
+request.result;
+
+
+
+if(clothing){
+
+
+clothing.timesWorn =
+
+(clothing.timesWorn || 0)+1;
+
+
+
+clothing.lastWorn =
+
+Date.now();
+
+
+
+wardrobeStore.put(
+clothing
+);
+
+
 }
+
+
+};
+
+
+}
+
+
+
+});
+
+
+
+
+
+
+transaction.oncomplete=()=>{
+
+
+resolve();
+
+
+};
+
+
+
+transaction.onerror=()=>{
+
+
+reject(transaction.error);
+
+
+};
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+
+// ==========================
+// GET WEAR HISTORY
+// ==========================
+
+
+export function getWearHistory(
+
+database
+
+){
+
+
+return new Promise((resolve,reject)=>{
+
+
+const transaction =
+
+database.transaction(
+"history",
+"readonly"
+);
+
+
+
+const store =
+
+transaction.objectStore(
+"history"
+);
+
+
+
+const request =
+
+store.getAll();
+
+
+
+request.onsuccess=()=>{
+
+
+resolve(
+
+request.result || []
+
+);
+
+
+};
+
+
+
+request.onerror=()=>{
+
+
+reject(request.error);
+
+
+};
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+
 // ==========================
 // SAVE OUTFIT PLAN
 // ==========================
 
+
 export function saveOutfitPlan(
+
 database,
+
 plan
+
 ){
+
 
 return new Promise((resolve,reject)=>{
 
@@ -419,13 +592,24 @@ transaction.objectStore(
 
 const request =
 
-store.add(plan);
+store.add({
+
+...plan,
+
+createdAt:
+Date.now()
+
+});
+
+
 
 
 
 request.onsuccess=()=>{
 
+
 resolve(request.result);
+
 
 };
 
@@ -433,7 +617,9 @@ resolve(request.result);
 
 request.onerror=()=>{
 
+
 reject(request.error);
+
 
 };
 
@@ -448,13 +634,21 @@ reject(request.error);
 
 
 
+
+
+
+
 // ==========================
-// GET ALL PLANS
+// GET PLANS
 // ==========================
 
+
 export function getOutfitPlans(
+
 database
+
 ){
+
 
 return new Promise((resolve,reject)=>{
 
@@ -482,11 +676,17 @@ store.getAll();
 
 
 
+
+
 request.onsuccess=()=>{
 
+
 resolve(
+
 request.result || []
+
 );
+
 
 };
 
@@ -494,9 +694,12 @@ request.result || []
 
 request.onerror=()=>{
 
+
 reject(request.error);
 
+
 };
+
 
 
 });
@@ -508,14 +711,23 @@ reject(request.error);
 
 
 
+
+
+
+
 // ==========================
 // DELETE PLAN
 // ==========================
 
+
 export function deleteOutfitPlan(
+
 database,
+
 id
+
 ){
+
 
 return new Promise((resolve,reject)=>{
 
@@ -543,19 +755,15 @@ store.delete(id);
 
 
 
-request.onsuccess=()=>{
 
-resolve();
 
-};
+request.onsuccess=()=>resolve();
 
 
 
-request.onerror=()=>{
-
-reject(request.error);
-
-};
+request.onerror=()=>reject(
+request.error
+);
 
 
 
@@ -563,173 +771,17 @@ reject(request.error);
 
 
 }
+
+
+
+
+
+
+
+
+
 // ==========================
-// SAVE WEAR HISTORY + UPDATE CLOTHES
-// ==========================
-
-export async function saveWearHistory(
-
-database,
-
-outfit
-
-){
-
-
-return new Promise((resolve,reject)=>{
-
-
-const transaction =
-
-database.transaction(
-
-["history","wardrobe"],
-
-"readwrite"
-
-);
-
-
-
-const historyStore =
-
-transaction.objectStore(
-"history"
-);
-
-
-
-const wardrobeStore =
-
-transaction.objectStore(
-"wardrobe"
-);
-
-
-
-
-
-const record = {
-
-
-outfit,
-
-
-date:
-
-Date.now()
-
-
-};
-
-
-
-
-
-historyStore.add(record);
-
-
-
-
-
-
-[
-outfit.top,
-
-outfit.bottom,
-
-outfit.shoe
-
-]
-.forEach(item=>{
-
-
-if(item.id){
-
-
-const request =
-
-wardrobeStore.get(
-item.id
-);
-
-
-
-request.onsuccess=()=>{
-
-
-const clothing =
-
-request.result;
-
-
-
-if(clothing){
-
-
-clothing.timesWorn =
-
-(clothing.timesWorn || 0) + 1;
-
-
-
-clothing.lastWorn =
-
-Date.now();
-
-
-
-wardrobeStore.put(
-clothing
-);
-
-
-}
-
-
-
-};
-
-
-
-}
-
-
-});
-
-
-
-
-
-
-transaction.oncomplete=()=>{
-
-
-resolve();
-
-
-};
-
-
-
-transaction.onerror=()=>{
-
-
-reject(
-transaction.error
-);
-
-
-};
-
-
-
-});
-
-
-}
-// ==========================
-// SAVE AI PREFERENCE MEMORY
+// SAVE USER PREFERENCES
 // ==========================
 
 
@@ -744,35 +796,23 @@ data
 ){
 
 
-
 return new Promise((resolve,reject)=>{
-
 
 
 const transaction =
 
 database.transaction(
-
 "preferences",
-
 "readwrite"
-
 );
-
-
 
 
 
 const store =
 
 transaction.objectStore(
-
 "preferences"
-
 );
-
-
-
 
 
 
@@ -790,40 +830,104 @@ id:key,
 
 
 
+request.onsuccess=()=>{
 
-request.onsuccess = ()=>{
 
-
-resolve(
-
-request.result
-
-);
+resolve(request.result);
 
 
 };
 
 
 
+request.onerror=()=>{
 
 
-
-request.onerror = ()=>{
-
-
-reject(
-
-request.error
-
-);
+reject(request.error);
 
 
 };
-
-
 
 
 
 });
+
+
+}
+
+
+
+
+
+
+
+
+
+// ==========================
+// GET PREFERENCE
+// ==========================
+
+
+export function getPreference(
+
+database,
+
+key="userProfile"
+
+){
+
+
+return new Promise((resolve,reject)=>{
+
+
+const transaction =
+
+database.transaction(
+"preferences",
+"readonly"
+);
+
+
+
+const store =
+
+transaction.objectStore(
+"preferences"
+);
+
+
+
+const request =
+
+store.get(key);
+
+
+
+
+
+request.onsuccess=()=>{
+
+
+resolve(
+request.result
+);
+
+
+};
+
+
+
+request.onerror=()=>{
+
+
+reject(request.error);
+
+
+};
+
+
+
+});
+
 
 }
