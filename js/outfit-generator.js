@@ -4,7 +4,8 @@
 
 import {
 getClothes,
-saveWearHistory
+saveWearHistory,
+saveOutfitPlan
 }
 from "./db.js";
 
@@ -68,13 +69,6 @@ import {
 scoreOutfit
 }
 from "./outfit-score.js";
-
-
-import {
-saveOutfitPlan
-}
-from "./db.js";
-
 
 let database=null;
 
@@ -691,14 +685,13 @@ ${explanation}
 
 </button>
 
-
-</div>
-
 <button onclick='planOutfit(${JSON.stringify(outfit)})'>
 
 📅 Plan This Outfit
 
 </button>
+
+</div>
 `;
 
 
