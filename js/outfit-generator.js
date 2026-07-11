@@ -610,6 +610,39 @@ outfits.slice(0,5)
 
 }
 
+function displayOutfits(outfits){
+
+
+output.innerHTML="";
+
+
+
+if(outfits.length===0){
+
+
+output.innerHTML=`
+
+<h3>
+No AI outfit found
+</h3>
+
+<p>
+Try uploading more clothes.
+</p>
+
+`;
+
+return;
+
+
+}
+
+
+
+
+outfits.forEach(outfit=>{
+
+
 output.innerHTML += `
 
 
@@ -617,8 +650,7 @@ output.innerHTML += `
 
 
 <h2>
-🤖 AI Match
-${outfit.score}%
+🤖 AI Match ${outfit.score}%
 </h2>
 
 
@@ -633,19 +665,17 @@ ${outfit.score}%
 
 
 
-
 <p>
 
-👕 ${outfit.top.name}
+👕 ${outfit.top.name || outfit.top.type}
 
 <br>
 
-👖 ${outfit.bottom.name}
+👖 ${outfit.bottom.name || outfit.bottom.type}
 
 <br>
 
-👟 ${outfit.shoe.name}
-
+👟 ${outfit.shoe.name || outfit.shoe.type}
 
 </p>
 
@@ -658,43 +688,13 @@ ${outfit.score}%
 </button>
 
 
-
 </div>
 
 
 `;
 
 
-
 });
 
 
-
-};
-import {
-saveWearHistory
 }
-from "./db.js";
-
-
-
-window.wearOutfit =
-async function(outfit){
-
-
-await saveWearHistory(
-
-database,
-
-outfit
-
-);
-
-
-
-alert(
-"✅ FashionAI remembered this outfit"
-);
-
-
-};
