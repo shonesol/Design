@@ -1,7 +1,6 @@
 // backup.js
 // FashionAI Backup System
 
-
 import {
 getDatabase
 }
@@ -15,7 +14,21 @@ importFashionAI
 from "./backup-manager.js";
 
 
+import {
+startAutoBackup
+}
+from "./auto-backup.js";
 
+
+
+const database =
+await getDatabase();
+
+
+
+startAutoBackup(
+database
+);
 
 
 const database =
