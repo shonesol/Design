@@ -1,23 +1,14 @@
-// FashionAI Central Database Manager
+// database-manager.js
+// FashionAI Central Database Controller
 
 
-import {
-auth
-}
-from "./firebase.js";
-
+import { auth } from "./firebase.js";
 
 import {
 onAuthStateChanged
 }
-from 
+from
 "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-
-import {
-openDatabase
-}
-from "./db.js";
 
 
 
@@ -25,26 +16,34 @@ let database = null;
 
 
 
-let ready = false;
+const VERSION = 1;
 
+
+
+
+
+// ==========================
+// GET USER DATABASE
+// ==========================
 
 
 export function getDatabase(){
 
 
-return new Promise((resolve)=>{
+return new Promise((resolve,reject)=>{
 
 
-if(ready){
+
+if(database){
 
 
 resolve(database);
-
 
 return;
 
 
 }
+
 
 
 
@@ -56,30 +55,92 @@ auth,
 async(user)=>{
 
 
-if(user){
+if(!user){
 
 
-database =
+reject(
+"No logged in user"
+);
 
-await openDatabase(
 
-user.uid
+return;
+
+
+}
+
+
+
+
+
+const request =
+
+indexedDB.open(
+
+"FashionAI_" + user.uid,
+
+VERSION
 
 );
 
 
 
-ready=true;
 
 
 
-console.log(
-"✅ FashionAI Database Connected"
+
+request.onupgradeneeded =
+(event)=>{
+
+
+const db =
+event.target.result;
+
+
+
+
+
+// WARDROBE
+
+if(
+!db.objectStoreNames.contains(
+"wardrobe"
+)
+){
+
+
+const store =
+
+db.createObjectStore(
+
+"wardrobe",
+
+{
+keyPath:"id",
+autoIncrement:true
+}
+
 );
 
 
 
-resolve(database);
+store.createIndex(
+"category",
+"category"
+);
+
+
+
+store.createIndex(
+"color",
+"color"
+);
+
+
+
+store.createIndex(
+"style",
+"style"
+);
 
 
 
@@ -87,10 +148,194 @@ resolve(database);
 
 
 
-});
 
 
-});
+
+
+// HISTORY
+
+if(
+!db.objectStoreNames.contains(
+"history"
+)
+){
+
+
+db.createObjectStore(
+
+"history",
+
+{
+keyPath:"id",
+autoIncrement:true
+}
+
+);
+
+
+}
+
+
+
+
+
+
+
+// FEEDBACK
+
+if(
+!db.objectStoreNames.contains(
+"feedback"
+)
+){
+
+
+db.createObjectStore(
+
+"feedback",
+
+{
+keyPath:"id",
+autoIncrement:true
+}
+
+);
+
+
+}
+
+
+
+
+
+
+
+// USER PREFERENCES
+
+if(
+!db.objectStoreNames.contains(
+"preferences"
+)
+){
+
+
+db.createObjectStore(
+
+"preferences",
+
+{
+keyPath:"id",
+autoIncrement:true
+}
+
+);
+
+
+}
+
+
+
+
+
+
+
+// SAVED OUTFITS
+
+if(
+!db.objectStoreNames.contains(
+"outfits"
+)
+){
+
+
+db.createObjectStore(
+
+"outfits",
+
+{
+keyPath:"id",
+autoIncrement:true
+}
+
+);
+
+
+}
+
+
+
+};
+
+
+
+
+
+
+
+request.onsuccess =
+(event)=>{
+
+
+database =
+event.target.result;
+
+
+
+resolve(database);
+
+
+
+};
+
+
+
+
+
+
+request.onerror =
+(error)=>{
+
+
+reject(error);
+
+
+};
+
+
+
+}
+
+
+);
+
+
+
+}
+
+
+
+
+
+
+
+// ==========================
+// CLOSE DATABASE
+// ==========================
+
+
+export function closeDatabase(){
+
+
+if(database){
+
+
+database.close();
+
+
+database=null;
+
+
+}
 
 
 }
